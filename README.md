@@ -12,6 +12,8 @@ To start the service, from the command line run:
     FLASK_APP=service:app flask run
 ```
 
+The app runs on `localhost:5000`
+
 ## Testing the service 
 To run the tests for the service (with color, if supported by your command shell), from the command line run:
 ```bash
