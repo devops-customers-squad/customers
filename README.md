@@ -23,19 +23,19 @@ To run the tests for the service (with color, if supported by your command shell
 - Create a customer: 
     * `POST /customers`
     * The JSON request body for creating a customer is expected to contain the following keys: ``first_name, last_name, user_name, addresses, password``
-    * The expected types of the values for each of the required keys are as follows:
+    * The expected types of the values for each of the expected keys are as follows:
         - first_name: string
         - last_name: string
         - user_name: string
         - addresses: array of string
-        -password: string 
-    * Sample JSON request body format (all keys in the following JSON body are required to create a new customer):
+        - password: string 
+    * Sample JSON request body format:
     ```
     {
         first_name: "John",  
         last_name: "Smith",  
         user_name: "XXX",  
-        addresses: ["123 Main St, Buffalo, NY", "50 John Street, NY"]  
+        addresses: ["123 Main St, Buffalo, NY", "50 John Street, NY"],  
         password: "XXX"  
     }
     ```
@@ -53,12 +53,12 @@ To run the tests for the service (with color, if supported by your command shell
         - last_name: string
         - user_name: string
         - addresses: array of strings
-        -password: string 
+        - password: string 
     * Sample JSON request body format:
     ```
     { 
         first_name: "Johnny", 
-        password: "YYY",  
+        password: "YYY"
     }
     ```
 - Update a customer's addresses:
