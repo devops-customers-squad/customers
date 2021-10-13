@@ -4,6 +4,7 @@ Models for Customer
 All of the models are stored in this module
 """
 import logging
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 logger = logging.getLogger("flask.app")
@@ -11,7 +12,10 @@ logger = logging.getLogger("flask.app")
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
-
+def init_db(app):
+    """Initialies the SQLAlchemy app"""
+    Customer.init_db(app)
+    
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
@@ -34,13 +38,13 @@ class Customer(db.Model):
     addresses = db.Column(db.ARRAY(db.String(100)), nullable=False)
 
     def __repr__(self):
-        return "<Customer %r id=[%s]>" % (self.name, self.id)
+        return "<Customer %r id=[%s]>" % (self.username, self.id)
 
     def create(self):
         """
         Creates a Customer to the database
         """
-        logger.info("Creating %s", self.name)
+        logger.info("Creating %s", self.username)
         self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
@@ -49,18 +53,18 @@ class Customer(db.Model):
         """
         Updates a Customer to the database
         """
-        logger.info("Saving %s", self.name)
+        logger.info("Saving %s", self.username)
         db.session.commit()
 
     def delete(self):
         """ Removes a Customer from the data store """
-        logger.info("Deleting %s", self.name)
+        logger.info("Deleting %s", self.username)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
         """ Serializes a Customer into a dictionary """
-        return {"id": self.id, "name": self.name}
+        return {"id": self.id, "username": self.username,"password":self.password,"first_name":self.first_name,"last_name":self.last_name,"addresses":self.addresses}
 
     def deserialize(self, data):
         """
@@ -70,7 +74,12 @@ class Customer(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.name = data["name"]
+            self.id=data["id"]
+            self.username = data["username"]
+            self.password=data["password"]
+            self.first_name=data["first_name"]
+            self.last_name=data["last_name"]
+            self.addresses=data["addresses"]
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Customer: missing " + error.args[0]
@@ -78,7 +87,7 @@ class Customer(db.Model):
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Customer: body of request contained bad or no data"
-            )
+            ) 
         return self
 
     @classmethod
@@ -110,11 +119,11 @@ class Customer(db.Model):
         return cls.query.get_or_404(by_id)
 
     @classmethod
-    def find_by_name(cls, name):
-        """Returns all Customers with the given name
+    def find_by_name(cls, username):
+        """Returns all Customers with the given username
 
         Args:
-            name (string): the name of the Customers you want to match
+            username (string): the username of the Customers you want to match
         """
-        logger.info("Processing name query for %s ...", name)
-        return cls.query.filter(cls.name == name)
+        logger.info("Processing username query for %s ...", username)
+        return cls.query.filter(cls.username == username)
