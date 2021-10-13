@@ -14,6 +14,10 @@ from service.models import db
 from service.routes import app, init_db
 from tests.factories import CustomerFactory
 
+# Disable all but ciritcal errors during normal test run
+# uncomment for debugging failing tests
+logging.disable(logging.CRITICAL)
+
 BASE_URL = "/customers"
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
@@ -78,4 +82,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["name"], "Customers REST API Service")
-
+        
+    def test_method_not_allowed(self):
+        resp=self.app.get('/customers')
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

@@ -48,10 +48,10 @@ class TestYourResourceModel(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
-    #def test_create_a_pet(self):
+    #def test_create_a_customer(self):
     #    """ Create a customer and assert that it exists """
-    #    customer = Customer(username="LYC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
-    #   self.assertTrue(customer != None)
+    #    customer = Customer(username="LYCC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
+    #    self.assertTrue(customer != None)
     #    self.assertEqual(customer.id, None)
     #    self.assertEqual(customer.username, "Liu")
     #    self.assertEqual(customer.password, "123")
@@ -63,7 +63,7 @@ class TestYourResourceModel(unittest.TestCase):
         """ Create a customer and add it to the database """
         customers = Customer.all()
         self.assertEqual(customers, [])
-        customer = Customer(username="LYC", password="123", first_name="Yongchang", last_name="Liu",addresses=(["WWH"]))
+        customer = Customer(username="LYCA", password="123", first_name="Yongchang", last_name="Liu",addresses=(["WWH"]))
         self.assertTrue(customer != None)
         self.assertEqual(customer.id, None)
         customer.create()
