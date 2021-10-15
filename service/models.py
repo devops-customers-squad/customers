@@ -76,7 +76,6 @@ class Customer(db.Model):
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.id=data["id"]
             self.username = data["username"]
             self.password=data["password"]
             self.first_name=data["first_name"]

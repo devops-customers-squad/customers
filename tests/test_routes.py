@@ -86,8 +86,8 @@ class TestYourResourceServer(TestCase):
             self.assertEqual(
                 resp.status_code, status.HTTP_201_CREATED, "Could not create test product"
             )
-            new_product = resp.get_json()
-            test_customer.id = new_product["id"]
+            new_customer = resp.get_json()
+            test_customer.id = new_customer["id"]
             customers.append(test_customer)
         return customers
 
