@@ -14,7 +14,7 @@ from . import status  # HTTP Status Codes
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
 from service.models import Customer, DataValidationError
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, Conflict
 # Import Flask application
 from . import app
 
@@ -33,7 +33,34 @@ def index():
         ),
         status.HTTP_200_OK,
     )
-    
+
+######################################################################
+# GET Information About the Service
+######################################################################
+@app.route("/customers", methods=["GET"])
+def list_services():
+    """ Root URL Lists All Services"""
+    app.logger.info("Root URL Lists All Services")
+    return (
+        jsonify(
+            name="API_list",
+            services=(  ["create customer"],
+                        ["add customer"],
+                        ["read customer"],
+                        ["list customers"],
+                        ["update customer"],
+                        ["delete customer"],),
+            versions=1.0,
+            usages=(["Uses username, password, firstname, lastname, and addresses to create an new user and returns the result."],
+                    ["Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result."],
+                    ["Finds the customer using a valid customer_id and returns customer's information."],
+                    ["Updates customer' information and returns the result."],
+                    ["Deletes a customer and all of its information and returns the result."],
+                    )
+        ),
+        status.HTTP_200_OK,
+    )
+
 ######################################################################
 # ADD A NEW CUSTOMER
 ######################################################################
@@ -47,6 +74,7 @@ def create_customers():
     check_content_type("application/json")
     customer = Customer()
     customer.deserialize(request.get_json())
+<<<<<<< HEAD
 
     customerfound = Customer.find_by_name(customer.username).first()
     if customerfound:
@@ -59,12 +87,38 @@ def create_customers():
         ) 
 
     customer.create()
+=======
+>>>>>>> 98273ab (add customer can detect username conflicts now; fixed some typing error; fixed the version number in API list page)
     message = customer.serialize()
     location_url = url_for("create_customers", customer_id=customer.id, _external=True)
+    customerfound = Customer.find_by_name(customer.username).first()
+    
+    if customerfound:
+        message={"error": "Conflict",
+                "message": "409 Conflict: Username already exists.",
+                "status": 409}
+        return make_response(
+        jsonify(message), status.HTTP_409_CONFLICT, {"Location": location_url}
+        )
+
+<<<<<<< HEAD
+    customer.create()
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+<<<<<<< HEAD
     
+=======
+=======
+    else: 
+        customer.create()
+        return make_response(
+            jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+        )
+>>>>>>> dd92757 (try to fix nosetests)
+        
+
+>>>>>>> 98273ab (add customer can detect username conflicts now; fixed some typing error; fixed the version number in API list page)
 ######################################################################
 # RETRIEVE A CUSTOMER
 ######################################################################

@@ -28,7 +28,15 @@ class CustomerFactory(factory.Factory):
       model = Customer
 
     id = factory.Sequence(lambda n: n)
+<<<<<<< HEAD
+<<<<<<< HEAD
     username = factory.Faker("first_name") # shouldn't have duplicated username by doing this
+=======
+    username = str(id)+"."
+>>>>>>> 98273ab (add customer can detect username conflicts now; fixed some typing error; fixed the version number in API list page)
+=======
+    username = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
+>>>>>>> dd92757 (try to fix nosetests)
     password = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
