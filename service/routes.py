@@ -54,6 +54,7 @@ def create_customers():
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
 
+
 @app.route("/customers/<int:customer_id>", methods=["GET"])
 def get_customers(customer_id):
     """
@@ -65,6 +66,7 @@ def get_customers(customer_id):
     if not customer:
         raise NotFound(f"Customer with id '{customer_id}' was not found.")
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

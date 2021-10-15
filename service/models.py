@@ -66,12 +66,14 @@ class Customer(db.Model):
 
     def serialize(self):
         """ Serializes a Customer into a dictionary """
+
         return {"id": self.id, 
             "username": self.username,
             "password":self.password,
             "first_name":self.first_name,
             "last_name":self.last_name,
             "addresses":self.addresses}
+
 
     def deserialize(self, data):
         """
@@ -81,10 +83,11 @@ class Customer(db.Model):
         """
         try:
             self.username = data["username"]
-            self.password = data["password"]
-            self.first_name = data["first_name"]
-            self.last_name = data["last_name"]
-            self.addresses = data["addresses"]
+            self.password=data["password"]
+            self.first_name=data["first_name"]
+            self.last_name=data["last_name"]
+            self.addresses=data["addresses"]
+
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Customer: missing " + error.args[0]

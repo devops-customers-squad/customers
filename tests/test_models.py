@@ -53,6 +53,7 @@ class TestYourResourceModel(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
+
     def test_find_customer(self):
         """ Find a Customer by ID """
         customers = CustomerFactory.create_batch(3)
@@ -67,6 +68,7 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(customer.id, customers[1].id)
         self.assertEqual(customer.username, customers[1].username)
        
+
     #def test_create_a_customer(self):
     #    """ Create a customer and assert that it exists """
     #    customer = Customer(username="LYCC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
@@ -87,6 +89,7 @@ class TestYourResourceModel(unittest.TestCase):
                             first_name="Yongchang", 
                             last_name="Liu",
                             addresses=(["WWH"]))
+
         self.assertTrue(customer != None)
         self.assertEqual(customer.id, None)
         customer.create()
@@ -144,3 +147,4 @@ class TestYourResourceModel(unittest.TestCase):
         data = "this is not a dictionary"
         customer = CustomerFactory()
         self.assertRaises(DataValidationError, customer.deserialize, data)
+
