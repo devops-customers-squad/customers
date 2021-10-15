@@ -17,6 +17,11 @@ DATABASE_URI = os.getenv(
 ######################################################################
 #  CUSTOMER   M O D E L   T E S T   C A S E S
 ######################################################################
+DATABASE_URI = os.getenv(
+    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
+)
+
+
 class TestYourResourceModel(unittest.TestCase):
     """ Test Cases for YourResourceModel Model """
 
@@ -48,6 +53,22 @@ class TestYourResourceModel(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
+
+    def test_find_customer(self):
+        """ Find a Customer by ID """
+        customers = CustomerFactory.create_batch(3)
+        for customer in customers:
+            customer.create()
+        logging.debug(customers)
+        # make sure they got updated
+        self.assertEqual(len(Customer.all()), 3)
+        # find the 2nd customer in the list
+        customer = Customer.find(customers[1].id)
+        self.assertIsNot(customer, None)
+        self.assertEqual(customer.id, customers[1].id)
+        self.assertEqual(customer.username, customers[1].username)
+       
+
     #def test_create_a_customer(self):
     #    """ Create a customer and assert that it exists """
     #    customer = Customer(username="LYCC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
@@ -63,7 +84,12 @@ class TestYourResourceModel(unittest.TestCase):
         """ Create a customer and add it to the database """
         customers = Customer.all()
         self.assertEqual(customers, [])
-        customer = Customer(username="LYCA", password="123", first_name="Yongchang", last_name="Liu",addresses=(["WWH"]))
+        customer = Customer(username="LYC", 
+                            password="123", 
+                            first_name="Yongchang", 
+                            last_name="Liu",
+                            addresses=(["WWH"]))
+
         self.assertTrue(customer != None)
         self.assertEqual(customer.id, None)
         customer.create()
@@ -121,3 +147,4 @@ class TestYourResourceModel(unittest.TestCase):
         data = "this is not a dictionary"
         customer = CustomerFactory()
         self.assertRaises(DataValidationError, customer.deserialize, data)
+
