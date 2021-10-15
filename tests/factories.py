@@ -24,7 +24,6 @@ import string
 class CustomerFactory(factory.Factory):
     """ Creates fake customers that you don't have to feed """
 
-
     class Meta:
       model = Customer
 
@@ -34,4 +33,3 @@ class CustomerFactory(factory.Factory):
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
     addresses = FuzzyChoice(choices=[["Bangkok"], ["New York"], ["Beijing"]])
-
