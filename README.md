@@ -15,9 +15,9 @@ To start the service, from the command line run:
 The app runs on `localhost:5000`
 
 ## Testing the service 
-To run the tests for the service (with color, if supported by your command shell), from the command line run:
+To run the tests for the service, from the command line run:
 ```bash
-    nosetests --with-spec --spec-color
+    nosetests
 ```
 
 ## Available endpoints
