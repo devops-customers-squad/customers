@@ -100,10 +100,10 @@ class TestYourResourceModel(unittest.TestCase):
             "last_name": "Liu",
             "addresses":(["WWH"])
         }
-        customer = CustomerFactory()
+        customer = Customer()
         customer.deserialize(data)
         self.assertNotEqual(customer, None)
-        self.assertEqual(customer.id, 1)
+        self.assertEqual(customer.id, None)
         self.assertEqual(customer.username, "deserialize")
         self.assertEqual(customer.password, "123")
         self.assertEqual(customer.first_name, "Yongchang")

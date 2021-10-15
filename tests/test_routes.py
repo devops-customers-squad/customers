@@ -130,45 +130,6 @@ class TestYourResourceServer(TestCase):
         #    new_customer["available"], test_customer.available, "Availability does not match"
         #)
 
-
-    def test_serialize_a_customer(self):
-        """Test serialization of a Customer"""
-        customer = CustomerFactory()
-        data = customer.serialize()
-        self.assertNotEqual(data, None)
-        self.assertIn("id", data)
-        self.assertEqual(data["id"], customer.id)
-        self.assertIn("username", data)
-        self.assertEqual(data["username"], customer.username)
-        self.assertIn("password", data)
-        self.assertEqual(data["password"], customer.password)
-        self.assertIn("first_name", data)
-        self.assertEqual(data["first_name"], customer.first_name)
-        self.assertIn("last_name", data)
-        self.assertEqual(data["last_name"], customer.last_name)
-        self.assertIn("addresses", data)
-        self.assertEqual(data["addresses"], customer.addresses)
-
-    def test_deserialize_a_customer(self):
-        """Test deserialize a Customer"""
-        data = {
-            "id": 1,
-            "username": "deserialize",
-            "password": "123",
-            "first_name": "Yongchang",
-            "last_name": "Liu",
-            "addresses":(["WWH"])
-        }
-        customer = CustomerFactory()
-        customer.deserialize(data)
-        self.assertNotEqual(customer, None)
-        self.assertEqual(customer.id, 1)
-        self.assertEqual(customer.username, "deserialize")
-        self.assertEqual(customer.password, "123")
-        self.assertEqual(customer.first_name, "Yongchang")
-        self.assertEqual(customer.last_name, "Liu")
-        self.assertEqual(customer.addresses, (["WWH"]))
-
     def test_create_customer_no_data(self):
          """Create a Product with missing data"""
          resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
