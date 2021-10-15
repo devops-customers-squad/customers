@@ -5,10 +5,17 @@ Test cases for YourResourceModel Model
 import logging
 import unittest
 import os
+from service import app
 from service.models import Customer, DataValidationError, db
+from werkzeug.exceptions import NotFound
+from tests.factories import CustomerFactory
+
+DATABASE_URI = os.getenv(
+    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
+)
 
 ######################################################################
-#  <your resource name>   M O D E L   T E S T   C A S E S
+#  CUSTOMER   M O D E L   T E S T   C A S E S
 ######################################################################
 class TestYourResourceModel(unittest.TestCase):
     """ Test Cases for YourResourceModel Model """
@@ -16,7 +23,11 @@ class TestYourResourceModel(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """ This runs once before the entire test suite """
-        pass
+        app.config["TESTING"] = True
+        app.config["DEBUG"] = False
+        app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+        app.logger.setLevel(logging.CRITICAL)
+        Customer.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
@@ -25,16 +36,88 @@ class TestYourResourceModel(unittest.TestCase):
 
     def setUp(self):
         """ This runs before each test """
-        pass
+        db.drop_all()  # clean up the last tests
+        db.create_all()  # make our sqlalchemy tables
 
     def tearDown(self):
         """ This runs after each test """
-        pass
+        db.session.remove()
+        db.drop_all()
 
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
 
-    def test_XXXX(self):
-        """ Test something """
-        self.assertTrue(True)
+    #def test_create_a_customer(self):
+    #    """ Create a customer and assert that it exists """
+    #    customer = Customer(username="LYCC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
+    #    self.assertTrue(customer != None)
+    #    self.assertEqual(customer.id, None)
+    #    self.assertEqual(customer.username, "Liu")
+    #    self.assertEqual(customer.password, "123")
+    #    self.assertEqual(customer.first_name, "Yongchang")
+    #    self.assertEqual(customer.last_name, "Liu")
+    #    self.assertEqual(customer.addresses, ["WWH"])
+
+    def test_add_a_customer(self):
+        """ Create a customer and add it to the database """
+        customers = Customer.all()
+        self.assertEqual(customers, [])
+        customer = Customer(username="LYCA", password="123", first_name="Yongchang", last_name="Liu",addresses=(["WWH"]))
+        self.assertTrue(customer != None)
+        self.assertEqual(customer.id, None)
+        customer.create()
+        # Asert that it was assigned an id and shows up in the database
+        self.assertEqual(customer.id, 1)
+        customers = Customer.all()
+        self.assertEqual(len(customers), 1)
+
+    def test_serialize_a_customer(self):
+        """Test serialization of a Customer"""
+        customer = CustomerFactory()
+        data = customer.serialize()
+        self.assertNotEqual(data, None)
+        self.assertIn("id", data)
+        self.assertEqual(data["id"], customer.id)
+        self.assertIn("username", data)
+        self.assertEqual(data["username"], customer.username)
+        self.assertIn("password", data)
+        self.assertEqual(data["password"], customer.password)
+        self.assertIn("first_name", data)
+        self.assertEqual(data["first_name"], customer.first_name)
+        self.assertIn("last_name", data)
+        self.assertEqual(data["last_name"], customer.last_name)
+        self.assertIn("addresses", data)
+        self.assertEqual(data["addresses"], customer.addresses)
+
+    def test_deserialize_a_customer(self):
+        """Test deserialize a Customer"""
+        data = {
+            "id": 1,
+            "username": "deserialize",
+            "password": "123",
+            "first_name": "Yongchang",
+            "last_name": "Liu",
+            "addresses":(["WWH"])
+        }
+        customer = CustomerFactory()
+        customer.deserialize(data)
+        self.assertNotEqual(customer, None)
+        self.assertEqual(customer.id, 1)
+        self.assertEqual(customer.username, "deserialize")
+        self.assertEqual(customer.password, "123")
+        self.assertEqual(customer.first_name, "Yongchang")
+        self.assertEqual(customer.last_name, "Liu")
+        self.assertEqual(customer.addresses, (["WWH"]))
+
+    def test_deserialize_missing_data(self):
+        """Test deserialize a customer with missing data"""
+        data = {"id": 1, "name": "123"}
+        customer = CustomerFactory()
+        self.assertRaises(DataValidationError, customer.deserialize, data)
+
+    def test_deserialize_bad_data(self):
+        """Test deserialize bad data"""
+        data = "this is not a dictionary"
+        customer = CustomerFactory()
+        self.assertRaises(DataValidationError, customer.deserialize, data)
