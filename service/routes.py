@@ -1,5 +1,5 @@
 """
-My Service
+Customer Service
 
 Describe what your service does here
 """
@@ -54,7 +54,9 @@ def create_customers():
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
 
-
+######################################################################
+# RETRIEVE A CUSTOMER
+######################################################################
 @app.route("/customers/<int:customer_id>", methods=["GET"])
 def get_customers(customer_id):
     """
@@ -67,6 +69,20 @@ def get_customers(customer_id):
         raise NotFound(f"Customer with id '{customer_id}' was not found.")
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
+######################################################################
+# DELETE A CUSTOMER
+######################################################################
+@app.route("/customers/<int:customer_id>", methods=["DELETE"])
+def delete_customers(customer_id):
+    """
+    Delete a Customer
+    This endpoint will delete a Customer based the id specified in the path
+    """
+    app.logger.info("Request to delete customer with id: %s", customer_id)
+    customer = Customer.find(customer_id)
+    if customer:
+        customer.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

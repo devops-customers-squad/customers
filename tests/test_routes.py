@@ -1,5 +1,5 @@
 """
-TestYourResourceModel API Service Test Suite
+Customer API Service Test Suite
 
 Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
@@ -74,10 +74,6 @@ class TestYourResourceServer(TestCase):
             test_customer.id = new_customer["id"]
             customers.append(test_customer)
         return customers
-
-    ######################################################################
-    #  T E S T   C A S E S
-    ######################################################################
 
     #def test_create_a_customer(self):
     #    """ Create a customer and assert that it exists """
@@ -164,3 +160,18 @@ class TestYourResourceServer(TestCase):
         """ Get a customer thats not found """
         resp = self.app.get("{}/0".format(BASE_URL))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_customer(self):
+        """ Test Delete a Customer"""
+        test_customer = self._create_customers(1)[0]
+        resp = self.app.delete(
+            "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        # make sure they are deleted
+        resp = self.app.get(
+            "{}/{}".format(BASE_URL, test_customer.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        

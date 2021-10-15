@@ -1,5 +1,5 @@
 """
-Test cases for YourResourceModel Model
+Test cases for Customer Model
 
 """
 import logging
@@ -10,20 +10,17 @@ from service.models import Customer, DataValidationError, db
 from werkzeug.exceptions import NotFound
 from tests.factories import CustomerFactory
 
+BASE_URL = "/customers"
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
 )
+CONTENT_TYPE_JSON="application/json"
 
 ######################################################################
 #  CUSTOMER   M O D E L   T E S T   C A S E S
 ######################################################################
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
-)
-
-
 class TestYourResourceModel(unittest.TestCase):
-    """ Test Cases for YourResourceModel Model """
+    """ Test Cases for Customer Model """
 
     @classmethod
     def setUpClass(cls):
@@ -145,3 +142,12 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertIsNot(customer, None)
         self.assertEqual(customer.id, customers[1].id)
         self.assertEqual(customer.username, customers[1].username)
+
+    def test_delete_a_customer(self):
+        """ Test Delete a Customer"""
+        customer = CustomerFactory()
+        customer.create()
+        self.assertEqual(len(Customer.all()), 1)
+        # delete the customer and make sure the customer is not in the database
+        customer.delete()
+        self.assertEqual(len(Customer.all()), 0)
