@@ -57,6 +57,24 @@ class TestYourResourceServer(TestCase):
         db.session.remove()
         db.drop_all()
 
+    def _create_customers(self, count):
+        """Factory method to create customers in bulk"""
+        customers = []
+        for _ in range(count):
+            test_customer = CustomerFactory()
+            resp = self.app.post(
+                BASE_URL, 
+                json = test_customer.serialize(), 
+                content_type = CONTENT_TYPE_JSON
+            )
+            self.assertEqual(
+                resp.status_code, status.HTTP_201_CREATED, "Could not create test product"
+            )
+            new_customer = resp.get_json()
+            test_customer.id = new_customer["id"]
+            customers.append(test_customer)
+        return customers
+
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
@@ -71,26 +89,6 @@ class TestYourResourceServer(TestCase):
     #    self.assertEqual(customer.first_name, "Yongchang")
     #    self.assertEqual(customer.last_name, "Liu")
     #    self.assertEqual(customer.addresses, ["WWH"])
-
-
-    def _create_customers(self, count):
-        """Factory method to create customers in bulk"""
-        customers = []
-        for _ in range(count):
-            test_customer = CustomerFactory()
-            resp = self.app.post(
-                BASE_URL, 
-                json=test_customer.serialize(), 
-                content_type=CONTENT_TYPE_JSON,
-                headers=self.headers
-            )
-            self.assertEqual(
-                resp.status_code, status.HTTP_201_CREATED, "Could not create test product"
-            )
-            new_customer = resp.get_json()
-            test_customer.id = new_customer["id"]
-            customers.append(test_customer)
-        return customers
 
     def test_create_customer(self):
         """Create a new customer"""
@@ -166,27 +164,3 @@ class TestYourResourceServer(TestCase):
         """ Get a customer thats not found """
         resp = self.app.get("{}/0".format(BASE_URL))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-        
-    def _create_customers(self, count):
-        """Factory method to create customers in bulk"""
-        customers = []
-        for _ in range(count):
-            test_customer = CustomerFactory()
-            resp = self.app.post(
-                BASE_URL, 
-                json=test_customer.serialize(), 
-                content_type=CONTENT_TYPE_JSON,
-                headers=self.headers
-            )
-            self.assertEqual(
-                resp.status_code, status.HTTP_201_CREATED, "Could not create test product"
-            )
-            new_customer = resp.get_json()
-            test_customer.id = new_customer["id"]
-            customers.append(test_customer)
-        return customers
-
-   
-
-        
-
