@@ -33,6 +33,33 @@ def index():
         ),
         status.HTTP_200_OK,
     )
+
+######################################################################
+# GET Information About the Service
+######################################################################
+@app.route("/customers", methods=["GET"])
+def list_services():
+    """ Root URL Lists All Services"""
+    app.logger.info("Root URL Lists All Services")
+    return (
+        jsonify(
+            name="API_list",
+            services=(  ["create customer"],
+                        ["add customer"],
+                        ["read customer"],
+                        ["list customers"],
+                        ["update customer"],
+                        ["delete customer"],),
+            versions=1.0,
+            usages=(["Uses username, password, firstname, lastname, and addresses to create an new user and returns the result."],
+                    ["Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result."],
+                    ["Finds the customer using a valid customer_id and returns customer's information."],
+                    ["Updates customer' information and returns the result."],
+                    ["Deletes a customer and all of its information and returns the result."],
+                    )
+        ),
+        status.HTTP_200_OK,
+    )
     
 ######################################################################
 # ADD A NEW CUSTOMER
@@ -47,13 +74,24 @@ def create_customers():
     check_content_type("application/json")
     customer = Customer()
     customer.deserialize(request.get_json())
+
+    customerfound = Customer.find_by_name(customer.username).first()
+    if customerfound:
+        message = {
+            "error": "Conflict",
+            "message": "Username '" + customer.username + "' already exists."
+            }
+        return make_response(
+            jsonify(message), status.HTTP_409_CONFLICT
+        ) 
+
     customer.create()
     message = customer.serialize()
     location_url = url_for("create_customers", customer_id=customer.id, _external=True)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
-
+    
 ######################################################################
 # RETRIEVE A CUSTOMER
 ######################################################################
