@@ -33,6 +33,33 @@ def index():
         ),
         status.HTTP_200_OK,
     )
+
+######################################################################
+# GET Information About the Service
+######################################################################
+@app.route("/customers", methods=["GET"])
+def list_services():
+    """ Root URL Lists All Services"""
+    app.logger.info("Root URL Lists All Services")
+    return (
+        jsonify(
+            name="API_list",
+            services=(  ["create customer"],
+                        ["add customer"],
+                        ["read customer"],
+                        ["list customers"],
+                        ["update customer"],
+                        ["delete customer"],),
+            versions=1.0,
+            usages=(["Uses username, password, firstname, lastname, and addresses to create an new user and returns the result."],
+                    ["Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result."],
+                    ["Finds the customer using a valid customer_id and returns customer's information."],
+                    ["Updates customer' information and returns the result."],
+                    ["Deletes a customer and all of its information and returns the result."],
+                    )
+        ),
+        status.HTTP_200_OK,
+    )
     
 ######################################################################
 # ADD A NEW CUSTOMER
