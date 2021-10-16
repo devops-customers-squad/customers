@@ -151,3 +151,27 @@ class TestYourResourceModel(unittest.TestCase):
         # delete the customer and make sure the customer is not in the database
         customer.delete()
         self.assertEqual(len(Customer.all()), 0)
+    def test_XXXX(self):
+        """ Test something """
+        self.assertTrue(True)
+
+
+    def test_update_a_customer(self):
+        """Update a customer"""
+        customer = CustomerFactory()
+        logging.debug(customer)
+        customer.create()
+        logging.debug(customer)
+        self.assertEqual(customer.id, 1)
+        # Change it an save it
+        customer.category = "k9"
+        original_id = customer.id
+        customer.update()
+        self.assertEqual(customer.id, original_id)
+        self.assertEqual(customer.category, "k9")
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        customers = Customer.all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].id, 1)
+        self.assertEqual(customers[0].category, "k9")
