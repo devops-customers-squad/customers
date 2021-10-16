@@ -47,13 +47,24 @@ def create_customers():
     check_content_type("application/json")
     customer = Customer()
     customer.deserialize(request.get_json())
+
+    customerfound = Customer.find_by_name(customer.username).first()
+    if customerfound:
+        message = {
+            "error": "Conflict",
+            "message": "Username '" + customer.username + "' already exists."
+            }
+        return make_response(
+            jsonify(message), status.HTTP_409_CONFLICT
+        ) 
+
     customer.create()
     message = customer.serialize()
     location_url = url_for("create_customers", customer_id=customer.id, _external=True)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
-
+    
 ######################################################################
 # RETRIEVE A CUSTOMER
 ######################################################################

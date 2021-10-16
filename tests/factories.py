@@ -28,7 +28,7 @@ class CustomerFactory(factory.Factory):
       model = Customer
 
     id = factory.Sequence(lambda n: n)
-    username = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
+    username = factory.Faker("first_name") # shouldn't have duplicated username by doing this
     password = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
