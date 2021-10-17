@@ -151,10 +151,6 @@ class TestYourResourceModel(unittest.TestCase):
         # delete the customer and make sure the customer is not in the database
         customer.delete()
         self.assertEqual(len(Customer.all()), 0)
-    def test_XXXX(self):
-        """ Test something """
-        self.assertTrue(True)
-
 
     def test_update_a_customer(self):
         """Update a customer"""
