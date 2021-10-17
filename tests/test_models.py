@@ -10,17 +10,11 @@ from service.models import Customer, DataValidationError, db
 from werkzeug.exceptions import NotFound
 from tests.factories import CustomerFactory
 
-<<<<<<< HEAD
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
-)
-=======
 BASE_URL = "/customers"
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
 )
 CONTENT_TYPE_JSON="application/json"
->>>>>>> dd58e74a6db08874903aabd44cebd435117508d4
 
 ######################################################################
 #  CUSTOMER   M O D E L   T E S T   C A S E S
@@ -157,10 +151,6 @@ class TestYourResourceModel(unittest.TestCase):
         # delete the customer and make sure the customer is not in the database
         customer.delete()
         self.assertEqual(len(Customer.all()), 0)
-    def test_XXXX(self):
-        """ Test something """
-        self.assertTrue(True)
-
 
     def test_update_a_customer(self):
         """Update a customer"""
