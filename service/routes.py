@@ -35,6 +35,27 @@ def index():
     )
     
 ######################################################################
+# LIST ALL CUSTOMER
+######################################################################
+@app.route("/customers", methods=["GET"])
+def list_customers():
+    """Returns all of the customers"""
+    app.logger.info("Request for customer list")
+    customers = []
+    category = request.args.get("category")
+    name = request.args.get("name")
+    if category:
+        customers = Customer.find_by_category(category)
+    elif name:
+        customers = Customer.find_by_name(name)
+    else:
+        customers = Customer.all()
+
+    results = [customer.serialize() for customer in customers]
+    app.logger.info("Returning %d customers", len(results))
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
 # UPDATE AN EXISTING CUSTOMER
 ######################################################################
 @app.route("/customers/<int:customer_id>", methods=["PUT"])
