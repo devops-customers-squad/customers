@@ -112,18 +112,14 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(
             new_customer["addresses"], test_customer.addresses, "Firstname does not match"
         )
-        # Check that the location header was correct
-        # WE DO NOT HAVE A GET METHOD YET
-        #resp = self.app.get(location, content_type=CONTENT_TYPE_JSON)
-        #self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        #new_customer = resp.get_json()
-        #self.assertEqual(new_customer["name"], test_customer.name, "Names do not match")
-        #self.assertEqual(
-        #    new_customer["category"], test_customer.category, "Categories do not match"
-        #)
-        #self.assertEqual(
-        #    new_customer["available"], test_customer.available, "Availability does not match"
-        #)
+        # try to add the same user with the same username again
+        # it should not change the number of customers in the database
+        # (beacause username should be unique)
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+        
 
     def test_create_customer_no_data(self):
          """Create a Customer with missing data"""
