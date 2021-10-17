@@ -22,14 +22,14 @@ import string
 
 
 class CustomerFactory(factory.Factory):
-    """ Creates fake pets that you don't have to feed """
+    """ Creates fake customers that you don't have to feed """
 
     class Meta:
       model = Customer
 
     id = factory.Sequence(lambda n: n)
-    username = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
-    password = FuzzyChoice(choices=[x for x in range(9)])
+    username = factory.Faker("first_name") # shouldn't have duplicated username by doing this
+    password = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
-    addresses = FuzzyChoice(choices=["Bangkok", "New York", "Beijing"])
+    addresses = FuzzyChoice(choices=[["Bangkok"], ["New York"], ["Beijing"]])

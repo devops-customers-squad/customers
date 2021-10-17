@@ -1,5 +1,5 @@
 """
-My Service
+Customer Service
 
 Describe what your service does here
 """
@@ -14,7 +14,7 @@ from . import status  # HTTP Status Codes
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
 from service.models import Customer, DataValidationError
-
+from werkzeug.exceptions import NotFound
 # Import Flask application
 from . import app
 
@@ -24,11 +24,60 @@ from . import app
 @app.route("/")
 def index():
     """ Root URL response """
+    app.logger.info("Request for Root URL")
     return (
         jsonify(
             name="Customers REST API Service",
             version="1.0",
             paths=url_for("create_customers", _external=True),
+        ),
+        status.HTTP_200_OK,
+    )
+    
+######################################################################
+# UPDATE AN EXISTING CUSTOMER
+######################################################################
+@app.route("/customers/<int:customer_id>", methods=["PUT"])
+def update_customers(customer_id):
+    """
+    Update a Customer
+    This endpoint will update a Customer based the body that is posted
+    """
+    app.logger.info("Request to update Customer with id: %s", customer_id)
+    check_content_type("application/json")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound("customer with id '{}' was not found.".format(customer_id))
+    customer.deserialize(request.get_json())
+    customer.id = customer_id
+    customer.update()
+
+    app.logger.info("customer with ID [%s] updated.", customer.id)
+    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# GET Information About the Service
+######################################################################
+@app.route("/customers", methods=["GET"])
+def list_services():
+    """ Root URL Lists All Services"""
+    app.logger.info("Root URL Lists All Services")
+    return (
+        jsonify(
+            name="API_list",
+            services=(  ["create customer"],
+                        ["add customer"],
+                        ["read customer"],
+                        ["list customers"],
+                        ["update customer"],
+                        ["delete customer"],),
+            versions=1.0,
+            usages=(["Uses username, password, firstname, lastname, and addresses to create an new user and returns the result."],
+                    ["Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result."],
+                    ["Finds the customer using a valid customer_id and returns customer's information."],
+                    ["Updates customer' information and returns the result."],
+                    ["Deletes a customer and all of its information and returns the result."],
+                    )
         ),
         status.HTTP_200_OK,
     )
@@ -46,12 +95,53 @@ def create_customers():
     check_content_type("application/json")
     customer = Customer()
     customer.deserialize(request.get_json())
+
+    customerfound = Customer.find_by_name(customer.username).first()
+    if customerfound:
+        message = {
+            "error": "Conflict",
+            "message": "Username '" + customer.username + "' already exists."
+            }
+        return make_response(
+            jsonify(message), status.HTTP_409_CONFLICT
+        ) 
+
     customer.create()
     message = customer.serialize()
     location_url = url_for("create_customers", customer_id=customer.id, _external=True)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+    
+######################################################################
+# RETRIEVE A CUSTOMER
+######################################################################
+@app.route("/customers/<int:customer_id>", methods=["GET"])
+def get_customers(customer_id):
+    """
+    Retrieve a single customer
+    This endpoint will return a customer based on their id
+    """
+    app.logger.info(f"Request information for customer with customer_id: {customer_id}")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound(f"Customer with id '{customer_id}' was not found.")
+    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# DELETE A CUSTOMER
+######################################################################
+@app.route("/customers/<int:customer_id>", methods=["DELETE"])
+def delete_customers(customer_id):
+    """
+    Delete a Customer
+    This endpoint will delete a Customer based the id specified in the path
+    """
+    app.logger.info("Request to delete customer with id: %s", customer_id)
+    customer = Customer.find(customer_id)
+    if customer:
+        customer.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

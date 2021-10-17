@@ -18,9 +18,11 @@ def init_db(app):
     
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
-
+    #@classmethod
+    #def valid_data(cls, username):
+    #    if cls.data.address==[""]:
+    #        return ValueError("The address cannot be empty")
     pass
-
 
 class Customer(db.Model):
     """
@@ -49,6 +51,15 @@ class Customer(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def update(self):
+        """
+        Updates a Customer to the database
+        """
+        logger.info("Saving %s", self.username)
+        if not self.id:
+            raise DataValidationError("Update called with empty ID field")
+        db.session.commit()
+
     def save(self):
         """
         Updates a Customer to the database
@@ -64,17 +75,22 @@ class Customer(db.Model):
 
     def serialize(self):
         """ Serializes a Customer into a dictionary """
-        return {"id": self.id, "username": self.username,"password":self.password,"first_name":self.first_name,"last_name":self.last_name,"addresses":self.addresses}
+
+        return {"id": self.id, 
+            "username": self.username,
+            "password":self.password,
+            "first_name":self.first_name,
+            "last_name":self.last_name,
+            "addresses":self.addresses}
+
 
     def deserialize(self, data):
         """
         Deserializes a Customer from a dictionary
-
         Args:
             data (dict): A dictionary containing the resource data
         """
         try:
-            self.id=data["id"]
             self.username = data["username"]
             self.password=data["password"]
             self.first_name=data["first_name"]
