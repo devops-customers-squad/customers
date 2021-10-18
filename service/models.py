@@ -92,10 +92,15 @@ class Customer(db.Model):
         """
         try:
             self.username = data["username"]
-            self.password=data["password"]
-            self.first_name=data["first_name"]
-            self.last_name=data["last_name"]
-            self.addresses=data["addresses"]
+            self.password = data["password"]
+            self.first_name = data["first_name"]
+            self.last_name = data["last_name"]
+            self.addresses = data["addresses"]
+
+            if not isinstance(self.addresses, list) or not all(isinstance(s, str) for s in self.addresses):
+                raise DataValidationError(
+                    "Invalid Customer: body of request must be an array of strings"
+            )
 
         except KeyError as error:
             raise DataValidationError(

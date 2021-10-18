@@ -178,7 +178,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(data["name"], "API_list")
         
     def test_update_customer(self):
-        """Update an existing customer"""
+        """ Update an existing customer """
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post(
@@ -198,3 +198,61 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer["username"], "new_username")
+
+    def test_update_customer_not_found(self):
+        """ Update the addresses of a customer that is not found """
+        resp = self.app.put(
+            "/customers/{}".format(0),
+            content_type = CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_addresses(self):
+        """ Update an existing customer's addresses """
+        # create a customer to update
+        test_customer = CustomerFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the customer's addresses
+        new_address_customer = resp.get_json()
+        logging.debug(new_address_customer)
+        new_addresses = ["123 testing lane", "932 my new address"]
+        new_address_customer["addresses"] = new_addresses
+        resp = self.app.put(
+            "/customers/{}/addresses".format(new_address_customer["id"]),
+            json = new_address_customer,
+            content_type = CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_customer = resp.get_json()
+        self.assertEqual(updated_customer["addresses"], new_addresses)
+
+    def test_update_addresses_missing(self):
+        """ Update a customer's addresses with addresses missing in request """
+        # create a customer to update
+        test_customer = CustomerFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the customer's addresses
+        new_address_customer = resp.get_json()
+        logging.debug(new_address_customer)
+        resp = self.app.put(
+            "/customers/{}/addresses".format(new_address_customer["id"]),
+            json = dict(),
+            content_type = CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_addresses_not_found(self):
+        """ Update the addresses of a customer that is not found """
+        resp = self.app.put(
+            "/customers/{}/addresses".format(0),
+            content_type = CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
