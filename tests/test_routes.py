@@ -9,6 +9,8 @@ import os
 import logging
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+
+from werkzeug.exceptions import NotFound
 from service import status  # HTTP Status Codes
 from service.models import db, Customer
 from service.routes import app
@@ -188,7 +190,7 @@ class TestYourResourceServer(TestCase):
 
     def test_services_list(self):
         """ Test services list call """
-        resp = self.app.get("/customers")
+        resp = self.app.get("/services")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["name"], "API_list")
@@ -214,3 +216,21 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer["username"], "new_username")
+    
+    def test_update_customer_not_found(self):
+        """Update an non-existing customer"""
+      
+        # update the customer
+        new_customer = CustomerFactory().serialize()
+        logging.debug(new_customer)
+        
+        resp = self.app.put(
+            "/customers/10",
+            json=new_customer,
+            content_type=CONTENT_TYPE_JSON,
+        )
+      
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+       
+    
+    
