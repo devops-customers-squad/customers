@@ -56,6 +56,34 @@ def update_customers(customer_id):
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
 ######################################################################
+# UPDATE AN EXISTING CUSTOMER's ADDRESSES
+######################################################################
+@app.route("/customers/<int:customer_id>/addresses", methods=["PUT"])
+def update_customer_address(customer_id):
+    """
+    Update a Customer's address
+    This endpoint will update a Customer based the body that is posted
+    """
+    app.logger.info("Request to update Customer's addresses with id: %s", customer_id)
+    check_content_type("application/json")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound("customer with id '{}' was not found.".format(customer_id))
+    data = request.get_json()
+
+    try:
+        customer.addresses = data['addresses']
+    except KeyError as error:
+            raise DataValidationError(
+                "Invalid Customer : missing addresses"
+            )
+
+    customer.update()
+
+    app.logger.info("customer's addresses with ID [%s] updated.", customer.id)
+    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
+######################################################################
 # GET Information About the Service
 ######################################################################
 @app.route("/customers", methods=["GET"])
