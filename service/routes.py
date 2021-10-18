@@ -43,7 +43,7 @@ def list_customers():
     app.logger.info("Request for customer list")
     customers = []
     category = request.args.get("category")
-    name = request.args.get("firstname")
+    name = request.args.get("first_name")
    # if category:
     #    customers = Customer.find_by_category(category)
     #elif name:
