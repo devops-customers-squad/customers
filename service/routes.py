@@ -19,17 +19,28 @@ from werkzeug.exceptions import NotFound
 from . import app
 
 ######################################################################
-# GET INDEX
+# GET Information About the Service
 ######################################################################
 @app.route("/")
-def index():
+def list_services():
     """ Root URL response """
     app.logger.info("Request for Root URL")
     return (
         jsonify(
-            name="Customers REST API Service",
-            version="1.0",
-            paths=url_for("create_customers", _external=True),
+            name="API_list",
+            services=(  ["create customer"],
+                        ["add customer"],
+                        ["read customer"],
+                        ["list customers"],
+                        ["update customer"],
+                        ["delete customer"],),
+            versions=1.0,
+            usages=(["Uses username, password, firstname, lastname, and addresses to create an new user and returns the result."],
+                    ["Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result."],
+                    ["Finds the customer using a valid customer_id and returns customer's information."],
+                    ["Updates customer' information and returns the result."],
+                    ["Deletes a customer and all of its information and returns the result."],
+                    )
         ),
         status.HTTP_200_OK,
     )
@@ -55,33 +66,6 @@ def update_customers(customer_id):
     app.logger.info("customer with ID [%s] updated.", customer.id)
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
-######################################################################
-# GET Information About the Service
-######################################################################
-@app.route("/customers", methods=["GET"])
-def list_services():
-    """ Root URL Lists All Services"""
-    app.logger.info("Root URL Lists All Services")
-    return (
-        jsonify(
-            name="API_list",
-            services=(  ["create customer"],
-                        ["add customer"],
-                        ["read customer"],
-                        ["list customers"],
-                        ["update customer"],
-                        ["delete customer"],),
-            versions=1.0,
-            usages=(["Uses username, password, firstname, lastname, and addresses to create an new user and returns the result."],
-                    ["Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result."],
-                    ["Finds the customer using a valid customer_id and returns customer's information."],
-                    ["Updates customer' information and returns the result."],
-                    ["Deletes a customer and all of its information and returns the result."],
-                    )
-        ),
-        status.HTTP_200_OK,
-    )
-    
 ######################################################################
 # ADD A NEW CUSTOMER
 ######################################################################
