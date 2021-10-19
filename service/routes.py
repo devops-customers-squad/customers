@@ -52,6 +52,9 @@ def list_customers():
     #    customers = Customer.all()
 
     results = [customer.serialize() for customer in customers]
+
+    results = [customer.serialize() for customer in Customer.all()]
+
     app.logger.info("Returning %d customers", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
 
@@ -111,7 +114,7 @@ def update_customer_addresses(customer_id):
 ######################################################################
 # GET Information About the Service
 ######################################################################
-@app.route("/customers", methods=["GET"])
+@app.route("/services", methods=["GET"])
 def list_services():
     """ Root URL Lists All Services"""
     app.logger.info("Root URL Lists All Services")
