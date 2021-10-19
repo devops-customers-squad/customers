@@ -76,17 +76,6 @@ class TestYourResourceServer(TestCase):
             customers.append(test_customer)
         return customers
 
-    #def test_create_a_customer(self):
-    #    """ Create a customer and assert that it exists """
-    #    customer = Customer(username="LYCC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
-    #    self.assertTrue(customer != None)
-    #    self.assertEqual(customer.id, None)
-    #    self.assertEqual(customer.username, "Liu")
-    #    self.assertEqual(customer.password, "123")
-    #    self.assertEqual(customer.first_name, "Yongchang")
-    #    self.assertEqual(customer.last_name, "Liu")
-    #    self.assertEqual(customer.addresses, ["WWH"])
-
     def test_create_customer(self):
         """Create a new customer"""
         test_customer = CustomerFactory()
