@@ -170,7 +170,7 @@ class TestYourResourceServer(TestCase):
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data["name"], "API_list")
+        self.assertEqual(data["name"], "Customers REST API Service")
         
     def test_update_customer(self):
         """Update an existing customer"""
