@@ -50,17 +50,6 @@ class TestYourResourceModel(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
-    #def test_create_a_customer(self):
-    #    """ Create a customer and assert that it exists """
-    #    customer = Customer(username="LYCC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
-    #    self.assertTrue(customer != None)
-    #    self.assertEqual(customer.id, None)
-    #    self.assertEqual(customer.username, "Liu")
-    #    self.assertEqual(customer.password, "123")
-    #    self.assertEqual(customer.first_name, "Yongchang")
-    #    self.assertEqual(customer.last_name, "Liu")
-    #    self.assertEqual(customer.addresses, ["WWH"])
-
     def test_add_a_customer(self):
         """ Create a customer and add it to the database """
         customers = Customer.all()

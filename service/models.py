@@ -12,16 +12,8 @@ logger = logging.getLogger("flask.app")
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
-#def init_db(app):
-#    """Initialies the SQLAlchemy app"""
-#    Customer.init_db(app)
-
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
-    #@classmethod
-    #def valid_data(cls, username):
-    #    if cls.data.address==[""]:
-    #        return ValueError("The address cannot be empty")
     pass
 
 class Customer(db.Model):

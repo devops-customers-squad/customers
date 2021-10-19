@@ -8,6 +8,7 @@ Test cases can be run with the following:
 import os
 import logging
 from unittest import TestCase
+from werkzeug.exceptions import NotFound
 from unittest.mock import MagicMock, patch
 from service import status  # HTTP Status Codes
 from service.models import db, Customer
@@ -74,17 +75,6 @@ class TestYourResourceServer(TestCase):
             test_customer.id = new_customer["id"]
             customers.append(test_customer)
         return customers
-
-    #def test_create_a_customer(self):
-    #    """ Create a customer and assert that it exists """
-    #    customer = Customer(username="LYCC", password="123", first_name="Yongchang", last_name="Liu",addresses=[["WWH"]])
-    #    self.assertTrue(customer != None)
-    #    self.assertEqual(customer.id, None)
-    #    self.assertEqual(customer.username, "Liu")
-    #    self.assertEqual(customer.password, "123")
-    #    self.assertEqual(customer.first_name, "Yongchang")
-    #    self.assertEqual(customer.last_name, "Liu")
-    #    self.assertEqual(customer.addresses, ["WWH"])
 
     def test_create_customer(self):
         """Create a new customer"""
@@ -251,3 +241,12 @@ class TestYourResourceServer(TestCase):
             content_type = CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+        
+    def test_get_customer_list(self):
+        """Get a list of Customers"""
+        self._create_customers(5)
+        resp = self.app.get(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)
