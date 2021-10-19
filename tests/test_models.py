@@ -123,6 +123,19 @@ class TestYourResourceModel(unittest.TestCase):
         customer = CustomerFactory()
         self.assertRaises(DataValidationError, customer.deserialize, data)
 
+    def test_deserialize_bad_addresses(self):
+        """Test deserialize a customer with an invalid type for addresses"""
+        data = {
+            "id": 1,
+            "username": "deserialize",
+            "password": "123",
+            "first_name": "Yongchang",
+            "last_name": "Liu",
+            "addresses": [[]]
+        }
+        customer = CustomerFactory()
+        self.assertRaises(DataValidationError, customer.deserialize, data)   
+
     def test_deserialize_bad_data(self):
         """Test deserialize bad data"""
         data = "this is not a dictionary"
