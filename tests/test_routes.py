@@ -136,6 +136,7 @@ class TestYourResourceServer(TestCase):
         resp=self.app.put('/customers')
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
     def test_index(self):
         """ Test index call """
         resp = self.app.get("/")
@@ -148,6 +149,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
+
 
     def test_get_customer(self):
         """ Get a single Customer """
@@ -190,10 +192,13 @@ class TestYourResourceServer(TestCase):
 
     def test_services_list(self):
         """ Test services list call """
+
         resp = self.app.get("/services")
+
+        resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-        self.assertEqual(data["name"], "API_list")
+        self.assertEqual(data["name"], "Customers REST API Service")
         
     def test_update_customer(self):
         """ Update an existing customer """

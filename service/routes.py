@@ -19,10 +19,10 @@ from werkzeug.exceptions import NotFound
 from . import app
 
 ######################################################################
-# GET INDEX
+# GET Information About the Service
 ######################################################################
 @app.route("/")
-def index():
+def list_services():
     """ Root URL response """
     app.logger.info("Request for Root URL")
     return (
@@ -30,6 +30,19 @@ def index():
             name="Customers REST API Service",
             version="1.0",
             paths=url_for("create_customers", _external=True),
+            services=(  "create customer",
+                        "add customer",
+                        "read customer",
+                        "list customers",
+                        "update customer",
+                        "delete customer",),
+
+            usages=("Uses username, password, firstname, lastname, and addresses to create an new user and returns the result.",
+                    "Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result.",
+                    "Finds the customer using a valid customer_id and returns customer's information.",
+                    "Updates customer' information and returns the result.",
+                    "Deletes a customer and all of its information and returns the result.",
+                    )
         ),
         status.HTTP_200_OK,
     )
@@ -110,6 +123,7 @@ def update_customer_addresses(customer_id):
 
     app.logger.info("addresses for customer with ID [%s] updated.", customer.id)
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
 
 ######################################################################
 # GET Information About the Service
