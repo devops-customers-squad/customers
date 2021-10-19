@@ -8,6 +8,7 @@ Test cases can be run with the following:
 import os
 import logging
 from unittest import TestCase
+from werkzeug.exceptions import NotFound
 from unittest.mock import MagicMock, patch
 from service import status  # HTTP Status Codes
 from service.models import db, Customer
@@ -251,3 +252,12 @@ class TestYourResourceServer(TestCase):
             content_type = CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+        
+    def test_get_customer_list(self):
+        """Get a list of Customers"""
+        self._create_customers(5)
+        resp = self.app.get(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(len(data), 5)

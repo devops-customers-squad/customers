@@ -147,6 +147,21 @@ def get_customers(customer_id):
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
 ######################################################################
+# LIST ALL CUSTOMER
+######################################################################
+@app.route("/customers", methods=["GET"])
+def list_customers():
+    """Returns all of the customers"""
+    app.logger.info("Request for customer list")
+    category = request.args.get("category")
+    name = request.args.get("first_name")
+
+    results = [customer.serialize() for customer in Customer.all()]
+
+    app.logger.info("Returning %d customers", len(results))
+    return make_response(jsonify(results), status.HTTP_200_OK)
+
+######################################################################
 # DELETE A CUSTOMER
 ######################################################################
 @app.route("/customers/<int:customer_id>", methods=["DELETE"])
