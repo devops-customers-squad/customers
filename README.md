@@ -1,4 +1,6 @@
 # customers
+[![Build Status](https://app.travis-ci.com/devops-customers-squad/customers.svg?branch=main)](https://app.travis-ci.com/devops-customers-squad/customers)
+
 This repository contains the implementation of the customers RESTful Flask service to be used by the eCommerce site.
 
 ## Running the service
