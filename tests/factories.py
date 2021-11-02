@@ -15,11 +15,25 @@
 """
 Test Factory to make fake objects for testing
 """
+from os import stat_result
 import factory
-from factory.fuzzy import FuzzyChoice
-from service.models import Customer
+from factory.fuzzy import FuzzyChoice, FuzzyInteger
+from service.models import Customer, Address
 import string
+import random
 
+class AddressFactory(factory.Factory):
+    """ Creates fake addresses that you don't have to feed """
+
+    class Meta:
+      model = Address
+
+    address_id = factory.Sequence(lambda n: n)
+    street_address = factory.Faker("street_address")
+    city = factory.Faker("city")
+    state = factory.Faker("state")
+    zipcode = FuzzyInteger(10000, 99999)
+    country = factory.Faker("country")
 
 class CustomerFactory(factory.Factory):
     """ Creates fake customers that you don't have to feed """
@@ -32,4 +46,4 @@ class CustomerFactory(factory.Factory):
     password = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
-    addresses = FuzzyChoice(choices=[["Bangkok"], ["New York"], ["Beijing"]])
+    addresses = []
