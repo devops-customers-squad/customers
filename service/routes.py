@@ -13,7 +13,7 @@ from . import status  # HTTP Status Codes
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Customer, DataValidationError
+from service.models import Customer, Address, DataValidationError
 from werkzeug.exceptions import NotFound
 # Import Flask application
 from . import app
@@ -58,10 +58,21 @@ def update_customers(customer_id):
     """
     app.logger.info("Request to update Customer with id: %s", customer_id)
     check_content_type("application/json")
+    request_data = request.get_json()
     customer = Customer.find(customer_id)
     if not customer:
         raise NotFound("customer with id '{}' was not found.".format(customer_id))
-    customer.deserialize(request.get_json())
+    other_customer = Customer.find_by_name(request_data["username"]).first()
+    if other_customer is not None and other_customer.id != customer_id:
+        message = {
+            "error": "Conflict",
+            "message": "Username '" + request_data["username"] + "' already exists."
+            }
+        return make_response(
+            jsonify(message), status.HTTP_409_CONFLICT
+        ) 
+    # TODO: error catching with addresses
+    customer.deserialize(request_data)
     customer.id = customer_id
     customer.update()
 
@@ -69,36 +80,26 @@ def update_customers(customer_id):
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
 ######################################################################
-# UPDATE AN EXISTING CUSTOMER'S ADDRESSES
+# UPDATE AN EXISTING CUSTOMER'S ADDRESS
 ######################################################################
-@app.route("/customers/<int:customer_id>/addresses", methods=["PUT"])
-def update_customer_addresses(customer_id):
+@app.route("/customers/<int:customer_id>/addresses/<int:address_id>", methods=["PUT"])
+def update_customer_addresses(customer_id, address_id):
     """
-    Update a Customer's addresses
+    Update a Customer's address
     This endpoint will update a Customer's addresses based on the request body.
     """
     app.logger.info("Request to update addresses of Customer with id: %s", customer_id)
     check_content_type("application/json")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound("customer with id '{}' was not found.".format(customer_id))
+    address = Address.find(address_id)
+    if not address or address.customer_id != customer_id:
+        raise NotFound("address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
 
-    customer_dict = customer.serialize()
-    request_body = request.get_json()
+    address.deserialize(request.get_json())
+    address.address_id = address_id
+    address.update()
 
-    if not "addresses" in request_body.keys():
-        raise DataValidationError(
-            "Invalid request body: missing Customer addresses"
-        )
-
-    customer_dict["addresses"] = request_body["addresses"]
-    customer.deserialize(customer_dict)
-
-    customer.id = customer_id
-    customer.update()
-
-    app.logger.info("addresses for customer with ID [%s] updated.", customer.id)
-    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+    app.logger.info("address with ID [%s] for customer with ID [%s] updated.", address.address_id, customer_id)
+    return make_response(jsonify(address.serialize()), status.HTTP_200_OK)
     
 ######################################################################
 # ADD A NEW CUSTOMER
@@ -113,7 +114,6 @@ def create_customers():
     check_content_type("application/json")
     customer = Customer()
     customer.deserialize(request.get_json())
-
     customerfound = Customer.find_by_name(customer.username).first()
     if customerfound:
         message = {
@@ -123,7 +123,6 @@ def create_customers():
         return make_response(
             jsonify(message), status.HTTP_409_CONFLICT
         ) 
-
     customer.create()
     message = customer.serialize()
     location_url = url_for("create_customers", customer_id=customer.id, _external=True)
@@ -145,6 +144,23 @@ def get_customers(customer_id):
     if not customer:
         raise NotFound(f"Customer with id '{customer_id}' was not found.")
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# RETRIEVE A CUSTOMER'S ADDRESSES
+######################################################################
+@app.route("/customers/<int:customer_id>/addresses", methods=["GET"])
+def get_customer_addresses(customer_id):
+    """
+    Retrieve a single customer's addresses
+    This endpoint will return a customer's addresses based on the customer's id
+    """
+    app.logger.info(f"Request addresses for customer with customer_id: {customer_id}")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound(f"Customer with id '{customer_id}' was not found.")
+    customer_dict = customer.serialize()
+    addresses = customer_dict["addresses"]
+    return make_response(jsonify(addresses), status.HTTP_200_OK)
 
 ######################################################################
 # LIST ALL CUSTOMER

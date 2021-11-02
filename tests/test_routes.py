@@ -11,9 +11,10 @@ from unittest import TestCase
 from werkzeug.exceptions import NotFound
 from unittest.mock import MagicMock, patch
 from service import status  # HTTP Status Codes
-from service.models import db, Customer
+from service.models import db, Customer, Address
 from service.routes import app
-from tests.factories import CustomerFactory
+from tests.factories import CustomerFactory, AddressFactory
+from random import randrange
 
 # Disable all but ciritcal errors during normal test run
 # uncomment for debugging failing tests
@@ -63,6 +64,10 @@ class TestYourResourceServer(TestCase):
         customers = []
         for _ in range(count):
             test_customer = CustomerFactory()
+            test_customer.id = None
+            for _ in range(randrange(0, 5)):
+                test_address = AddressFactory()
+                test_customer.addresses.append(test_address)
             resp = self.app.post(
                 BASE_URL, 
                 json = test_customer.serialize(), 
@@ -73,6 +78,8 @@ class TestYourResourceServer(TestCase):
             )
             new_customer = resp.get_json()
             test_customer.id = new_customer["id"]
+            for address in test_customer.addresses:
+                address.customer_id = new_customer["id"]
             customers.append(test_customer)
         return customers
 
@@ -141,6 +148,29 @@ class TestYourResourceServer(TestCase):
         resp = self.app.get("{}/0".format(BASE_URL))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_customer_addresses(self):
+        """ Get a single Customer's addresses """
+        test_customer = self._create_customers(1)[0]
+        resp = self.app.get(
+            "{}/{}/addresses".format(BASE_URL, test_customer.id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        address_ids = set()
+        self.assertEqual(len(data), len(test_customer.serialize()["addresses"]))
+        for address in test_customer.serialize()["addresses"]:
+            address_ids.add(address["street_address"])
+        for address in data:
+            self.assertTrue(address["street_address"] in address_ids)
+
+    def test_get_customer_addresses_not_found(self):
+        """ Get the address of a Customer that is not found """
+        resp = self.app.get(
+            "/customers/{}/addresses".format(0),
+            content_type = CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_delete_customer(self):
         """ Test Delete a Customer"""
         test_customer = self._create_customers(1)[0]
@@ -184,16 +214,24 @@ class TestYourResourceServer(TestCase):
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer["username"], "new_username")
 
-    def test_update_customer_not_found(self):
+    def test_update_customer_addresses_not_found(self):
         """ Update the addresses of a customer that is not found """
         resp = self.app.put(
             "/customers/{}".format(0),
-            content_type = CONTENT_TYPE_JSON
+            json={},
+            content_type = CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_update_addresses(self):
-        """ Update an existing customer's addresses """
+    def test_update_customer_username_conflict(self):
+        """ Update the customer's username to a taken username """
+        # create an initial customer
+        initial_customer = CustomerFactory()
+        resp = self.app.post(
+            BASE_URL, json=initial_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post(
@@ -201,35 +239,62 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
-        # update the customer's addresses
-        new_address_customer = resp.get_json()
-        logging.debug(new_address_customer)
-        new_addresses = ["123 testing lane", "932 my new address"]
-        new_address_customer["addresses"] = new_addresses
+         # update the customer
+        new_customer = resp.get_json()
+        logging.debug(new_customer)
+        new_customer["username"] = initial_customer.username
+        print(new_customer)
         resp = self.app.put(
-            "/customers/{}/addresses".format(new_address_customer["id"]),
-            json = new_address_customer,
+            "/customers/{}".format(new_customer["id"]),
+            json=new_customer,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+
+    def test_update_address(self):
+        """ Update an existing customer's address """
+        # create a customer to update
+        test_customer = CustomerFactory()
+        test_address = AddressFactory()
+        test_customer.addresses = [test_address]
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the customer's addresses
+        new_customer = resp.get_json()
+        new_address = new_customer["addresses"][0]
+        logging.debug(new_address)
+        new_address["street_address"] = "^#!"
+        resp = self.app.put(
+            "/customers/{}/addresses/{}".format(new_address["customer_id"], new_address["address_id"], ),
+            json = new_address,
             content_type = CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        updated_customer = resp.get_json()
-        self.assertEqual(updated_customer["addresses"], new_addresses)
+        updated_address = resp.get_json()
+        self.assertEqual(updated_address, new_address)
 
     def test_update_addresses_missing(self):
-        """ Update a customer's addresses with addresses missing in request """
+        """ Update an existing customer's address with missing data """
         # create a customer to update
         test_customer = CustomerFactory()
+        test_address = AddressFactory()
+        test_customer.addresses = [test_address]
         resp = self.app.post(
             BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # update the customer's addresses
-        new_address_customer = resp.get_json()
-        logging.debug(new_address_customer)
+        new_customer = resp.get_json()
+        new_address = new_customer["addresses"][0]
+        logging.debug(new_address)
+        del new_address["street_address"]
         resp = self.app.put(
-            "/customers/{}/addresses".format(new_address_customer["id"]),
-            json = dict(),
+            "/customers/{}/addresses/{}".format(new_address["customer_id"], new_address["address_id"], ),
+            json = new_address,
             content_type = CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
@@ -237,12 +302,12 @@ class TestYourResourceServer(TestCase):
     def test_update_addresses_not_found(self):
         """ Update the addresses of a customer that is not found """
         resp = self.app.put(
-            "/customers/{}/addresses".format(0),
+            "/customers/{}/addresses/{}".format(0, 0),
+            json={},
             content_type = CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
-        
     def test_get_customer_list(self):
         """Get a list of Customers"""
         self._create_customers(5)
