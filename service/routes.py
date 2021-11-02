@@ -172,11 +172,42 @@ def get_customer_addresses(customer_id):
 def list_customers():
     """Returns all of the customers"""
     app.logger.info("Request for customer list")
-    category = request.args.get("category")
-    name = request.args.get("first_name")
+    
+    all_query_key = ["username", "first_name", "last_name"]
+    for key in request.args.keys():
+      if key not in all_query_key:
+        message = {
+            "error": "Conflict",
+            "message": "The query key: '" + key + "' is not supported."
+            }
 
-    results = [customer.serialize() for customer in Customer.all()]
+        return make_response(
+            jsonify(message), status.HTTP_400_BAD_REQUEST
+        ) 
+    
+    username = request.args.get("username")
+    first_name = request.args.get("first_name")
+    last_name = request.args.get("last_name")
+    
+    def filter(customers1, customers2):
+      filter_customers = []
+      for cust1 in customers1:
+        for cust2 in customers2:
+          cust2 = cust2.serialize()
+          if cust1['id'] == cust2['id']:
+            filter_customers.append(cust1)
+            break
+      return filter_customers
 
+    customers = Customer.all()
+    results = [customer.serialize() for customer in customers]
+    if username:
+      results = filter(results, Customer.find_by_name(username))
+    if first_name:
+      results = filter(results, Customer.find_by_first_name(first_name))
+    if last_name:
+      results = filter(results, Customer.find_by_last_name(last_name))
+   
     app.logger.info("Returning %d customers", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
 

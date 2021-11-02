@@ -8,6 +8,7 @@ Test cases can be run with the following:
 import os
 import logging
 from unittest import TestCase
+from urllib.parse import quote_plus
 from werkzeug.exceptions import NotFound
 from unittest.mock import MagicMock, patch
 from service import status  # HTTP Status Codes
@@ -243,7 +244,7 @@ class TestYourResourceServer(TestCase):
         new_customer = resp.get_json()
         logging.debug(new_customer)
         new_customer["username"] = initial_customer.username
-        print(new_customer)
+    
         resp = self.app.put(
             "/customers/{}".format(new_customer["id"]),
             json=new_customer,
@@ -315,3 +316,134 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
+
+    def test_query_customer_list_by_first_name(self):
+        """ Query customers by first name """
+        customers = self._create_customers(10)
+    
+        resp = self.app.get(
+            "{0}/{1}".format(BASE_URL, customers[0].id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_data = resp.get_json()
+        new_data["username"] = "!df"
+        new_data['last_name'] = 'Johnn'
+        #update customer 2 
+        resp = self.app.put(
+            "/customers/2",
+            json = new_data,
+            content_type = CONTENT_TYPE_JSON,
+        )
+       
+        test_first_name = customers[0].first_name
+        resp = self.app.get(
+            BASE_URL, query_string="first_name={}".format(quote_plus(test_first_name))
+        )
+        
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+       
+        self.assertEqual(len(data), 2)
+        # check the data just to be sure
+        for cust in data:
+            self.assertEqual(cust["first_name"], test_first_name)
+    
+    def test_query_customer_list_by_username(self):
+        """ Query customers by username """
+        customers = self._create_customers(10)
+        
+        test_username = customers[0].username
+        username_customer = [customer for customer in customers if customer.username == test_username]
+
+        resp = self.app.get(
+            BASE_URL, query_string="username={}".format(quote_plus(test_username))
+        )
+        
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+      
+        self.assertEqual(len(data), len(username_customer))
+        # check the data just to be sure
+        for cust in data:
+            self.assertEqual(cust["username"], test_username)
+    
+    def test_query_customer_list_by_last_name(self):
+        """ Query customers by last name """
+        customers = self._create_customers(10)
+        resp = self.app.get(
+            "{0}/{1}".format(BASE_URL, customers[0].id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_data = resp.get_json()
+        new_data["username"] = "!df"
+        new_data['first_name'] = 'Johnn'
+        #update customer 1 name
+        resp = self.app.put(
+            "/customers/2",
+            json = new_data,
+            content_type = CONTENT_TYPE_JSON,
+        )
+        test_last_name = customers[0].last_name
+       
+        resp = self.app.get(
+            BASE_URL, query_string="last_name={}".format(quote_plus(test_last_name))
+        )
+        
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+      
+        self.assertEqual(len(data), 2)
+        # check the data just to be sure
+        for cust in data:
+            self.assertEqual(cust["last_name"], test_last_name)
+    
+    def tesquery_customer_list_by_multiple_query(self):
+        """ Query customers by first name and last name """
+        customers = self._create_customers(10)
+        resp = self.app.get(
+            "{0}/{1}".format(BASE_URL, customers[0].id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_data = resp.get_json()
+        new_data["username"] = "!df"
+        #update customer 1 name
+        resp = self.app.put(
+            "/customers/2",
+            json = new_data,
+            content_type = CONTENT_TYPE_JSON,
+        )
+       
+        test_first_name = customers[0].first_name
+        test_last_name = customers[1].last_name
+ 
+        test_customer = []
+        for customer in customers:
+          if customer.first_name == test_first_name and customer.last_name == test_last_name:
+            test_customer.append(customer)
+        dic = {'first_name': quote_plus(test_first_name),
+               'last_name': quote_plus(test_last_name)}
+        resp = self.app.get(
+            BASE_URL, 
+            query_string= dict
+        )
+        
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+     
+        self.assertEqual(len(data), 2)
+        # check the data just to be sure
+        for cust in data:
+            self.assertEqual(cust["first_name"], test_first_name)
+            self.assertEqual(cust["last_name"], test_last_name)
+
+    def test_query_customer_list_by_wrong_query(self):
+        """ Query customers by wrong query """
+        self._create_customers(10)
+        test_age = str(100)
+        resp = self.app.get(
+            BASE_URL, query_string="age={}".format(quote_plus(test_age))
+        )
+        
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    

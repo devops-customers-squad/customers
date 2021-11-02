@@ -147,6 +147,26 @@ class Customer(db.Model):
         """
         logger.info("Processing username query for %s ...", username)
         return cls.query.filter(cls.username == username)
+    
+    @classmethod
+    def find_by_first_name(cls, first_name):
+        """Returns all Customers with the given first name
+
+        Args:
+            first_name (string): the first name of the Customers you want to match
+        """
+        logger.info("Processing first name query for %s ...", first_name)
+        return cls.query.filter(cls.first_name == first_name)
+    
+    @classmethod
+    def find_by_last_name(cls, last_name):
+        """Returns all Customers with the given last name
+
+        Args:
+            last_name (string): the last name of the Customers you want to match
+        """
+        logger.info("Processing last name query for %s ...", last_name)
+        return cls.query.filter(cls.last_name == last_name)
 
 class Address(db.Model):
     """
