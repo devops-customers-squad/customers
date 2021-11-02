@@ -71,9 +71,12 @@ def update_customers(customer_id):
         return make_response(
             jsonify(message), status.HTTP_409_CONFLICT
         ) 
-    # TODO: error catching with addresses
-    customer.deserialize(request_data)
+
     customer.id = customer_id
+    customer.first_name = request_data["first_name"]
+    customer.last_name = request_data["last_name"]
+    customer.username = request_data["username"]
+    customer.password = request_data["password"]
     customer.update()
 
     app.logger.info("customer with ID [%s] updated.", customer.id)
