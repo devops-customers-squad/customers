@@ -58,6 +58,7 @@ class TestYourResourceModel(unittest.TestCase):
                             password="123", 
                             first_name="Yongchang", 
                             last_name="Liu",
+                            locked=False,
                             addresses=([
                                 Address(
                                     street_address="123 Test Road",
@@ -94,6 +95,8 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(data["first_name"], customer.first_name)
         self.assertIn("last_name", data)
         self.assertEqual(data["last_name"], customer.last_name)
+        self.assertIn("locked", data)
+        self.assertEqual(data["locked"], customer.locked)
         self.assertIn("addresses", data)
         self.assertIn("address_id", data["addresses"][0])
         self.assertEqual(data["addresses"][0]["address_id"], address.address_id)
@@ -118,6 +121,7 @@ class TestYourResourceModel(unittest.TestCase):
             "password": "123",
             "first_name": "Yongchang",
             "last_name": "Liu",
+            "locked":False,
             "addresses": [{
                 "street_address": "123 Test Road",
                 "city": "New York",
@@ -134,6 +138,39 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(customer.password, "123")
         self.assertEqual(customer.first_name, "Yongchang")
         self.assertEqual(customer.last_name, "Liu")
+        self.assertEqual(customer.locked, False)
+        address = customer.addresses[0]
+        self.assertEqual(address.street_address, "123 Test Road")
+        self.assertEqual(address.city, "New York")
+        self.assertEqual(address.state, "NY")
+        self.assertEqual(address.zipcode, 10053)
+        self.assertEqual(address.country, "United States")
+
+    def test_deserialize_a_customer_without_locked(self):
+        """Test deserialize a Customer without locked"""
+        data = {
+            "id": 1,
+            "username": "deserialize",
+            "password": "123",
+            "first_name": "Yongchang",
+            "last_name": "Liu",
+            "addresses": [{
+                "street_address": "123 Test Road",
+                "city": "New York",
+                "state": "NY",
+                "zipcode": 10053,
+                "country": "United States"
+            }]
+        }
+        customer = Customer()
+        customer.deserialize(data)
+        self.assertNotEqual(customer, None)
+        self.assertEqual(customer.id, None)
+        self.assertEqual(customer.username, "deserialize")
+        self.assertEqual(customer.password, "123")
+        self.assertEqual(customer.first_name, "Yongchang")
+        self.assertEqual(customer.last_name, "Liu")
+        self.assertEqual(customer.locked, False)
         address = customer.addresses[0]
         self.assertEqual(address.street_address, "123 Test Road")
         self.assertEqual(address.city, "New York")
@@ -155,6 +192,7 @@ class TestYourResourceModel(unittest.TestCase):
             "password": "123",
             "first_name": "Yongchang",
             "last_name": "Liu",
+            "locked":False,
             "addresses": [{"street_address": "123 Testing Lane"}]
         }
         customer = CustomerFactory()
@@ -377,3 +415,23 @@ class TestYourResourceModel(unittest.TestCase):
     
     
     
+
+    def test_lock_a_customer(self):
+        """Lock a customer"""
+        customer = CustomerFactory()
+        logging.debug(customer)
+        customer.create()
+        logging.debug(customer)
+        self.assertEqual(customer.id, 1)
+        # Change it an save it
+        customer.locked = True
+        original_id = customer.id
+        customer.update()
+        self.assertEqual(customer.id, original_id)
+        self.assertEqual(customer.locked, True)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        customers = Customer.all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].id, 1)
+        self.assertEqual(customers[0].locked, True)
