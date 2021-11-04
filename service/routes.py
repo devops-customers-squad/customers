@@ -35,7 +35,9 @@ def list_services():
                         "read customer",
                         "list customers",
                         "update customer",
-                        "delete customer",),
+                        "delete customer",
+                        "lock customer",
+                        ),
 
             usages=("Uses username, password, firstname, lastname, and addresses to create an new user and returns the result.",
                     "Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result.",
@@ -71,7 +73,18 @@ def update_customers(customer_id):
         return make_response(
             jsonify(message), status.HTTP_409_CONFLICT
         ) 
-
+    #In this way, we just ignore the key locked. 
+    #If we throw 400, we will have to modify the function serialize().
+    #Because it was used to update user info and it contains the key 'locked'
+    
+    #if ("locked" in request_data) :
+    #    message = {
+    #        "error": "Not Allowed",
+    #        "message": "Not Allowed to modifiy key 'locked'."
+    #        }
+    #    return make_response(
+    #        jsonify(message), status.HTTP_400_BAD_REQUEST
+    #    ) 
     customer.id = customer_id
     customer.first_name = request_data["first_name"]
     customer.last_name = request_data["last_name"]
@@ -126,6 +139,7 @@ def create_customers():
         return make_response(
             jsonify(message), status.HTTP_409_CONFLICT
         ) 
+    customer.locked=False
     customer.create()
     message = customer.serialize()
     location_url = url_for("create_customers", customer_id=customer.id, _external=True)
@@ -225,6 +239,24 @@ def delete_customers(customer_id):
     if customer:
         customer.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
+
+######################################################################
+# LOCK AN EXISTING CUSTOMER
+######################################################################
+@app.route("/customers/<int:customer_id>/lock", methods=["PUT"])
+def lock_customers(customer_id):
+    """
+    Lock a Customer
+    """
+    app.logger.info("Request to lock Customer with id: %s", customer_id)
+    check_content_type("application/json")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound("customer with id '{}' was not found.".format(customer_id))
+    customer.locked = True
+    customer.update()
+    app.logger.info("customer with ID [%s] is locked.", customer.id)
+    return make_response(jsonify(customer.serialize_for_lock()), status.HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

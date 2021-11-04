@@ -108,7 +108,7 @@ class TestYourResourceServer(TestCase):
             new_customer["last_name"], test_customer.last_name, "Lastname does not match"
         )
         self.assertEqual(
-            new_customer["addresses"], test_customer.addresses, "Firstname does not match"
+            new_customer["addresses"], test_customer.addresses, "Addresses do not match"
         )        
         # try to add the same user with the same username again
         # it should not change the number of customers in the database
@@ -447,3 +447,35 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
     
     
+    def test_lock_customer(self):
+        """ Lock an existing customer """
+        # create a customer to test lock
+        test_customer = CustomerFactory()
+        for _ in range(randrange(0, 5)):
+            test_address = AddressFactory()
+            test_customer.addresses.append(test_address)
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # lock the customer
+        new_customer = resp.get_json()
+        logging.debug(new_customer)
+        resp = self.app.put(
+            "/customers/{}/lock".format(new_customer["id"]),
+            json=new_customer,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_customer = resp.get_json()
+        self.assertEqual(updated_customer["locked"], True)
+
+    def test_lock_customer_not_found(self):
+        """ Lock a customer that is not found """
+        resp = self.app.put(
+            "/customers/{}/lock".format(0),
+            json={},
+            content_type = CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

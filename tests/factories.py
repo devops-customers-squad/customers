@@ -47,4 +47,5 @@ class CustomerFactory(factory.Factory):
     password = FuzzyChoice(choices=[x for x in string.ascii_lowercase])
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
+    locked=False
     addresses = []

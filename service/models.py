@@ -31,6 +31,7 @@ class Customer(db.Model):
     first_name = db.Column(db.String(32), nullable=False)
     last_name = db.Column(db.String(32), nullable=False)
     addresses = db.relationship('Address', backref='customer', lazy=True, cascade="all, delete-orphan")
+    locked=db.Column(db.Boolean,default=False,nullable=True)
 
     def __repr__(self):
         return "<Customer %r id=[%s]>" % (self.username, self.id)
@@ -74,7 +75,9 @@ class Customer(db.Model):
             "password": self.password,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "addresses": []}
+            "addresses": [],
+            "locked":self.locked
+            }
 
         for address in self.addresses:
             address_dict = address.serialize()
@@ -82,6 +85,22 @@ class Customer(db.Model):
 
         return customer_dict
 
+    def serialize_for_lock(self):
+        """ Serializes a Customer into a dictionary without id and password"""
+
+        customer_dict = {
+            "username": self.username,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "addresses": [],
+            "locked":self.locked
+            }
+
+        for address in self.addresses:
+            address_dict = address.serialize()
+            customer_dict["addresses"].append(address_dict)
+
+        return customer_dict
 
     def deserialize(self, data):
         """
@@ -95,6 +114,10 @@ class Customer(db.Model):
             self.first_name = data["first_name"]
             self.last_name = data["last_name"]
             self.addresses = []
+            if ("locked" in data) :
+                self.locked = data["locked"]
+            else:
+                self.locked =False
             for address_data in data["addresses"]:
                 address = Address()
                 address.deserialize(address_data)
