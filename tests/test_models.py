@@ -309,3 +309,71 @@ class TestYourResourceModel(unittest.TestCase):
         # filter by id of the the 2nd customer in the list
         addresses = Address.find_by_customer_id(customers[1].id).all()
         self.assertEqual(len(addresses), address_num)
+    
+    def test_find_by_first_name(self):
+        """ Find All Customers with the given first name"""
+        all_name = ["user1", "user2", "user3"]
+        all_password = ["1234", "abcd", "efgh"]
+        batch_size = 3
+        address_num = 2
+        customers = CustomerFactory.create_batch(batch_size)
+        for i, customer in enumerate(customers):
+            customer.create()
+            customer.username = all_name[i]
+            customer.password = all_password[i]
+            if i < 2:
+              customer.first_name = "John"
+            for _ in range(address_num):
+                address = AddressFactory()
+                address.customer_id = customer.id
+                address.create()
+       
+        customers = Customer.find_by_first_name("John").all()
+        self.assertEqual(customers[0].username, "user1")
+        self.assertEqual(customers[1].username, "user2")
+        self.assertEqual(customers[0].password, "1234")
+        self.assertEqual(customers[1].password, "abcd")
+    
+    def test_find_by_last_name(self):
+        """ Find All Customers with the given last name"""
+        all_name = ["user1", "user2", "user3"]
+        all_password = ["1234", "abcd", "efgh"]
+        batch_size = 3
+        address_num = 2
+        customers = CustomerFactory.create_batch(batch_size)
+        for i, customer in enumerate(customers):
+            customer.create()
+            customer.username = all_name[i]
+            customer.password = all_password[i]
+            if i < 2:
+              customer.last_name = "John"
+            for _ in range(address_num):
+                address = AddressFactory()
+                address.customer_id = customer.id
+                address.create()
+       
+        customers = Customer.find_by_last_name("John").all()
+        self.assertEqual(customers[0].username, "user1")
+        self.assertEqual(customers[1].username, "user2")
+        self.assertEqual(customers[0].password, "1234")
+        self.assertEqual(customers[1].password, "abcd")
+    
+    def test_find_by_username(self):
+        """ Find All Customers with the given username"""
+        batch_size = 3
+        address_num = 2
+        customers = CustomerFactory.create_batch(batch_size)
+        for customer in customers:
+            customer.create()
+            for _ in range(address_num):
+                address = AddressFactory()
+                address.customer_id = customer.id
+                address.create()
+        test_user = customers[0]
+        customers = Customer.find_by_name(test_user.username).all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].first_name, test_user.first_name)
+    
+    
+    
+    
