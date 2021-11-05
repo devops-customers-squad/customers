@@ -191,6 +191,16 @@ class Customer(db.Model):
         logger.info("Processing last name query for %s ...", last_name)
         return cls.query.filter(cls.last_name == last_name)
 
+    @classmethod
+    def find_by_prefix_name(cls, username):
+        """Returns all Customers with the given prefix of username
+
+        Args:
+            username (string): the prefix of username of the Customers you want to match
+        """
+        logger.info("Processing Prefix username query for %s ...", username)
+        return cls.query.filter(cls.username.ilike(username + '%'))
+
 class Address(db.Model):
     """
     Class that represents an Address

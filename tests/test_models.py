@@ -412,6 +412,22 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(len(customers), 1)
         self.assertEqual(customers[0].first_name, test_user.first_name)
     
+    def test_find_by_prefix_username(self):
+        """ Find All Customers with the given prefix of username"""
+        batch_size = 3
+        address_num = 2
+        customers = CustomerFactory.create_batch(batch_size)
+        for customer in customers:
+            customer.create()
+            for _ in range(address_num):
+                address = AddressFactory()
+                address.customer_id = customer.id
+                address.create()
+        test_user = customers[0]
+        customers = Customer.find_by_prefix_name(test_user.username).all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].first_name, test_user.first_name)
+
     def test_lock_a_customer(self):
         """Lock a customer"""
         customer = CustomerFactory()
