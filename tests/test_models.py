@@ -412,10 +412,6 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(len(customers), 1)
         self.assertEqual(customers[0].first_name, test_user.first_name)
     
-    
-    
-    
-
     def test_lock_a_customer(self):
         """Lock a customer"""
         customer = CustomerFactory()
@@ -435,3 +431,26 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(len(customers), 1)
         self.assertEqual(customers[0].id, 1)
         self.assertEqual(customers[0].locked, True)
+
+    def test_unlock_a_customer(self):
+        """Unlock a customer"""
+        customer = CustomerFactory()
+        logging.debug(customer)
+        customer.create()
+        logging.debug(customer)
+        self.assertEqual(customer.id, 1)
+        # Change it an save it
+        customer.locked = True
+        original_id = customer.id
+        customer.save()
+        self.assertEqual(customer.id, original_id)
+        self.assertEqual(customer.locked, True)
+        # Change it an save it
+        customer.locked = False
+        customer.save()
+        self.assertEqual(customer.id, original_id)
+        self.assertEqual(customer.locked, False)
+        customers = Customer.all()
+        self.assertEqual(len(customers), 1)
+        self.assertEqual(customers[0].id, 1)
+        self.assertEqual(customers[0].locked, False)
