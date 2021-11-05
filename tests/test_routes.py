@@ -479,3 +479,38 @@ class TestYourResourceServer(TestCase):
             content_type = CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_unlock_customer(self):
+        """ Unlock an existing customer """
+        # create a record and lock it
+        test_customer = CustomerFactory()
+        test_customer.locked=True
+        for _ in range(randrange(0, 5)):
+            test_address = AddressFactory()
+            test_customer.addresses.append(test_address)
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(test_customer.locked, True)
+
+        # unlock the customer
+        new_customer = resp.get_json()
+        logging.debug(new_customer)
+        resp = self.app.put(
+            "/customers/{}/unlock".format(new_customer["id"]),
+            json=new_customer,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        updated_customer = resp.get_json()
+        self.assertEqual(updated_customer["locked"], False)
+
+    def test_unlock_customer_not_found(self):
+        """ Unlock a customer that is not found """
+        resp = self.app.put(
+            "/customers/{}/unlock".format(0),
+            json={},
+            content_type = CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)

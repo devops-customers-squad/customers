@@ -259,6 +259,24 @@ def lock_customers(customer_id):
     return make_response(jsonify(customer.serialize_for_lock()), status.HTTP_200_OK)
 
 ######################################################################
+# UNLOCK AN EXISTING CUSTOMER
+######################################################################
+@app.route("/customers/<int:customer_id>/unlock", methods=["PUT"])
+def unlock_customers(customer_id):
+    """
+    Lock a Customer
+    """
+    app.logger.info("Request to lock Customer with id: %s", customer_id)
+    check_content_type("application/json")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound("customer with id '{}' was not found.".format(customer_id))
+    customer.locked = False
+    customer.update()
+    app.logger.info("customer with ID [%s] is unlocked.", customer.id)
+    return make_response(jsonify(customer.serialize_for_lock()), status.HTTP_200_OK)
+
+######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
