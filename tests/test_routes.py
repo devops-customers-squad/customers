@@ -367,6 +367,25 @@ class TestYourResourceServer(TestCase):
         for cust in data:
             self.assertEqual(cust["username"], test_username)
     
+    def test_query_customer_list_by_prefix_username(self):
+        """ Query customers by prefix of username """
+        customers = self._create_customers(10)
+        
+        test_prefix_username = customers[0].username
+        username_customer = [customer for customer in customers if customer.username.startswith(test_prefix_username)]
+
+        resp = self.app.get(
+            BASE_URL, query_string="prefix_username={}".format(quote_plus(test_prefix_username))
+        )
+        
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+      
+        self.assertEqual(len(data), len(username_customer))
+        # check the data just to be sure
+        for cust in data:
+            self.assertEqual(cust["username"], test_prefix_username)
+
     def test_query_customer_list_by_last_name(self):
         """ Query customers by last name """
         customers = self._create_customers(10)

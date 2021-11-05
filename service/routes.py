@@ -187,7 +187,7 @@ def list_customers():
     """Returns all of the customers"""
     app.logger.info("Request for customer list")
     
-    all_query_key = ["username", "first_name", "last_name"]
+    all_query_key = ["username", "first_name", "last_name", "prefix_username"]
     for key in request.args.keys():
       if key not in all_query_key:
         message = {
@@ -202,6 +202,7 @@ def list_customers():
     username = request.args.get("username")
     first_name = request.args.get("first_name")
     last_name = request.args.get("last_name")
+    prefix_username = request.args.get("prefix_username")
     
     def filter(customers1, customers2):
       filter_customers = []
@@ -221,6 +222,8 @@ def list_customers():
       results = filter(results, Customer.find_by_first_name(first_name))
     if last_name:
       results = filter(results, Customer.find_by_last_name(last_name))
+    if prefix_username:
+      results = filter(results, Customer.find_by_prefix_name(prefix_username))
    
     app.logger.info("Returning %d customers", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
