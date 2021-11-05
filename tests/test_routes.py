@@ -60,13 +60,14 @@ class TestYourResourceServer(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def _create_customers(self, count):
+    def _create_customers(self, count, always_has_address = False):
         """Factory method to create customers in bulk"""
         customers = []
         for _ in range(count):
             test_customer = CustomerFactory()
             test_customer.id = None
-            for _ in range(randrange(0, 5)):
+            low = 0 if not always_has_address else 1
+            for _ in range(randrange(low, 5)):
                 test_address = AddressFactory()
                 test_customer.addresses.append(test_address)
             resp = self.app.post(
@@ -416,25 +417,25 @@ class TestYourResourceServer(TestCase):
         for cust in data:
             self.assertEqual(cust["last_name"], test_last_name)
     
-    def tesquery_customer_list_by_multiple_query(self):
+    def test_query_customer_list_by_multiple_query(self):
         """ Query customers by first name and last name """
         customers = self._create_customers(10)
         resp = self.app.get(
             "{0}/{1}".format(BASE_URL, customers[0].id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        test_first_name = resp.get_json()['first_name']
+        test_last_name = resp.get_json()['last_name']
         new_data = resp.get_json()
         new_data["username"] = "!df"
-        #update customer 1 name
+        new_data['last_name'] = "ddome"
+        #update customer 2 last name
         resp = self.app.put(
             "/customers/2",
             json = new_data,
             content_type = CONTENT_TYPE_JSON,
         )
-       
-        test_first_name = customers[0].first_name
-        test_last_name = customers[1].last_name
- 
+  
         test_customer = []
         for customer in customers:
           if customer.first_name == test_first_name and customer.last_name == test_last_name:
@@ -443,13 +444,13 @@ class TestYourResourceServer(TestCase):
                'last_name': quote_plus(test_last_name)}
         resp = self.app.get(
             BASE_URL, 
-            query_string= dict
+            query_string= dic
         )
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
      
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 1)
         # check the data just to be sure
         for cust in data:
             self.assertEqual(cust["first_name"], test_first_name)
@@ -465,7 +466,55 @@ class TestYourResourceServer(TestCase):
         
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
     
+    def test_query_customer_addresses(self):
+        """ Query a single Customer's addresses """
+        test_customers = self._create_customers(10, always_has_address = True)
+        resp = self.app.get(
+            "{}/{}".format(BASE_URL, test_customers[0].id), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        
+        # update the customer's addresses
+        new_customer = resp.get_json()
+        new_address = new_customer["addresses"][0]
+        logging.debug(new_address)
+        new_address["country"] = "Dome_country"
+        new_address["city"] = "Dome_city"
+        pick_resp = self.app.get(
+            "{}/{}".format(BASE_URL, test_customers[1].id), content_type=CONTENT_TYPE_JSON
+        )
+        pick_customers = pick_resp.get_json()
+        address_id = pick_customers['addresses'][0]['address_id']
+        resp = self.app.put(
+            "/customers/2/addresses/{}".format(address_id),
+            json = new_address,
+            content_type = CONTENT_TYPE_JSON,
+        )
+        
+        test_country = new_address["country"]
+        test_city = new_address["city"]
+
+        
+        resp = self.app.get(
+            f"{BASE_URL}/2/addresses", 
+            query_string= {'country': quote_plus(test_country),
+                            'city': quote_plus(test_city)}
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.get_json()[0]['city'], test_city)
+        self.assertEqual(resp.get_json()[0]['country'], test_country)
     
+    def test_wrong_query_customer_addresses(self):
+        """ Query a single Customer's addresses """
+        self._create_customers(10)
+        test_mailbox = "123"
+        resp = self.app.get(
+            f"{BASE_URL}/1/addresses", 
+            query_string= {'mailbox': quote_plus(test_mailbox)}
+        )
+      
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        
     def test_lock_customer(self):
         """ Lock an existing customer """
         # create a customer to test lock
