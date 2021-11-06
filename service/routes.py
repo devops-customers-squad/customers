@@ -177,6 +177,34 @@ def get_customer_addresses(customer_id):
         raise NotFound(f"Customer with id '{customer_id}' was not found.")
     customer_dict = customer.serialize()
     addresses = customer_dict["addresses"]
+    if len(request.args) != 0:
+      all_query_key = ["city", "state", "country", "zipcode", "street_address"]
+      for key in request.args.keys():
+        if key not in all_query_key:
+          message = {
+              "error": "Conflict",
+              "message": "The query key: '" + key + "' is not supported."
+              }
+
+          return make_response(
+              jsonify(message), status.HTTP_400_BAD_REQUEST
+          ) 
+     
+      filter_addresses = []
+      for address in addresses:
+        found = 0
+        for query_key in request.args.keys():
+          value = request.args.get(query_key)
+          if address[query_key] == value:
+            found = 1
+          else:
+            found = 0
+            break
+        if found:  
+          filter_addresses.append(address)
+     
+      addresses = filter_addresses
+
     return make_response(jsonify(addresses), status.HTTP_200_OK)
 
 ######################################################################
@@ -203,7 +231,7 @@ def list_customers():
     first_name = request.args.get("first_name")
     last_name = request.args.get("last_name")
     prefix_username = request.args.get("prefix_username")
-    
+
     def filter(customers1, customers2):
       filter_customers = []
       for cust1 in customers1:
@@ -224,7 +252,7 @@ def list_customers():
       results = filter(results, Customer.find_by_last_name(last_name))
     if prefix_username:
       results = filter(results, Customer.find_by_prefix_name(prefix_username))
-   
+
     app.logger.info("Returning %d customers", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
 
