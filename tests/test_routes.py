@@ -216,6 +216,27 @@ class TestYourResourceServer(TestCase):
         updated_customer = resp.get_json()
         self.assertEqual(updated_customer["username"], "new_username")
 
+    def test_update_customer_missing_data(self):
+        """ Update an existing customer using a JSON request body with insufficient data """
+        # create a customer to update
+        test_customer = CustomerFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        # update the customer
+        new_customer = resp.get_json()
+        del new_customer["username"]
+        logging.debug(new_customer)
+        print(new_customer["id"])
+        resp = self.app.put(
+            "/customers/{}".format(new_customer["id"]),
+            json=new_customer,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_update_customer_addresses_not_found(self):
         """ Update the addresses of a customer that is not found """
         resp = self.app.put(
