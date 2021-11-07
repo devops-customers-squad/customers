@@ -64,34 +64,28 @@ def update_customers(customer_id):
     customer = Customer.find(customer_id)
     if not customer:
         raise NotFound("customer with id '{}' was not found.".format(customer_id))
-    other_customer = Customer.find_by_name(request_data["username"]).first()
-    if other_customer is not None and other_customer.id != customer_id:
-        message = {
-            "error": "Conflict",
-            "message": "Username '" + request_data["username"] + "' already exists."
-            }
-        return make_response(
-            jsonify(message), status.HTTP_409_CONFLICT
-        ) 
-    #In this way, we just ignore the key locked. 
-    #If we throw 400, we will have to modify the function serialize().
-    #Because it was used to update user info and it contains the key 'locked'
     
-    #if ("locked" in request_data) :
-    #    message = {
-    #        "error": "Not Allowed",
-    #        "message": "Not Allowed to modifiy key 'locked'."
-    #        }
-    #    return make_response(
-    #        jsonify(message), status.HTTP_400_BAD_REQUEST
-    #    ) 
-    customer.id = customer_id
-    customer.first_name = request_data["first_name"]
-    customer.last_name = request_data["last_name"]
-    customer.username = request_data["username"]
-    customer.password = request_data["password"]
-    customer.update()
-
+    try:
+        if "username" in request_data:
+            other_customer = Customer.find_by_name(request_data["username"]).first()
+            if other_customer is not None and other_customer.id != customer_id:
+                message = {
+                    "error": "Conflict",
+                    "message": "Username '" + request_data["username"] + "' already exists."
+                }
+                return make_response(
+                    jsonify(message), status.HTTP_409_CONFLICT
+                ) 
+        customer.username = request_data["username"]
+        customer.id = customer_id
+        customer.first_name = request_data["first_name"]
+        customer.last_name = request_data["last_name"]
+        customer.password = request_data["password"]
+        customer.update()
+    except KeyError as error:
+        raise DataValidationError(
+            "Invalid JSON request body: missing " + error.args[0]
+        )
     app.logger.info("customer with ID [%s] updated.", customer.id)
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
@@ -182,7 +176,7 @@ def get_customer_addresses(customer_id):
       for key in request.args.keys():
         if key not in all_query_key:
           message = {
-              "error": "Conflict",
+              "error": "Unsupported key",
               "message": "The query key: '" + key + "' is not supported."
               }
 
@@ -219,7 +213,7 @@ def list_customers():
     for key in request.args.keys():
       if key not in all_query_key:
         message = {
-            "error": "Conflict",
+            "error": "Unsupported key",
             "message": "The query key: '" + key + "' is not supported."
             }
 
