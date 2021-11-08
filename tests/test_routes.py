@@ -364,8 +364,12 @@ class TestYourResourceServer(TestCase):
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-       
-        self.assertEqual(len(data), 2)
+
+        resp_all_customer = self.app.get(BASE_URL)
+        self.assertEqual(resp_all_customer.status_code, status.HTTP_200_OK)
+        num_test_customers = [cust for cust in resp_all_customer.get_json() if cust['first_name'] == test_first_name]
+     
+        self.assertEqual(len(data), len(num_test_customers))
         # check the data just to be sure
         for cust in data:
             self.assertEqual(cust["first_name"], test_first_name)
@@ -432,8 +436,12 @@ class TestYourResourceServer(TestCase):
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
-      
-        self.assertEqual(len(data), 2)
+
+        resp_all_customer = self.app.get(BASE_URL)
+        self.assertEqual(resp_all_customer.status_code, status.HTTP_200_OK)
+        num_test_customers = [cust for cust in resp_all_customer.get_json() if cust['last_name'] == test_last_name]
+
+        self.assertEqual(len(data), len(num_test_customers))
         # check the data just to be sure
         for cust in data:
             self.assertEqual(cust["last_name"], test_last_name)
@@ -470,8 +478,16 @@ class TestYourResourceServer(TestCase):
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
+
+        resp_all_customer = self.app.get(BASE_URL)
+        self.assertEqual(resp_all_customer.status_code, status.HTTP_200_OK)
+        num_test_customers = []
+        for cust in resp_all_customer.get_json():
+          if cust['last_name'] == test_last_name and cust['first_name'] == test_first_name:
+            num_test_customers.append(cust)
+       
+        self.assertEqual(len(data), len(num_test_customers))
      
-        self.assertEqual(len(data), 1)
         # check the data just to be sure
         for cust in data:
             self.assertEqual(cust["first_name"], test_first_name)
