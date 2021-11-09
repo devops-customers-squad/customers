@@ -27,21 +27,33 @@ To run the tests for the service, from the command line run:
 
 - Create a customer: 
     * `POST /customers`
-    * The JSON request body for creating a customer is expected to contain the following keys: ``first_name, last_name, user_name, addresses, password``
+    * The JSON request body for creating a customer is expected to contain the following keys: ``first_name, last_name, user_name, addresses, password, state,       * city, zipcode, country, and locked``
     * The expected types of the values for each of the expected keys are as follows:
         - first_name: string
-        - last_name: string
+        - last_name: string 
         - user_name: string
-        - addresses: array of string
         - password: string 
+        - address_id : integer
+        - address_line : string
+        - state : string
+        - city : string
+        - zipcode : integer
+        - country : string
+        - locked : boolean
     * Sample JSON request body format:
     ```
     {
         "first_name": "John",  
         "last_name": "Smith",  
         "username": "XXX",  
-        "addresses": ["123 Main St, Buffalo, NY", "50 John Street, NY"],  
-        "password": "XXX"  
+        "password": "XXX" 
+        "address_id": 4,      
+        "address_line_1": "123 Fake Road",  
+        "state": "NY",
+        "city": "New York",
+        "zipcode": 10001,
+        "country": "USA"
+         locked: true
     }
     ```
 - Read a customer's information:
@@ -52,29 +64,38 @@ To run the tests for the service, from the command line run:
 - Update a customer's information:
     * `PUT /customers/{customer_id}`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
-    * The JSON request body is expected to contain all of the following keys: ``first_name, last_name, user_name, addresses, password``
+    * The JSON request body is expected to contain all of the following keys: ``first_name, last_name, user_name, password``
     * If the JSON request body is missing one or more of the required keys, an error will be thrown
     * The expected types of the values for each of the possible keys are as follows:
         - first_name: string
         - last_name: string
         - user_name: string
-        - addresses: array of strings
         - password: string 
     * Sample JSON request body format:
     ```
     { 
-        "first_name": "Johnny", 
-        "password": "YYY"
+        "first_name": "John",  
+        "last_name": "Smith",  
+        "username": "XXX", 
+        "password": "XXX" 
+        
     }
     ```
 - Update a customer's addresses:
     * `PUT /customers/{customer_id}/addresses`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
-    * The JSON request body is expected to contain the key ``addresses`` and the value of the key is expected to be an array of strings
+    * The JSON request body is expected to contain the key ``address_id ,address_line `` and the value of the key is expected to be an array of strings
+    * The expected types of the values for each of the expected keys are as follows:
+     
+        - address_id : integer
+        - address_line : string
+        
+   
     * Sample JSON request body format:
     ```
     { 
-        "addresses": ["123 Main St, Buffalo, NY", "50 John Street, NY"]  
+        "address_id": 4,      
+        "address_line_1": "123 Fake Road",   
     }
     ```
     * If successful, the stored addresses of the customer will be equivalent to the value of the ``addresses`` key in the JSON request body
@@ -83,3 +104,47 @@ To run the tests for the service, from the command line run:
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
 - Access basic useful information about the API
     * `GET /customers/`
+- Query customers by first name/last name
+    * `GET /customer?first_name={first name}`
+    * The parameter the first name is expected to be a string equal to the unique first name of a customer
+    * `GET /customer?last_name={last name}`
+    * The parameter the last name is expected to be a string equal to the unique last name of a customer
+- Query customers by the prefix of their usernames
+    * `GET/customer?prefix_username={the prefix of username}`
+    * The parameter the prefix of username is expected to be a string equal to the unique prefix of a customer's username
+- Mark customers' accounts as locked
+    * `PUT /customers/{customer_id}/lock`
+    * The parameter customer_id is expected to be an integer equal to the unique id of a customer
+    * The JSON request body is expected to contain all of the following keys: ``locked``
+    * Sample JSON request body format:
+    ```
+    { 
+        locked: true  
+    }
+    ```
+- Mark customers' accounts as unlocked
+ * `PUT /customers/{customer_id}/unlock`
+ * The parameter customer_id is expected to be an integer equal to the unique id of a customer
+ * The JSON request body is expected to contain all of the following keys: ``locked``  
+ * Sample JSON request body format:
+    ```
+    { 
+        locked: false  
+    }
+    ```
+- List customers'addresses that match a specific query
+* `GET /customers/{customer_id}/addresses?{query string}`
+* The parameter customer_id is expected to be an integer equal to the unique id of a customer
+* The JSON request body is expected to contain all of the following keys: ``address_id ,address_line, state, city, zipcode, and country``
+* Sample JSON request body format:
+    ```
+    {   
+      "address_id": 4,      
+      "address_line_1": "123 Fake Road",
+      "state": "NY",
+      "city": "New York",
+      "zipcode": 10001,
+      "country": "USA"
+      
+    }
+    ```
