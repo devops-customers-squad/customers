@@ -83,3 +83,45 @@ To run the tests for the service, from the command line run:
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
 - Access basic useful information about the API
     * `GET /customers/`
+- Query customers by first name/last name
+    * `GET /customer?first_name={first name}`
+    * The parameter the first name is expected to be a string equal to the unique first name of a customer
+    * `GET /customer?last_name={last name}`
+    * The parameter the last name is expected to be a string equal to the unique last name of a customer
+- Query customers by the prefix of their usernames
+    * `GET/customer?prefix_username={the prefix of username}`
+    * The parameter the prefix of username is expected to be a string equal to the unique prefix of a customer's username
+- Mark customers' accounts as locked
+    * `PUT /customers/{customer_id}/lock`
+    * The parameter customer_id is expected to be an integer equal to the unique id of a customer
+    * The JSON request body is expected to contain all of the following keys: ``locked``
+    * Sample JSON request body format:
+    ```
+    { 
+        locked: true  
+    }
+    ```
+- Mark customers' accounts as unlocked
+ * `PUT /customers/{customer_id}/unlock`
+ * The parameter customer_id is expected to be an integer equal to the unique id of a customer
+ * The JSON request body is expected to contain all of the following keys: ``locked``    
+ * Sample JSON request body format:
+    ```
+    { 
+        locked: false  
+    }
+    ```
+- List customers'addresses that match a specific query
+* `GET /customers/{customer_id}/addresses?{query string}`
+* The parameter customer_id is expected to be an integer equal to the unique id of a customer
+* The JSON request body is expected to contain all of the following keys: ``state, city, zip, and country``
+* Sample JSON request body format:
+    ```
+    { 
+      "state": "NY",
+      "city": "New York",
+      "zip": 10001,
+      "country": "USA"  
+    }
+    ```
+
