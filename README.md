@@ -33,7 +33,7 @@ To run the tests for the service, from the command line run:
         - last_name: string
         - user_name: string
         - password: string 
-        - address: array of string
+        - addresses: array of json
         - street_address : string
         - state :string
         - city : string
@@ -106,6 +106,7 @@ To run the tests for the service, from the command line run:
     * The parameter the first name is expected to be a string equal to the unique first name of a customer
     * `GET /customer?last_name={last name}`
     * The parameter the last name is expected to be a string equal to the unique last name of a customer
+    * * `GET /customer?last_name={last name}&first_name={first name}`
 - Query customers by the prefix of their usernames
     * `GET/customer?prefix_username={the prefix of username}`
     * The parameter the prefix of username is expected to be a string equal to the unique prefix of a customer's username
@@ -120,5 +121,6 @@ To run the tests for the service, from the command line run:
 - List customers'addresses that match a specific query
     * `GET /customers/{customer_id}/addresses?{query string}`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
+    * The endpoint requires a valid customer_id and accepted keys in the query string will include stree_address, state, city, country, and zipcode
     
     
