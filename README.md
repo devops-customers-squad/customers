@@ -24,6 +24,8 @@ To run the tests for the service, from the command line run:
 ```
 
 ## Available endpoints
+- Access basic useful information about the API
+    * `GET /customers/`
 
 - Create a customer: 
     * `POST /customers`
@@ -33,12 +35,12 @@ To run the tests for the service, from the command line run:
         - last_name: string
         - user_name: string
         - password: string 
-        - addresses: array of json
-        - street_address : string
-        - state :string
-        - city : string
-        - zipcode : integer
-        - country: string
+        - addresses: array of JSON objects, each of which contains:
+            - street_address: string
+            - state: string
+            - city: string
+            - zipcode: integer
+            - country: string
        
         
     * Sample JSON request body format:
@@ -60,8 +62,6 @@ To run the tests for the service, from the command line run:
 - Read a customer's information:
     * `GET /customers/{customer_id}`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
-- List the information for all registered customers:
-    * `GET /customers`
 - Update a customer's information:
     * `PUT /customers/{customer_id}`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
@@ -81,10 +81,10 @@ To run the tests for the service, from the command line run:
         "password": "XXX" 
     }
     ```
-- Update a customer's addresses:
+- Update a customer's address:
     * `PUT /customers/{customer_id}/addresses/{address_id}`
-    * The parameter customer_id is expected to be an integer equal to the unique id of a customer
-    * The JSON request body is expected to contain the key ``street_address, city, state, zipcode, and country`` and the value of the key is expected to be an array of strings
+    * The parameter customer_id is expected to be an integer equal to the unique id of a customer and the parameter address_id is expect3ed to be equal to the unique id of an address belonging to the specified customer
+    * The JSON request body is expected to contain the keys ``street_address, city, state, zipcode, and country``. All keys except for zipcode expect a string; zipcode expects an integer
     * Sample JSON request body format:
     ```
     {
@@ -95,18 +95,19 @@ To run the tests for the service, from the command line run:
          "country" : "USA"
     }
     ```
-    * If successful, the stored addresses of the customer will be equivalent to the value of the ``addresses`` key in the JSON request body
+    * If successful, the address with address_id belonging to the customer with customer_id will be equivalent to the address represented in the JSON request body
+
 - Delete a customer
     * `DELETE /customers/{customer_id}`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
-- Access basic useful information about the API
-    * `GET /customers/`
-- Query customers by first name/last name
+- List the information for all registered customers:
+    * `GET /customers` 
+- Query customers by first name and/or last name
     * `GET /customer?first_name={first name}`
     * The parameter the first name is expected to be a string equal to the unique first name of a customer
     * `GET /customer?last_name={last name}`
     * The parameter the last name is expected to be a string equal to the unique last name of a customer
-    * * `GET /customer?last_name={last name}&first_name={first name}`
+    * Additionally, it is possible to query by first_name and last_name together: `GET /customer?last_name={last name}&first_name={first name}`
 - Query customers by the prefix of their usernames
     * `GET/customer?prefix_username={the prefix of username}`
     * The parameter the prefix of username is expected to be a string equal to the unique prefix of a customer's username
@@ -117,10 +118,13 @@ To run the tests for the service, from the command line run:
 - Mark customers' accounts as unlocked
     * `PUT /customers/{customer_id}/unlock`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
+
+- List customers'addresses
+    * `GET /customers/{customer_id}/addresses`
+    * The parameter customer_id is expected to be an integer equal to the unique id of a customer
  
 - List customers'addresses that match a specific query
     * `GET /customers/{customer_id}/addresses?{query string}`
     * The parameter customer_id is expected to be an integer equal to the unique id of a customer
-    * The endpoint requires a valid customer_id and accepted keys in the query string will include stree_address, state, city, country, and zipcode
-    
+    * The endpoint requires a valid customer_id and accepted keys in the query string will include street_address, state, city, country, and zipcode
     
