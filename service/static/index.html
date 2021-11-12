@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Customers RESTful Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/blue_bootstrap.min.css">
+    <script type="text/javascript" src = "static/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="static/js/rest_api.js"></script>
+  </head>
+  <body>
+    <div class="container">
+        <div class="page-header">
+            <h1>Customers REST API Service</h1>
+        </div>
+
+        <!-- Flash Message -->
+        <div class="table-responsive">
+          <table class="table">
+            <tr><td>Status:</td><td><span id="flash_message"></span></td></tr>
+          </table>
+        </div>
+
+        <div class="col-md-12" id="form_data">
+          <div class="well">
+            <div class="form-horizontal">
+                <h4>Customer Information:</h4>
+            </div>
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="cust_id">Customer ID:</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="cust_id" placeholder="Enter ID of Customer">
+                </div>
+                <div class="col-sm-4">
+                  <button type="submit" class="btn btn-primary" id="retrieve-cust-btn">Retrieve Customer</button>
+                  <button type="submit" class="btn btn-danger" id="delete-cust-btn">Delete Customer</button>
+                </div>
+              </div>
+            </div> 
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="cust_name">First Name:</label>
+                <div class="col-sm-4">
+                  <input type="text" maxlength="32" class="form-control" id="cust_first_name" placeholder="Enter first name for Customer">
+                </div>
+                <label class="control-label col-sm-1" for="cust_name">Last Name:</label>
+                <div class="col-sm-5">
+                  <input type="text" maxlength="32" class="form-control" id="cust_last_name" placeholder="Enter last name for Customer">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="cust_username">Username:</label>
+                <div class="col-sm-10">
+                  <input type="text" maxlength="64" class="form-control" id="cust_username" placeholder="Enter username for Customer">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="cust_password">Password:</label>
+                <div class="col-sm-10">
+                  <input type="text" maxlength="64" class="form-control" id="cust_password" placeholder="Enter password for Customer">
+                </div>
+              </div>
+          </div> <!-- form div -->
+          <div class="form-horizontal">
+              <h4>Address Information:</h4>
+          </div>
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="addr_id">Address ID:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="addr_id" placeholder="Enter ID of Address">
+              </div>
+            </div>
+          </div> <!-- form div -->
+
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="addr_street_address">Street Address:</label>
+              <div class="col-sm-10">
+                <input type="text" maxlength="100" class="form-control" id="addr_street_address" placeholder="Enter Street Address for Customer's Address">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="addr_city">City:</label>
+              <div class="col-sm-5">
+                <input type="text" maxlength="100" class="form-control" id="addr_city" placeholder="Enter city for Customer's Address">
+              </div>
+              <label class="control-label col-sm-1" for="addr_state">State:</label>
+              <div class="col-sm-4">
+                <input type="text" maxlength="100" class="form-control" id="addr_state" placeholder="Enter state for Customer's Address">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="addr_country">Country:</label>
+              <div class="col-sm-5">
+                <input type="text" maxlength="100" class="form-control" id="addr_country" placeholder="Enter country for Customer's Address">
+              </div>
+              <label class="control-label col-sm-1" for="addr_zip">Zip code:</label>
+              <div class="col-sm-4">
+                <input class="form-control" id="addr_zip" type="number" min="0" max="99999" placeholder="Enter zip code for Customer's Address">
+              </div>
+            </div>
+          </div>
+            <div class="form-horizontal">
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary" id="addr-search-btn">Search for Customer Addresses</button>
+                  <button type="submit" class="btn btn-warning" id="addr-update-btn">Update Customer Address</button>
+                  <button type="submit" class="btn btn-success" id="addr-create-btn">Create Customer Address</button>
+                  <button type="submit" class="btn btn-primary" id="addr-clear-btn">Clear Address</button>
+                </div>
+              </div>
+          </div> <!-- form div -->
+            <div class="form-horizontal">
+              <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                  <button type="submit" class="btn btn-primary" id="cust-search-btn">Search for customer</button>
+                  <button type="submit" class="btn btn-primary" id="cust-query-btn">Query customers by name prefix</button>
+                  <button type="submit" class="btn btn-success" id="cust-create-btn">Create customer</button>
+                  <button type="submit" class="btn btn-warning" id="cust-update-btn">Update customer</button>
+                  <button type="submit" class="btn btn-primary" id="cust-clear-btn">Clear All</button>
+                </div>
+              </div>
+          </div> <!-- form div -->
+        </div>
+
+        <!-- Search Results -->
+        <div class="table-responsive col-md-12" id="search_results">
+          <table class="table-striped">
+            <thead>
+            <tr>
+                <th class="col-md-1">ID</th>
+                <th class="col-md-1">First Name</th>
+                <th class="col-md-1">Last Name</th>
+                <th class="col-md-1">Username</th>
+                <th class="col-md-1">Password</th>
+                <th class="col-md-1">Locked</th>
+                <th class="col-md-2">Addresses</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+
+        <footer>
+          <br><br>
+          <p>&copy; NYU DevOps Customers Team 2021</p>
+        </footer>
+        </div><!--/span-->
+     </div><!--/row-->
+
+  </div><!-- container -->
+  </body>
+</html>
