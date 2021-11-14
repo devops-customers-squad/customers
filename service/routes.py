@@ -113,7 +113,33 @@ def create_customers():
     customer.locked=False
     customer.create()
     message = customer.serialize()
-    location_url = url_for("create_customers", customer_id=customer.id, _external=True)
+    location_url = url_for("get_customers", customer_id=customer.id, _external=True)
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+    )
+
+######################################################################
+# ADD A NEW CUSTOMER ADDRESS
+######################################################################
+@app.route("/customers/<int:customer_id>/addresses", methods=["POST"])
+def create_customer_address(customer_id):
+    """
+    Creates an Address for the Customer with an id equal to customer_id
+    This endpoint will create an Address for the Customer with an id equal
+    to the customer_id based the data in the body that is posted
+    """  
+    app.logger.info("Request to create address for customer with id {}".format(customer_id))
+    check_content_type("application/json")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound(f"Customer with id '{customer_id}' was not found.")
+    address = Address()
+    address.deserialize(request.get_json())
+    address.customer_id = customer_id
+    address.create()
+    message = address.serialize()
+    location_url = url_for("get_customer_addresses", customer_id = customer.id, 
+        address_id = address.address_id, _external = True)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
@@ -132,6 +158,25 @@ def get_customers(customer_id):
     if not customer:
         raise NotFound(f"Customer with id '{customer_id}' was not found.")
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+
+######################################################################
+# RETRIEVE A CUSTOMER ADDRESS
+######################################################################
+@app.route("/customers/<int:customer_id>/addresses/<int:address_id>", methods=["GET"])
+def get_customer_address(customer_id, address_id):
+    """
+    Retrieve a single customer
+    This endpoint will return a customer based on their id
+    """
+    app.logger.info(f"Request information for customer with customer_id: {customer_id}")
+    customer = Customer.find(customer_id)
+    if not customer:
+        raise NotFound(f"Customer with id '{customer_id}' was not found.")
+    address = Address.find(address_id)
+    if not address or address.customer_id != customer_id:
+        raise NotFound(f"Address with id '{address_id}' belonging to customer with"
+            + " id '{customer_id}' not found")
+    return make_response(jsonify(address.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A CUSTOMER'S ADDRESSES
