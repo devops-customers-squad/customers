@@ -65,6 +65,11 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "~/.vimrc", destination: "~/.vimrc"
   end
 
+  # Copy your IBM Cloud API Key if you have one
+  if File.exists?(File.expand_path("~/.bluemix/apikey.json"))
+      config.vm.provision "file", source: "~/.bluemix/apikey.json", destination: "~/.bluemix/apikey.json"
+  end
+
   ######################################################################
   # Create a Python 3 development environment
   ######################################################################
