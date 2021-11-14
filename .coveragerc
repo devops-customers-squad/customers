@@ -1,6 +1,7 @@
 # .coveragerc
 [run]
 source=service
+omit=./static/*
 
 [report]
 show_missing = True

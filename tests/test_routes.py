@@ -188,11 +188,10 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_services_list(self):
-        """ Test services list call """
+        """ Test service serves html """
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        data = resp.get_json()
-        self.assertEqual(data["name"], "Customers REST API Service")
+        assert("text/html" in resp.headers['Content-Type'])
         
     def test_update_customer(self):
         """ Update an existing customer """

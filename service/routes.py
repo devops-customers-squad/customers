@@ -22,32 +22,9 @@ from . import app
 # GET Information About the Service
 ######################################################################
 @app.route("/")
-def list_services():
+def index():
     """ Root URL response """
-    app.logger.info("Request for Root URL")
-    return (
-        jsonify(
-            name="Customers REST API Service",
-            version="1.0",
-            paths=url_for("create_customers", _external=True),
-            services=(  "create customer",
-                        "add customer",
-                        "read customer",
-                        "list customers",
-                        "update customer",
-                        "delete customer",
-                        "lock customer",
-                        ),
-
-            usages=("Uses username, password, firstname, lastname, and addresses to create an new user and returns the result.",
-                    "Uses username, password, firstname, lastname, and addresses to add an new user into database and returns the result.",
-                    "Finds the customer using a valid customer_id and returns customer's information.",
-                    "Updates customer' information and returns the result.",
-                    "Deletes a customer and all of its information and returns the result.",
-                    )
-        ),
-        status.HTTP_200_OK,
-    )
+    return app.send_static_file("index.html")
     
 ######################################################################
 # UPDATE AN EXISTING CUSTOMER
