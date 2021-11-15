@@ -19,7 +19,6 @@ $(function () {
     }
 
     function update_address_form_data(res) {
-        console.log(res)
         if (res != null && res.addresses.length != 0) {
             var address = res.addresses[0];
             $("#addr_id").val(address.address_id);
