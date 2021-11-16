@@ -35,7 +35,7 @@ def step_impl(context):
     context.resp = requests.get(context.base_url + '/customers', headers=headers)
     expect(context.resp.status_code).to_equal(200)
     for customer in context.resp.json():
-        context.resp = requests.delete(context.base_url + '/customers/' + str(customer["_id"]), headers=headers)
+        context.resp = requests.delete(context.base_url + '/customers/' + str(customer["id"]), headers=headers)
         expect(context.resp.status_code).to_equal(204)
     
     # load the database with new customers
@@ -43,11 +43,20 @@ def step_impl(context):
     for row in context.table:
         data = {
             "username": row['username'],
-            "password": row['category'],
+            "password": row['password'],
             "first_name": row['first_name'],
             "last_name": row['last_name'],
-            "addresses": row['addresses'],
+            #"addresses": row['addresses'],
             }
+        address = [
+                    {"street_address": row['street_address'],
+                    "city": row['city'],
+                    "state": row['state'],
+                    "zipcode": row['zipcode'],
+                    "country": row['country']}
+              ]
+        data["addresses"] = address
         payload = json.dumps(data)
         context.resp = requests.post(create_url, data=payload, headers=headers)
         expect(context.resp.status_code).to_equal(201)
+       
