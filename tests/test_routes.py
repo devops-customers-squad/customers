@@ -272,11 +272,12 @@ class TestYourResourceServer(TestCase):
 
     def test_delete_address(self):
         """ Test Delete an address from an existing customer"""
-        test_customer = self._create_customers(1)[0]
+        test_customer = CustomerFactory()
         test_address = AddressFactory()
         test_customer.addresses = [test_address]
         resp = self.app.delete(
-            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address.address_id), content_type="application/json"
+            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_customer.addresses[0].address_id), 
+            content_type="application/json"
         )
 
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
@@ -284,14 +285,15 @@ class TestYourResourceServer(TestCase):
         
         # make sure it is deleted
         resp = self.app.get(
-            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address.address_id),
+            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_customer.addresses[0].address_id),
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test delete a non-existing address
         resp = self.app.delete(
-            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address.address_id), content_type="application/json"
+            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_customer.addresses[0].address_id), 
+            content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
