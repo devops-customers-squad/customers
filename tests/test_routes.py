@@ -128,7 +128,53 @@ class TestYourResourceServer(TestCase):
          """Create a Customer with no content type"""
          resp = self.app.post(BASE_URL)
          self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
-        
+
+    def test_create_customer_address(self):
+        test_customer = CustomerFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        customer_id = resp.get_json()["id"]
+        test_address = AddressFactory()
+        resp = self.app.post(
+            "{0}/{1}/addresses".format(BASE_URL, customer_id), json=test_address.serialize(),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        # Make sure location header is set
+        location = resp.headers.get("Location", None)
+        self.assertIsNotNone(location)
+        # Check the data is correct
+        new_address = resp.get_json()
+        self.assertEqual(
+            new_address["customer_id"], customer_id, "Customer id is incorrect"
+        )
+        self.assertEqual(
+            new_address["street_address"], test_address.street_address, 
+            "Street address does not match"
+        )
+        self.assertEqual(
+            new_address["city"], test_address.city, "City does not match"
+        )
+        self.assertEqual(
+            new_address["state"], test_address.state, "State does not match"
+        )
+        self.assertEqual(
+            new_address["country"], test_address.country, "Country does not match"
+        ) 
+        self.assertEqual(
+            new_address["zipcode"], test_address.zipcode, "Zipcode does not match"
+        )          
+
+    def test_create_address_customer_not_found(self):
+        test_address = AddressFactory()
+        resp = self.app.post(
+            "{0}/{1}/addresses".format(BASE_URL, 1), json=test_address.serialize(),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_method_not_allowed(self):
         resp=self.app.put('/customers')
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -148,6 +194,43 @@ class TestYourResourceServer(TestCase):
     def test_get_customer_not_found(self):
         """ Get a customer thats not found """
         resp = self.app.get("{}/0".format(BASE_URL))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_customer_address(self):
+        """ Get a single Address for a Customer """
+        test_customer = self._create_customers(1, always_has_address = True)[0]
+        resp = self.app.get(
+            "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
+        )
+        test_address = resp.get_json()["addresses"][0]
+        resp = self.app.get(
+            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address["address_id"]),
+            content_type="application/json"
+        )
+        print(resp.data)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["street_address"], test_address["street_address"])
+        self.assertEqual(data["customer_id"], test_customer.id)
+        self.assertEqual(data["address_id"], test_address["address_id"])
+
+    def test_get_address_customer_not_found(self):
+        """ Get an address for a customer that's not found """
+        resp = self.app.get("{}/1/addresses/1".format(BASE_URL))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_address_not_found(self):
+        """ Get an address that's not found for an existing customer """
+        test_customer = self._create_customers(1, always_has_address = True)[0]
+        resp = self.app.get(
+            "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
+        )
+        addresses = resp.get_json()["addresses"]
+        address_ids = []
+        for address in addresses:
+            address_ids.append(address["address_id"])
+        query_id = max(address_ids) + 1
+        resp = self.app.get("{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, query_id))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_customer_addresses(self):
@@ -350,7 +433,7 @@ class TestYourResourceServer(TestCase):
         new_data["username"] = "!df"
         new_data['last_name'] = 'Johnn'
         #update customer 2 
-        resp = self.app.put(
+        self.app.put(
             "/customers/2",
             json = new_data,
             content_type = CONTENT_TYPE_JSON,
@@ -422,7 +505,7 @@ class TestYourResourceServer(TestCase):
         new_data["username"] = "!df"
         new_data['first_name'] = 'Johnn'
         #update customer 1 name
-        resp = self.app.put(
+        self.app.put(
             "/customers/2",
             json = new_data,
             content_type = CONTENT_TYPE_JSON,
@@ -458,7 +541,7 @@ class TestYourResourceServer(TestCase):
         new_data["username"] = "!df"
         new_data['last_name'] = "ddome"
         #update customer 2 last name
-        resp = self.app.put(
+        self.app.put(
             "/customers/2",
             json = new_data,
             content_type = CONTENT_TYPE_JSON,
@@ -521,7 +604,7 @@ class TestYourResourceServer(TestCase):
         )
         pick_customers = pick_resp.get_json()
         address_id = pick_customers['addresses'][0]['address_id']
-        resp = self.app.put(
+        self.app.put(
             "/customers/2/addresses/{}".format(address_id),
             json = new_address,
             content_type = CONTENT_TYPE_JSON,
