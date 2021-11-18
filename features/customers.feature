@@ -17,8 +17,6 @@ Scenario: The server is running
 Scenario: Create a customer
     When I visit the "Home Page"
     And I set the "username" to "user1"
-    Then I should see the message "Username has taken"
-    And I set the "username" to "dome"
     And I set the "password" to "1111"
     And I set the "first_name" to "jiraphon"
     And I press the "Create Customer" button
@@ -31,6 +29,9 @@ Scenario: Create a customer
     And I set the "country" to "USA"
     And I press the "Create Customer" button
     Then I should see the message "Missing country attribute"
+    And I press the "Create Customer" button
+    Then I should see the message "Username has taken"
+    And I change the "username" to "dome"
     And I press the "Create Customer" button
     Then I should see the message "Success"
 
