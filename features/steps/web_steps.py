@@ -72,12 +72,6 @@ def step_impl(context, element_name, text_string):
     element.clear()
     element.send_keys(text_string)
 
-@then('I should see "{text}" in the "{element_name}" dropdown')
-def step_impl(context, text, element_name):
-    element_id = mapping_name(element_name)
-    element = Select(context.driver.find_element_by_id(element_id))
-    expect(element.first_selected_option.text).to_equal(text)
-
 @then('the "{element_name}" field should be empty')
 def step_impl(context, element_name):
     element_id = mapping_name(element_name)
@@ -164,7 +158,7 @@ def step_impl(context, text_string, element_name):
 
 @when('I change "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
-    element_id = ID_PREFIX + element_name.lower()
+    element_id = mapping_name(element_name.lower())
     element = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
         expected_conditions.presence_of_element_located((By.ID, element_id))
     )
