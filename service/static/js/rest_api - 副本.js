@@ -17,7 +17,7 @@ $(function () {
             $("#cust_locked").val("false");
         }
     }
-
+/*
     function update_address_form_data(res) {
         if (res != null && res.addresses.length != 0) {
             var address = res.addresses[0];
@@ -29,6 +29,7 @@ $(function () {
             $("#addr_zip").val(address.zipcode);
         }
     }
+*/
     /// Clears all form fields
     function clear_form_data() {
         $("#cust_id").val("");
@@ -120,21 +121,24 @@ $(function () {
         $("#address_search_results").empty();
         $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
         var header = '<tr style="min-width:100%">'
-        header += '<th style="width:10%">Customer ID</th>'
-        header += '<th style="width:10%">Address ID</th>'
-        header += '<th style="width:20%">Street Address</th>'
-        header += '<th style="width:15%">City</th>'
-        header += '<th style="width:15%">States</th>'
-        header += '<th style="width:15%">Zipcode</th>'
-        header += '<th style="width:15%">Country</th></tr>'
+        header += '<th style="width:5%">Customer ID</th>'
+        header += '<th style="width:15%">Address ID</th>'
+        header += '<th style="width:40%">Street Address</th>'
+        header += '<th style="width:10">City</th>'
+        header += '<th style="width:10%">States</th>'
+        header += '<th style="width:10%">Zipcode</th>'
+        header += '<th style="width:10%">Country</th></tr>'
         $("#address_table").append(header);
         add_address_result(res);
     }
 
     function add_address_result(res) {
-        var row = "<tr style='min-width:100%'><td>" + res.customer_id + "</td><td>" + res.address_id + "</td><td>" + res.street_address + "</td><td>" 
-        + res.city + "</td><td>" + res.state + "</td><td>" + res.zipcode + "</td><td>" + res.country + "</td></tr>";
-        $("#address_table").append(row);
+        for(var addr of res.addresses) {
+            var row; 
+            row = "<tr style='min-width:100%'><td>" + addr.id + "</td><td>" + addr.address_id + "</td><td>" + addr.street_address + "</td><td>" 
+                    + addr.city + "</td><td>" + addr.state + "</td><td>" + addr.zipcode + "</td><td>" + addr.country + "</td></tr>";
+            $("#address_table").append(row);
+        }
     }
 
     function add_multiple_addresses(res) {
@@ -144,10 +148,10 @@ $(function () {
         header += '<th style="width:10%">Customer ID</th>'
         header += '<th style="width:10%">Address ID</th>'
         header += '<th style="width:20%">Street Address</th>'
-        header += '<th style="width:15%">City</th>'
-        header += '<th style="width:15%">States</th>'
-        header += '<th style="width:15%">Zipcode</th>'
-        header += '<th style="width:15%">Country</th></tr>'
+        header += '<th style="width:10%">City</th>'
+        header += '<th style="width:10%">States</th>'
+        header += '<th style="width:10%">Zipcode</th>'
+        header += '<th style="width:10%">Country</th></tr>'
         $("#address_table").append(header);
         for (var i = 0; i < res.length; i++) {
             add_address_result(res[i]);
@@ -201,7 +205,7 @@ $(function () {
         ajax.done(function(res){
             update_customer_form_data(res)
             update_address_form_data(res)
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
@@ -225,7 +229,7 @@ $(function () {
         ajax.done(function(res){
             res.id = customer_id
             update_customer_form_data(res)
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
@@ -249,7 +253,7 @@ $(function () {
         ajax.done(function(res){
             res.id = customer_id
             update_customer_form_data(res)
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
@@ -260,6 +264,7 @@ $(function () {
     // ****************************************
     // Update a Customer
     // ****************************************
+
     $("#cust-update-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
@@ -285,7 +290,7 @@ $(function () {
         ajax.done(function(res){
             res.id = customer_id
             update_customer_form_data(res)
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
@@ -297,6 +302,7 @@ $(function () {
     // ****************************************
     // Retrieve a Customer
     // ****************************************
+
     $("#cust-retrieve-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
@@ -312,7 +318,7 @@ $(function () {
             add_single_customer(res)
             update_customer_form_data(res)
             update_address_form_data(res)
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         });
 
         ajax.fail(function(res){
@@ -427,7 +433,7 @@ $(function () {
                 update_customer_form_data(first_customer)
                 update_address_form_data(first_customer)
             }
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
@@ -470,9 +476,8 @@ $(function () {
         });
 
         ajax.done(function(res){
-            update_customer_form_data(res)
             update_address_form_data(res)
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
@@ -510,8 +515,8 @@ $(function () {
 
         ajax.done(function(res){
             res.id = customer_id
-            update_address_form_data(res)
-            flash_message("Success")
+            //update_address_form_data(res)
+            flash_message("SSSSSSSSSSSSSSSSSSSS!!!!!!!!!!!!!!!!!!!!!!!")
         });
 
         ajax.fail(function(res){
@@ -538,7 +543,7 @@ $(function () {
             clear_form_data()
             add_single_address(res)
             update_address_form_data(res)
-            flash_message("Success")
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
@@ -548,8 +553,6 @@ $(function () {
 
     });
 
-    /*
-    //Haven't implemented yet
     // ****************************************
     // Delete an Address
     // ****************************************
@@ -574,7 +577,7 @@ $(function () {
         });
     });
 
-*/
+
     // ****************************************
     // //RETRIEVE A CUSTOMER'S ADDRESSES
     // ****************************************
@@ -582,15 +585,17 @@ $(function () {
         var customer_id = $("#cust_id").val();
         var ajax = $.ajax({
             type: "GET",
-            url: "/customers/" + customer_id+"/addresses" ,
+            url: "/customers/" + customer_id+"/addresses/" ,
             contentType: "application/json"
         })
 
         ajax.done(function(res){
             clear_form_data()
-            add_multiple_addresses(res)
-            
-            flash_message("Success")
+            var first_address = add_multiple_addresses(res)
+            if (first_address) {
+                update_address_form_data(first_address)
+            }
+            flash_message("SSSSSSSSSSSSSSSSSSSS")
         });
 
         ajax.fail(function(res){
