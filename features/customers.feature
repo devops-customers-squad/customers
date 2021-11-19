@@ -32,7 +32,7 @@ Scenario: Create a customer with Invalid address
     And I press the "Create Customer" button
     Then I should see the message "Invalid Address: missing city"
     
-Scenario: Create a customer with Invalid address
+Scenario: Create a customer with valid information
     When I visit the "Home Page"
     And I set the "username" to "dome"
     And I set the "password" to "1111"
