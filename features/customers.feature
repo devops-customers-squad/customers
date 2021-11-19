@@ -14,13 +14,29 @@ Scenario: The server is running
     Then I should see "Customers RESTful Service" in the title
     And I should not see "404 Not Found"
 
-Scenario: Create a customer
+Scenario: Create a customer with same username
     When I visit the "Home Page"
     And I set the "username" to "user1"
     And I set the "password" to "1111"
     And I set the "first_name" to "jiraphon"
     And I press the "Create Customer" button
-    Then I should see the message "Missing last_name attribute"
+    Then I should see the message "Username 'user1' already exists."
+
+Scenario: Create a customer with Invalid address
+    When I visit the "Home Page"
+    And I set the "username" to "dome"
+    And I set the "password" to "1111"
+    And I set the "first_name" to "jiraphon"
+    And I set the "last_name" to "yenphraphai"
+    And I set the "street_address" to "1234"
+    And I press the "Create Customer" button
+    Then I should see the message "Invalid Address: missing city"
+    
+Scenario: Create a customer with Invalid address
+    When I visit the "Home Page"
+    And I set the "username" to "dome"
+    And I set the "password" to "1111"
+    And I set the "first_name" to "jiraphon"
     And I set the "last_name" to "yenphraphai"
     And I set the "street_address" to "1234"
     And I set the "city" to "New York"
@@ -28,10 +44,7 @@ Scenario: Create a customer
     And I set the "zip" to "10090"
     And I set the "country" to "USA"
     And I press the "Create Customer" button
-    Then I should see the message "Missing country attribute"
-    And I press the "Create Customer" button
-    Then I should see the message "Username has taken"
-    And I change the "username" to "dome"
-    And I press the "Create Customer" button
     Then I should see the message "Success"
+
+
 
