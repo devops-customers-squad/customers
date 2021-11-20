@@ -67,10 +67,10 @@ Scenario: Read a customer without an address
     And the "State" field should be empty
     And the "Country" field should be empty
     And the "Zip" field should be empty
-    And I should see "Tim" in the customer results
-    And I should not see "Henry" in the customer results
-    And I should not see "Tom" in the customer results
-    And I should not see "John" in the customer results
+    And I should see "user4" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
 
 Scenario: Read a customer with an address
     When I visit the "Home Page"
@@ -91,14 +91,13 @@ Scenario: Read a customer with an address
     And I should see "Massachusetts" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "20000" in the "Zip" field
-    And I should see "John" in the customer results
-    And I should not see "Henry" in the customer results
-    And I should not see "Tom" in the customer results
-    And I should not see "Tim" in the customer results
+    And I should see "user2" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results
 
 Scenario: Read a customer with an invalid ID
     When I visit the "Home Page"
     And I set the "Customer ID" to "100000"
     And I press the "Retrieve" button
     Then I should see the message "Customer with id '100000' was not found."
-
