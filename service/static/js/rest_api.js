@@ -79,15 +79,12 @@ $(function () {
     }
     
     function add_multiple_customers(res) {
-        console.log("HERE")
         $("#customer_search_results").empty();
         $("#customer_search_results").append('<table style="width:100%" class="table-striped" id="customer_table" cellpadding="10"></table>');
         var header = create_customer_results_header()
         $("#customer_table").append(header);
         var first_customer = null;
-        console.log("MADE IT " + res.length)
         for (var i = 0; i < res.length; i++) {
-            console.log(res[i])
             if (i == 0) {
                 first_customer = res[i];
             }
@@ -97,7 +94,6 @@ $(function () {
     } 
     
     function add_customer_result(res) {
-        console.log("HERE in customer result " + (res.addresses.length) + " yes")
         var addresses = res.addresses;
         if (addresses.length == 0) {
             row = "<tr style='min-width:100%'><td>" + res.id + "</td><td>" + res.first_name + "</td><td>" + res.last_name + "</td><td>" + res.username + "</td><td>" + res.password + "</td><td>" + res.locked + "</td><td>" + "</td></tr>";
@@ -359,7 +355,6 @@ $(function () {
 
         ajax.done(function(res){
             clear_form_data()
-            console.log("done " + res[0])
             var first_customer = add_multiple_customers(res)
             if (first_customer) {
                 update_customer_form_data(first_customer)

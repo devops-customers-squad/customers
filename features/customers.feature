@@ -20,6 +20,7 @@ Scenario: Create a customer with same username
     And I set the "Username" to "user1"
     And I set the "Password" to "1111"
     And I set the "First Name" to "jiraphon"
+    And I set the "Last Name" to "jiraphon"
     And I press the "Create Customer" button
     Then I should see the message "Username 'user1' already exists."
 
