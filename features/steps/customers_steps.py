@@ -48,14 +48,17 @@ def step_impl(context):
             "last_name": row['last_name'],
             #"addresses": row['addresses'],
             }
-        address = [
-                    {"street_address": row['street_address'],
-                    "city": row['city'],
-                    "state": row['state'],
-                    "zipcode": row['zipcode'],
-                    "country": row['country']}
-              ]
-        data["addresses"] = address
+        if row["street_address"] != "None":
+            address = [
+                        {"street_address": row['street_address'],
+                        "city": row['city'],
+                        "state": row['state'],
+                        "zipcode": row['zipcode'],
+                        "country": row['country']}
+                ]
+            data["addresses"] = address
+        else:
+            data["addresses"] = []
         payload = json.dumps(data)
         context.resp = requests.post(create_url, data=payload, headers=headers)
         expect(context.resp.status_code).to_equal(201)
