@@ -14,7 +14,8 @@ Vagrant.configure(2) do |config|
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
+
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -42,7 +43,8 @@ Vagrant.configure(2) do |config|
   ############################################################
   config.vm.provider :docker do |docker, override|
     override.vm.box = nil
-    docker.image = "rofrano/vagrant-provider:ubuntu"
+    override.vm.hostname = "debian"
+    docker.image = "rofrano/vagrant-provider:debian"
     docker.remains_running = true
     docker.has_ssh = true
     docker.privileged = true
