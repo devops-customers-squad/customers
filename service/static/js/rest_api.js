@@ -19,15 +19,12 @@ $(function () {
     }
 
     function update_address_form_data(res) {
-        if (res != null && res.addresses.length != 0) {
-            var address = res.addresses[0];
-            $("#addr_id").val(address.address_id);
-            $("#addr_street_address").val(address.street_address);
-            $("#addr_city").val(address.city);
-            $("#addr_state").val(address.state);
-            $("#addr_country").val(address.country);
-            $("#addr_zip").val(address.zipcode);
-        }
+        $("#addr_id").val(res.address_id);
+        $("#addr_street_address").val(res.street_address);
+        $("#addr_city").val(res.city);
+        $("#addr_state").val(res.state);
+        $("#addr_country").val(res.country);
+        $("#addr_zip").val(res.zipcode);
     }
     /// Clears all form fields
     function clear_form_data() {
@@ -149,9 +146,15 @@ $(function () {
         header += '<th style="width:15%">Zipcode</th>'
         header += '<th style="width:15%">Country</th></tr>'
         $("#address_table").append(header);
+
+        var first_address = null;
         for (var i = 0; i < res.length; i++) {
+            if (i == 0) {
+                first_address = res[i];
+            }
             add_address_result(res[i]);
         }
+        return first_address
     } 
 
     // ****************************************
@@ -393,7 +396,7 @@ $(function () {
                 update_customer_form_data(first_customer)
                 update_address_form_data(first_customer)
             }
-            flash_message("SSSSSSSSSSSSSSSSSSSS")
+            flash_message("Success")
         });
 
         ajax.fail(function(res){
@@ -470,7 +473,6 @@ $(function () {
         });
 
         ajax.done(function(res){
-            update_customer_form_data(res)
             update_address_form_data(res)
             flash_message("Success")
         });
@@ -523,7 +525,7 @@ $(function () {
     // ****************************************
     // Retrieve an Address
     // ****************************************
-    $("#addr-search-btn").click(function () {
+    $("#addr-retrieve-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
         var address_id = $("#addr_id").val();
@@ -535,14 +537,12 @@ $(function () {
         })
 
         ajax.done(function(res){
-            clear_form_data()
             add_single_address(res)
             update_address_form_data(res)
             flash_message("Success")
         });
 
         ajax.fail(function(res){
-            clear_form_data()
             flash_message(res.responseJSON.message)
         });
 
@@ -579,23 +579,65 @@ $(function () {
     // //RETRIEVE A CUSTOMER'S ADDRESSES
     // ****************************************
     $("#addr-query-btn").click(function () {
+
         var customer_id = $("#cust_id").val();
+        var street_address = $("#addr_street_address").val();
+        var city = $("#addr_city").val();
+        var state = $("#addr_state").val();
+        var country = $("#addr_country").val();
+        var zipcode = $("#addr_zip").val();
+
+        var queryString = ""
+
+        if (street_address) {
+            queryString += 'street_address=' + street_address
+        }
+        if (city) {
+            if (queryString.length > 0) {
+                queryString += '&city=' + city
+            } else {
+                queryString += 'city=' + city
+            }
+        }
+        if (state) {
+            if (queryString.length > 0) {
+                queryString += '&state=' + state
+            } else {
+                queryString += 'state=' + state
+            }
+        }
+        
+        if (zipcode) {
+            zipcode=parseInt(zipcode);
+            if (queryString.length > 0) {
+                queryString += '&zipcode=' + zipcode
+            } else {
+                queryString += 'zipcode=' + zipcode
+            }
+        }
+        
+        if (country) {
+            if (queryString.length > 0) {
+                queryString += '&country=' + country
+            } else {
+                queryString += 'country=' + country
+            }
+        }
+
         var ajax = $.ajax({
             type: "GET",
-            url: "/customers/" + customer_id+"/addresses" ,
-            contentType: "application/json"
+            url: "/customers/" + customer_id+"/addresses?"  + queryString,
+            contentType: "application/json",
         })
 
         ajax.done(function(res){
-            clear_form_data()
-            add_multiple_addresses(res)
-            
+            var first_address = add_multiple_addresses(res)
+            update_address_form_data(first_address)
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
-        });
+
+
 
     });
 
