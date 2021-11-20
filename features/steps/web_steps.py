@@ -32,11 +32,15 @@ from selenium.webdriver.support import expected_conditions
 
 
 def mapping_name(key):
-  if key in ["username", "first_name", "last_name", "password", "locked"]:
-    return "cust_" + key.lower()
-  elif key in ["street_address", "zip", "city", "state", "country"]:
-    return "addr_" + key.lower()
-  elif key in ["Create Customer", "Update Customer", 
+  if key == "Customer ID":
+    return "cust_id"
+  elif key == "Address ID":
+    return "addr_id"
+  elif key in ["Username", "First Name", "Last Name", "Password", "Locked"]:
+    return "cust_" + key.lower().replace(" ", "_")
+  elif key in ["Street Address", "Zip", "City", "State", "Country"]:
+    return "addr_" + key.lower().replace(" ", "_")
+  elif key in ["Retrieve", "Create Customer", "Update Customer", 
               "Search for Customer", "Query by Username Prefix",
               "Clear All"]:
     return "cust-" +key.split(" ")[0].lower() +"-btn"
@@ -71,6 +75,12 @@ def step_impl(context, element_name, text_string):
     element = context.driver.find_element_by_id(element_id)
     element.clear()
     element.send_keys(text_string)
+
+@when('I clear the "{element_name}" field')
+def step_impl(context, element_name):
+    element_id = mapping_name(element_name)
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
 
 @then('the "{element_name}" field should be empty')
 def step_impl(context, element_name):
@@ -112,19 +122,35 @@ def step_impl(context, button):
     button_id = mapping_name(button)
     context.driver.find_element_by_id(button_id).click()
 
-@then('I should see "{name}" in the results')
+@then('I should see "{name}" in the customer results')
 def step_impl(context, name):
     found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
         expected_conditions.text_to_be_present_in_element(
-            (By.ID, 'search_results'),
+            (By.ID, 'customer_search_results'),
             name
         )
     )
     expect(found).to_be(True)
 
-@then('I should not see "{name}" in the results')
+@then('I should not see "{name}" in the customer results')
 def step_impl(context, name):
-    element = context.driver.find_element_by_id('search_results')
+    element = context.driver.find_element_by_id('customer_search_results')
+    error_msg = "I should not see '%s' in '%s'" % (name, element.text)
+    ensure(name in element.text, False, error_msg)
+
+@then('I should see "{name}" in the address results')
+def step_impl(context, name):
+    found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'address_search_results'),
+            name
+        )
+    )
+    expect(found).to_be(True)
+
+@then('I should not see "{name}" in the address results')
+def step_impl(context, name):
+    element = context.driver.find_element_by_id('address_search_results')
     error_msg = "I should not see '%s' in '%s'" % (name, element.text)
     ensure(name in element.text, False, error_msg)
 
@@ -147,7 +173,7 @@ def step_impl(context, message):
 
 @then('I should see "{text_string}" in the "{element_name}" field')
 def step_impl(context, text_string, element_name):
-    element_id = mapping_name(element_name.lower())
+    element_id = mapping_name(element_name)
     found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
         expected_conditions.text_to_be_present_in_element_value(
             (By.ID, element_id),

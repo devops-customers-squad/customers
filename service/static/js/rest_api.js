@@ -44,6 +44,8 @@ $(function () {
         $("#addr_state").val("");
         $("#addr_country").val("");
         $("#addr_zip").val("");
+        $("#customer_table tr").remove(); 
+        $("#customer_table").append(create_customer_results_header());
     }
 
     // Updates the flash message area
@@ -56,9 +58,7 @@ $(function () {
         return "address_id=" + address.address_id + ": " + address.street_address + ", " + address.city + ", " + address.state + " " + address.zipcode + ", " + address.country
     }
 
-    function add_single_customer(res) {
-        $("#customer_search_results").empty();
-        $("#customer_search_results").append('<table style="width:100%" class="table-striped" id="customer_table" cellpadding="10"></table>');
+    function create_customer_results_header() {
         var header = '<tr style="min-width:100%">'
         header += '<th style="width:10%">ID</th>'
         header += '<th style="width:10%">First Name</th>'
@@ -67,24 +67,27 @@ $(function () {
         header += '<th style="width:10%">Password</th>'
         header += '<th style="width:10%">Locked</th>'
         header += '<th style="width:40%">Addresses</th></tr>'
+        return header
+    }
+
+    function add_single_customer(res) {
+        $("#customer_search_results").empty();
+        $("#customer_search_results").append('<table style="width:100%" class="table-striped" id="customer_table" cellpadding="10"></table>');
+        var header = create_customer_results_header()
         $("#customer_table").append(header);
         add_customer_result(res);
     }
     
     function add_multiple_customers(res) {
+        console.log("HERE")
         $("#customer_search_results").empty();
         $("#customer_search_results").append('<table style="width:100%" class="table-striped" id="customer_table" cellpadding="10"></table>');
-        var header = '<tr style="min-width:100%">'
-        header += '<th style="width:10%">ID</th>'
-        header += '<th style="width:10%">First Name</th>'
-        header += '<th style="width:10%">Last Name</th>'
-        header += '<th style="width:10%">Username</th>'
-        header += '<th style="width:10%">Password</th>'
-        header += '<th style="width:10%">Locked</th>'
-        header += '<th style="width:40%">Addresses</th></tr>'
+        var header = create_customer_results_header()
         $("#customer_table").append(header);
         var first_customer = null;
+        console.log("MADE IT " + res.length)
         for (var i = 0; i < res.length; i++) {
+            console.log(res[i])
             if (i == 0) {
                 first_customer = res[i];
             }
@@ -94,7 +97,12 @@ $(function () {
     } 
     
     function add_customer_result(res) {
+        console.log("HERE in customer result " + (res.addresses.length) + " yes")
         var addresses = res.addresses;
+        if (addresses.length == 0) {
+            row = "<tr style='min-width:100%'><td>" + res.id + "</td><td>" + res.first_name + "</td><td>" + res.last_name + "</td><td>" + res.username + "</td><td>" + res.password + "</td><td>" + res.locked + "</td><td>" + "</td></tr>";
+            $("#customer_table").append(row);
+        }
         for(var i = 0; i < addresses.length; i++) {
             var address = addresses[i];
             var row; 
@@ -118,12 +126,13 @@ $(function () {
         var password = $("#cust_password").val();
 
         var data = {
-            "first_name": first_name,
-            "last_name": last_name,
-            "username": username,
-            "password": password,
             "addresses": []
         };
+
+        if (first_name != "") { data["first_name"] = first_name }
+        if (last_name != "") { data["last_name"] = last_name }
+        if (username != "") { data["username"] = username }
+        if (password != "") { data["password"] = password }
 
         var street_address = $("#addr_street_address").val();
         var city = $("#addr_city").val();
@@ -152,6 +161,7 @@ $(function () {
         });
 
         ajax.done(function(res){
+            clear_form_data()
             update_customer_form_data(res)
             update_address_form_data(res)
             flash_message("Success")
@@ -176,6 +186,7 @@ $(function () {
             })
 
         ajax.done(function(res){
+            clear_form_data()
             res.id = customer_id
             update_customer_form_data(res)
             flash_message("Success")
@@ -200,6 +211,7 @@ $(function () {
             })
 
         ajax.done(function(res){
+            clear_form_data()
             res.id = customer_id
             update_customer_form_data(res)
             flash_message("Success")
@@ -237,6 +249,7 @@ $(function () {
             })
 
         ajax.done(function(res){
+            clear_form_data()
             res.id = customer_id
             update_customer_form_data(res)
             flash_message("Success")
@@ -346,6 +359,7 @@ $(function () {
 
         ajax.done(function(res){
             clear_form_data()
+            console.log("done " + res[0])
             var first_customer = add_multiple_customers(res)
             if (first_customer) {
                 update_customer_form_data(first_customer)
