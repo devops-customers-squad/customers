@@ -101,3 +101,19 @@ Scenario: Read a customer with an invalid ID
     And I set the "Customer ID" to "100000"
     And I press the "Retrieve" button
     Then I should see the message "Customer with id '100000' was not found."
+
+Scenario: Lock a customer
+    When I visit the "Home Page"
+    And I set the "First Name" to "John"
+    And I press the "Search for Customer" button
+    Then I should see "false" in the "Locked" field
+    When I press the "Lock" button
+    Then I should see "true" in the "Locked" field
+    And I should see "John" in the "First Name" field
+    And I should see "Georgie" in the "Last Name" field
+    And I should see "user2" in the "Username" field
+    And I should see "1235" in the "Password" field
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results

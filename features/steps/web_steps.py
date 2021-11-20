@@ -42,7 +42,7 @@ def mapping_name(key):
     return "addr_" + key.lower().replace(" ", "_")
   elif key in ["Retrieve", "Create Customer", "Update Customer", 
               "Search for Customer", "Query by Username Prefix",
-              "Clear All"]:
+              "Clear All", "Lock", "Unlock", "Delete"]:
     return "cust-" +key.split(" ")[0].lower() +"-btn"
   elif key in ["Search for Customer Addresses", "Update Customer Address", 
               "Create Customer Address", "Clear Address"]:
