@@ -19,6 +19,18 @@ $(function () {
     }
 
     function update_address_form_data(res) {
+        if (res != null && res.addresses.length != 0) {
+            var address = res.addresses[0];
+            $("#addr_id").val(address.address_id);
+            $("#addr_street_address").val(address.street_address);
+            $("#addr_city").val(address.city);
+            $("#addr_state").val(address.state);
+            $("#addr_country").val(address.country);
+            $("#addr_zip").val(address.zipcode);
+        }
+    }
+
+    function update_address_form(res) {
         $("#addr_id").val(res.address_id);
         $("#addr_street_address").val(res.street_address);
         $("#addr_city").val(res.city);
@@ -482,7 +494,7 @@ $(function () {
         });
 
         ajax.done(function(res){
-            update_address_form_data(res)
+            update_address_form(res)
             flash_message("Success")
         });
 
@@ -521,7 +533,7 @@ $(function () {
 
         ajax.done(function(res){
             res.id = customer_id
-            update_address_form_data(res)
+            update_address_form(res)
             flash_message("Success")
         });
 
@@ -547,7 +559,7 @@ $(function () {
 
         ajax.done(function(res){
             add_single_address(res)
-            update_address_form_data(res)
+            update_address_form(res)
             flash_message("Success")
         });
 
@@ -641,7 +653,7 @@ $(function () {
 
         ajax.done(function(res){
             var first_address = add_multiple_addresses(res)
-            update_address_form_data(first_address)
+            update_address_form(first_address)
             flash_message("Success")
         });
 
