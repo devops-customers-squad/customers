@@ -31,12 +31,14 @@ $(function () {
     }
 
     function update_address_form(res) {
-        $("#addr_id").val(res.address_id);
-        $("#addr_street_address").val(res.street_address);
-        $("#addr_city").val(res.city);
-        $("#addr_state").val(res.state);
-        $("#addr_country").val(res.country);
-        $("#addr_zip").val(res.zipcode);
+        if (res != null && res.length != 0) {
+            $("#addr_id").val(res.address_id);
+            $("#addr_street_address").val(res.street_address);
+            $("#addr_city").val(res.city);
+            $("#addr_state").val(res.state);
+            $("#addr_country").val(res.country);
+            $("#addr_zip").val(res.zipcode);
+        }
     }
     /// Clears all form fields
     function clear_form_data() {
@@ -54,16 +56,6 @@ $(function () {
         $("#addr_zip").val("");
         $("#customer_table tr").remove(); 
         $("#customer_table").append(create_customer_results_header());
-    }
-
-    /// Clears address form fields
-    function clear_address_data() {
-        $("#addr_id").val("");
-        $("#addr_street_address").val("");
-        $("#addr_city").val("");
-        $("#addr_state").val("");
-        $("#addr_country").val("");
-        $("#addr_zip").val("");
     }
 
     // Updates the flash message area
@@ -129,9 +121,7 @@ $(function () {
         }
     }
 
-    function add_single_address(res) {
-        $("#address_search_results").empty();
-        $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
+    function create_address_results_header() {
         var header = '<tr style="min-width:100%">'
         header += '<th style="width:10%">Customer ID</th>'
         header += '<th style="width:10%">Address ID</th>'
@@ -140,6 +130,13 @@ $(function () {
         header += '<th style="width:15%">States</th>'
         header += '<th style="width:15%">Zipcode</th>'
         header += '<th style="width:15%">Country</th></tr>'
+        return header
+    }
+
+    function add_single_address(res) {
+        $("#address_search_results").empty();
+        $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
+        var header = create_address_results_header
         $("#address_table").append(header);
         add_address_result(res);
     }
@@ -153,14 +150,7 @@ $(function () {
     function add_multiple_addresses(res) {
         $("#address_search_results").empty();
         $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
-        var header = '<tr style="min-width:100%">'
-        header += '<th style="width:10%">Customer ID</th>'
-        header += '<th style="width:10%">Address ID</th>'
-        header += '<th style="width:20%">Street Address</th>'
-        header += '<th style="width:15%">City</th>'
-        header += '<th style="width:15%">States</th>'
-        header += '<th style="width:15%">Zipcode</th>'
-        header += '<th style="width:15%">Country</th></tr>'
+        var header = create_address_results_header
         $("#address_table").append(header);
 
         var first_address = null;
@@ -172,6 +162,19 @@ $(function () {
         }
         return first_address
     } 
+
+    /// Clears address form fields
+    function clear_address_data() {
+        $("#addr_id").val("");
+        $("#addr_street_address").val("");
+        $("#addr_city").val("");
+        $("#addr_state").val("");
+        $("#addr_country").val("");
+        $("#addr_zip").val("");
+        $("#address_table tr").remove(); 
+        $("#address_table").append(create_address_results_header());
+    }
+    
 
     // ****************************************
     // Create a Customer
