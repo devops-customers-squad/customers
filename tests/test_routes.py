@@ -274,7 +274,7 @@ class TestYourResourceServer(TestCase):
         """ Test Delete an address from an existing customer"""
         test_customer = CustomerFactory()
         test_address = AddressFactory()
-        test_customer.addresses = [test_address]
+        test_customer.addresses.append(test_address)
         resp = self.app.delete(
             "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address.address_id), content_type="application/json"
         )
