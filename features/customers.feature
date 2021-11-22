@@ -134,3 +134,17 @@ Scenario: Delete a customer with no id provided
     When I visit the "Home Page"
     And I press the "Delete" button
     Then I should see the message "Server error!"
+
+Scenario: Delete a customer with id provided
+    When I visit the "Home Page"    
+    And I set the "First Name" to "John"
+    And I press the "Search for Customer" button
+    Then I should see "false" in the "Locked" field
+    When I press the "Delete" button
+    Then I should see the message "Customer has been Deleted!"
+    When I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "user1" in the customer results
+    And I should see "user3" in the customer results
+    And I should see "user4" in the customer results
+
