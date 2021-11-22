@@ -30,6 +30,16 @@ $(function () {
         }
     }
 
+    function update_address_form(res) {
+        if (res != null && res.length != 0) {
+            $("#addr_id").val(res.address_id);
+            $("#addr_street_address").val(res.street_address);
+            $("#addr_city").val(res.city);
+            $("#addr_state").val(res.state);
+            $("#addr_country").val(res.country);
+            $("#addr_zip").val(res.zipcode);
+        }
+    }
     /// Clears all form fields
     function clear_form_data() {
         $("#cust_id").val("");
@@ -110,6 +120,61 @@ $(function () {
             $("#customer_table").append(row);
         }
     }
+
+    function create_address_results_header() {
+        var header = '<tr style="min-width:100%">'
+        header += '<th style="width:10%">Customer ID</th>'
+        header += '<th style="width:10%">Address ID</th>'
+        header += '<th style="width:20%">Street Address</th>'
+        header += '<th style="width:15%">City</th>'
+        header += '<th style="width:15%">States</th>'
+        header += '<th style="width:15%">Zipcode</th>'
+        header += '<th style="width:15%">Country</th></tr>'
+        return header
+    }
+
+    function add_single_address(res) {
+        $("#address_search_results").empty();
+        $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
+        var header = create_address_results_header
+        $("#address_table").append(header);
+        add_address_result(res);
+    }
+
+    function add_address_result(res) {
+        var row = "<tr style='min-width:100%'><td>" + res.customer_id + "</td><td>" + res.address_id + "</td><td>" + res.street_address + "</td><td>" 
+        + res.city + "</td><td>" + res.state + "</td><td>" + res.zipcode + "</td><td>" + res.country + "</td></tr>";
+        $("#address_table").append(row);
+    }
+
+    function add_multiple_addresses(res) {
+        $("#address_search_results").empty();
+        $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
+        var header = create_address_results_header
+        $("#address_table").append(header);
+
+        var first_address = null;
+        for (var i = 0; i < res.length; i++) {
+            if (i == 0) {
+                first_address = res[i];
+            }
+            add_address_result(res[i]);
+        }
+        return first_address
+    } 
+
+    /// Clears address form fields
+    function clear_address_data() {
+        $("#addr_id").val("");
+        $("#addr_street_address").val("");
+        $("#addr_city").val("");
+        $("#addr_state").val("");
+        $("#addr_country").val("");
+        $("#addr_zip").val("");
+        $("#address_table tr").remove(); 
+        $("#address_table").append(create_address_results_header());
+    }
+    
 
     // ****************************************
     // Create a Customer
@@ -221,7 +286,6 @@ $(function () {
     // ****************************************
     // Update a Customer
     // ****************************************
-
     $("#cust-update-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
@@ -260,7 +324,6 @@ $(function () {
     // ****************************************
     // Retrieve a Customer
     // ****************************************
-
     $("#cust-retrieve-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
@@ -289,7 +352,6 @@ $(function () {
     // ****************************************
     // Delete a Customer
     // ****************************************
-
     $("#cust-delete-btn").click(function () {
 
         var cust_id = $("#cust_id").val();
@@ -313,7 +375,6 @@ $(function () {
     // ****************************************
     // Clear the form
     // ****************************************
-
     $("#cust-clear-btn").click(function () {
         clear_form_data()
     });
@@ -321,7 +382,6 @@ $(function () {
     // ****************************************
     // Search for a Customer
     // ****************************************
-
     $("#cust-search-btn").click(function () {
         var username = $("#cust_username").val();
         var first_name = $("#cust_first_name").val();
@@ -402,5 +462,215 @@ $(function () {
         });
 
     });
+
+
+// ************************************************************************************************************************
+// Address Functions
+// ************************************************************************************************************************
+
+    // ****************************************
+    // Create an Address
+    // ****************************************
+    $("#addr-create-btn").click(function () {
+
+        var customer_id = $("#cust_id").val();
+        var street_address = $("#addr_street_address").val();
+        var city = $("#addr_city").val();
+        var state = $("#addr_state").val();
+        var country = $("#addr_country").val();
+        var zipcode = $("#addr_zip").val();
+
+        var data = {
+            "customer_id": customer_id,
+            "street_address": street_address,
+            "city": city,
+            "state": state,
+            "country": country,
+            "zipcode": zipcode
+        };
+
+        var ajax = $.ajax({
+            type: "POST",
+            url: "/customers/" + customer_id+"/addresses",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            update_address_form(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    });
+
+    // ****************************************
+    // Update a Address
+    // ****************************************
+    $("#addr-update-btn").click(function () {
+        var customer_id = $("#cust_id").val();
+        var address_id = $("#addr_id").val();
+        
+        var street_address = $("#addr_street_address").val();
+        var city = $("#addr_city").val();
+        var state = $("#addr_state").val();
+        var country = $("#addr_country").val();
+        var zipcode = $("#addr_zip").val();
+
+        var data = {
+            "street_address": street_address,
+            "city":city,
+            "state": state,
+            "zipcode": zipcode,
+            "country": country
+        };
+
+        var ajax = $.ajax({
+                type: "PUT",
+                url: "/customers/" + customer_id+"/addresses/" +address_id,
+                contentType: "application/json",
+                data: JSON.stringify(data)
+            })
+
+        ajax.done(function(res){
+            res.id = customer_id
+            update_address_form(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
+    // ****************************************
+    // Retrieve an Address
+    // ****************************************
+    $("#addr-retrieve-btn").click(function () {
+
+        var customer_id = $("#cust_id").val();
+        var address_id = $("#addr_id").val();
+
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/customers/" + customer_id+"/addresses/" +address_id,
+            contentType: "application/json",
+        })
+
+        ajax.done(function(res){
+            add_single_address(res)
+            update_address_form(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
+    /*
+    //Haven't implemented yet
+    // ****************************************
+    // Delete an Address
+    // ****************************************
+    $("#addr-delete-btn").click(function () {
+        
+        var customer_id = $("#cust_id").val();
+        var address_id = $("#addr_id").val();
+
+        var ajax = $.ajax({
+            type: "DELETE",
+            url: "/customers/" + customer_id+"/addresses/" +address_id,
+            contentType: "application/json"
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Address has been Deleted!")
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
+    });
+
+*/
+    // ****************************************
+    // //RETRIEVE A CUSTOMER'S ADDRESSES
+    // ****************************************
+    $("#addr-query-btn").click(function () {
+
+        var customer_id = $("#cust_id").val();
+        var street_address = $("#addr_street_address").val();
+        var city = $("#addr_city").val();
+        var state = $("#addr_state").val();
+        var country = $("#addr_country").val();
+        var zipcode = $("#addr_zip").val();
+
+        var queryString = ""
+
+        if (street_address) {
+            queryString += 'street_address=' + street_address
+        }
+        if (city) {
+            if (queryString.length > 0) {
+                queryString += '&city=' + city
+            } else {
+                queryString += 'city=' + city
+            }
+        }
+        if (state) {
+            if (queryString.length > 0) {
+                queryString += '&state=' + state
+            } else {
+                queryString += 'state=' + state
+            }
+        }
+        
+        if (zipcode) {
+            zipcode=parseInt(zipcode);
+            if (queryString.length > 0) {
+                queryString += '&zipcode=' + zipcode
+            } else {
+                queryString += 'zipcode=' + zipcode
+            }
+        }
+        
+        if (country) {
+            if (queryString.length > 0) {
+                queryString += '&country=' + country
+            } else {
+                queryString += 'country=' + country
+            }
+        }
+
+        var ajax = $.ajax({
+            type: "GET",
+            url: "/customers/" + customer_id+"/addresses?"  + queryString,
+            contentType: "application/json",
+        })
+
+        ajax.done(function(res){
+            var first_address = add_multiple_addresses(res)
+            update_address_form(first_address)
+            flash_message("Success")
+        });
+
+
+
+
+    });
+
+    // ****************************************
+    // Clear the Address form
+    // ****************************************
+    $("#addr-clear-btn").click(function () {
+        clear_address_data()
+    });
+
 })
 
