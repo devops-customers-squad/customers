@@ -120,3 +120,8 @@ Scenario: Lock a customer
     And I should not see "user2" in the customer results
     And I should not see "user3" in the customer results
     And I should not see "user4" in the customer results
+
+Scenario: Delete a customer with no id provided
+    When I visit the "Home Page"
+    And I press the "Delete" button
+    Then I should see the message "Server error!"

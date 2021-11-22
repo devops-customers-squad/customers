@@ -190,3 +190,29 @@ def step_impl(context, element_name, text_string):
     )
     element.clear()
     element.send_keys(text_string)
+
+@then('I should get "{text_string}" in the Customer ID field and be able to set Customer ID to delete this customer')
+def step_impl(context):
+    element_id = mapping_name("Customer ID")
+    found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element_value(
+            (By.ID, element_id),
+            text_string
+        )
+    )
+    expect(found).to_be(True)
+    """
+    element_id = mapping_name("Customer ID")
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
+    element.send_keys(By.ID)
+    """
+
+"""
+@when('I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = mapping_name(element_name)
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
+    element.send_keys(text_string)
+"""
