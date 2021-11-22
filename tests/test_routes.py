@@ -207,7 +207,7 @@ class TestYourResourceServer(TestCase):
             "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address["address_id"]),
             content_type="application/json"
         )
-        print(resp.data)
+   
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["street_address"], test_address["street_address"])
@@ -270,6 +270,32 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_delete_address(self):
+        """ Test Delete an address from an existing customer"""
+        test_customer = CustomerFactory()
+        test_address = AddressFactory()
+        test_customer.addresses = [test_address]
+        resp = self.app.delete(
+            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address.address_id), content_type="application/json"
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+
+        # make sure it is deleted
+        resp = self.app.get(
+            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address.address_id),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+        # test delete a non-existing address
+        resp = self.app.delete(
+            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address.address_id), content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+
     def test_services_list(self):
         """ Test service serves html """
         resp = self.app.get("/")
@@ -311,7 +337,7 @@ class TestYourResourceServer(TestCase):
         new_customer = resp.get_json()
         del new_customer["username"]
         logging.debug(new_customer)
-        print(new_customer["id"])
+
         resp = self.app.put(
             "/customers/{}".format(new_customer["id"]),
             json=new_customer,
