@@ -135,6 +135,24 @@ Scenario: Lock a customer
     And I press the "Search for Customer" button
     Then I should see "true" in the "Locked" field
 
+Scenario: Delete a customer with no id provided
+    When I visit the "Home Page"
+    And I press the "Delete" button
+    Then I should see the message "Server error!"
+
+Scenario: Delete a customer with id provided
+    When I visit the "Home Page"    
+    And I set the "First Name" to "John"
+    And I press the "Search for Customer" button
+    When I press the "Delete" button
+    Then I should see the message "Customer has been Deleted!"
+    When I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should see "user3" in the customer results
+    And I should see "user4" in the customer results
+
 Scenario: Unlock a customer after locking
     When I visit the "Home Page"
     And I set the "First Name" to "Henry"
