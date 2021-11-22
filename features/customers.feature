@@ -129,3 +129,28 @@ Scenario: Lock a customer
     And I should not see "user2" in the customer results
     And I should not see "user3" in the customer results
     And I should not see "user4" in the customer results
+    # Check that the Locked field is now set to true when the customer is retrieved
+    When I visit the "Home Page"
+    And I set the "First Name" to "John"
+    And I press the "Search for Customer" button
+    Then I should see "true" in the "Locked" field
+
+Scenario: Unlock a customer after locking
+    When I visit the "Home Page"
+    And I set the "First Name" to "Henry"
+    And I press the "Search for Customer" button
+    Then I should see "false" in the "Locked" field
+    When I press the "Lock" button
+    Then I should see "true" in the "Locked" field
+    # Unlock the locked customer
+    When I press the "Unlock" button
+    Then I should see the message "Success"
+    And I should see "false" in the "Locked" field
+    And I should see "Henry" in the "First Name" field
+    And I should see "George" in the "Last Name" field
+    And I should see "user1" in the "Username" field
+    And I should see "1234" in the "Password" field
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results
