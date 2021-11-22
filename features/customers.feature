@@ -104,6 +104,15 @@ Scenario: Read a customer with an invalid ID
     And I press the "Retrieve" button
     Then I should see the message "Customer with id '100000' was not found."
 
+Scenario: List all customers
+    When I visit the "Home Page"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "user1" in the customer results
+    And I should see "user2" in the customer results
+    And I should see "user3" in the customer results
+    And I should see "user4" in the customer results
+
 Scenario: Lock a customer
     When I visit the "Home Page"
     And I set the "First Name" to "John"

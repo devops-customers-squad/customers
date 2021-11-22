@@ -77,8 +77,12 @@
           <div class="form-horizontal">
             <div class="form-group">
               <label class="control-label col-sm-2" for="addr_id">Address ID:</label>
-              <div class="col-sm-10">
+              <div class="col-sm-7">
                 <input type="text" class="form-control" id="addr_id" placeholder="Enter ID of Address">
+              </div>
+              <div class="col-sm-3">
+                <button type="submit" class="btn btn-primary" id="addr-retrieve-btn">Retrieve</button>
+                <button type="submit" class="btn btn-danger" id="addr-delete-btn">Delete</button>
               </div>
             </div>
           </div> <!-- form div -->
@@ -114,7 +118,7 @@
             <div class="form-horizontal">
               <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                  <button type="submit" class="btn btn-primary" id="addr-search-btn">Search for Customer Addresses</button>
+                  <button type="submit" class="btn btn-primary" id="addr-query-btn">Query Customer' Addresses</button>
                   <button type="submit" class="btn btn-warning" id="addr-update-btn">Update Customer Address</button>
                   <button type="submit" class="btn btn-success" id="addr-create-btn">Create Customer Address</button>
                   <button type="submit" class="btn btn-primary" id="addr-clear-btn">Clear Address</button>
@@ -162,7 +166,7 @@
                 <th style="width:20%">Street Address</th>
                 <th style="width:15%">City</th>
                 <th style="width:15%">State</th>
-                <th style="width:15%">Zicode</th>
+                <th style="width:15%">Zipcode</th>
                 <th style="width:15%">Country</th>
             </tr>
             </thead>
