@@ -113,6 +113,31 @@ Scenario: List all customers
     And I should see "user3" in the customer results
     And I should see "user4" in the customer results
 
+Scenario: Update all customer
+    When I visit the "Home Page"
+    And I set the "First Name" to "Tim"
+    And I set the "Last Name" to "Giovani"
+    And I press the "Search" button
+    Then I should see "Tim" in the "First Name" field
+    Then I should see "Giovani" in the "Last Name" field
+    And I should see "customer" in the "Category" field
+    When I change "First Name" to "Tina"
+    When I change "Last Name" to "Li"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see "Tina" in the "First Name" field
+    Then I should see "Li" in the "Last Name" field
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should see "Tina" in the results
+    Then I should see "Li" in the results
+    Then I should not see "Tim" in the results
+    Then I should not see "Giovani" in the results
+
 Scenario: Lock a customer
     When I visit the "Home Page"
     And I set the "First Name" to "John"
@@ -154,3 +179,4 @@ Scenario: Unlock a customer after locking
     And I should not see "user2" in the customer results
     And I should not see "user3" in the customer results
     And I should not see "user4" in the customer results
+
