@@ -48,14 +48,9 @@ $(function () {
         $("#cust_username").val("");
         $("#cust_password").val("");
         $("#cust_locked").val("");
-        $("#addr_id").val("");
-        $("#addr_street_address").val("");
-        $("#addr_city").val("");
-        $("#addr_state").val("");
-        $("#addr_country").val("");
-        $("#addr_zip").val("");
         $("#customer_table tr").remove(); 
         $("#customer_table").append(create_customer_results_header());
+        clear_address_data();
     }
 
     // Updates the flash message area
@@ -170,7 +165,7 @@ $(function () {
         $("#addr_city").val("");
         $("#addr_state").val("");
         $("#addr_country").val("");
-        $("#addr_zip").val("");
+        $("#addr_zip").val(""); 
         $("#address_table tr").remove(); 
         $("#address_table").append(create_address_results_header());
     }
