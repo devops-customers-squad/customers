@@ -288,6 +288,23 @@ def delete_customers(customer_id):
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
+# DELETE AN EXISTING CUSTOMER'S ADDRESS
+######################################################################
+@app.route("/customers/<int:customer_id>/addresses/<int:address_id>", methods=["DELETE"])
+def delete_customers_address(customer_id, address_id):
+    """
+    Delete an existing customer's address
+    This endpoint will delete a Customer's address based the customer_id and address_id specified in the path
+    """
+    app.logger.info("Request to delete address with id: %s, customer with id: %s", address_id, customer_id)
+    customer = Customer.find(customer_id)
+    if customer:
+        address = Address.find(address_id)
+        if address:
+            address.delete()
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+######################################################################
 # LOCK AN EXISTING CUSTOMER
 ######################################################################
 @app.route("/customers/<int:customer_id>/lock", methods=["PUT"])
