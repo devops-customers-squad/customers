@@ -175,7 +175,7 @@ def get_customer_address(customer_id, address_id):
     address = Address.find(address_id)
     if not address or address.customer_id != customer_id:
         raise NotFound(f"Address with id '{address_id}' belonging to customer with"
-            + " id '{customer_id}' not found")
+            + f" id '{customer_id}' not found")
     return make_response(jsonify(address.serialize()), status.HTTP_200_OK)
 
 ######################################################################
