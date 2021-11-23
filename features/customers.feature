@@ -48,14 +48,35 @@ Scenario: Create a customer with valid information
     And I press the "Create Customer" button
     Then I should see the message "Success"
 
+Scenario: Clear customer information
+    When I visit the "Home Page"
+    And I set the "First Name" to "Tom"
+    And I press the "Search for Customer" button
+    And I press the "Clear All" button
+    Then the "Customer ID" field should be empty
+    And the "First Name" field should be empty
+    And the "Last Name" field should be empty
+    And the "Username" field should be empty
+    And the "Password" field should be empty
+    And the "Locked" field should be empty
+    And the "Address ID" field should be empty
+    And the "Street Address" field should be empty
+    And the "City" field should be empty
+    And the "State" field should be empty
+    And the "Country" field should be empty
+    And the "Zip" field should be empty
+    And I should not see "user4" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
+
 Scenario: Read a customer without an address
     When I visit the "Home Page"
     And I set the "First Name" to "Tim"
     And I press the "Search for Customer" button
-    And I clear the "First Name" field
-    And I clear the "Last Name" field
-    And I clear the "Username" field
-    And I clear the "Password" field
+    And I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
     And I should see "Tim" in the "First Name" field
@@ -77,10 +98,9 @@ Scenario: Read a customer with an address
     When I visit the "Home Page"
     And I set the "First Name" to "John"
     And I press the "Search for Customer" button
-    And I clear the "First Name" field
-    And I clear the "Last Name" field
-    And I clear the "Username" field
-    And I clear the "Password" field
+    And I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
     And I should see "John" in the "First Name" field
@@ -118,7 +138,10 @@ Scenario: Lock a customer
     And I set the "First Name" to "John"
     And I press the "Search for Customer" button
     Then I should see "false" in the "Locked" field
-    When I press the "Lock" button
+    When I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
+    And I press the "Lock" button
     Then I should see the message "Success"
     And I should see "true" in the "Locked" field
     And I should see "John" in the "First Name" field
@@ -144,7 +167,10 @@ Scenario: Delete a customer with id provided
     When I visit the "Home Page"    
     And I set the "First Name" to "John"
     And I press the "Search for Customer" button
-    When I press the "Delete" button
+    And I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
+    And I press the "Delete" button
     Then I should see the message "Customer has been Deleted!"
     When I press the "Search for Customer" button
     Then I should see the message "Success"
@@ -158,10 +184,16 @@ Scenario: Unlock a customer after locking
     And I set the "First Name" to "Henry"
     And I press the "Search for Customer" button
     Then I should see "false" in the "Locked" field
-    When I press the "Lock" button
+    When I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
+    And I press the "Lock" button
     Then I should see "true" in the "Locked" field
     # Unlock the locked customer
-    When I press the "Unlock" button
+    When I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
+    And I press the "Unlock" button
     Then I should see the message "Success"
     And I should see "false" in the "Locked" field
     And I should see "Henry" in the "First Name" field
