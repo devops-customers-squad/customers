@@ -224,6 +224,10 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(customer.id, customers[1].id)
         self.assertEqual(customer.username, customers[1].username)
 
+    def test_find_or_404_not_found(self):
+        """Find or return 404 NOT found"""
+        self.assertRaises(NotFound, Customer.find_or_404, 0)
+
     def test_delete_a_customer(self):
         """ Test Delete a Customer"""
         customer = CustomerFactory()
