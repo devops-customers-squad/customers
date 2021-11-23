@@ -211,11 +211,8 @@ def get_customer_addresses(customer_id):
         found = 0
         for query_key in request.args.keys():
           value = request.args.get(query_key)
-          if address[query_key] == value:
-            found = 1
-          else:
-            found = 0
-            break
+          found = 1 if address[query_key] == value else 0
+          if not found: break
         if found:  
           filter_addresses.append(address)
      
@@ -300,8 +297,7 @@ def delete_customers_address(customer_id, address_id):
     customer = Customer.find(customer_id)
     if customer:
         address = Address.find(address_id)
-        if address:
-            address.delete()
+        if address: address.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
