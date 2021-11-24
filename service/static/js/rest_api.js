@@ -289,12 +289,12 @@ $(function () {
         var username = $("#cust_username").val();
         var password = $("#cust_password").val();
 
-        var data = {
-            "first_name": first_name,
-            "last_name": last_name,
-            "username": username,
-            "password": password
-        };
+        var data = {};
+
+        if (first_name != "") { data["first_name"] = first_name }
+        if (last_name != "") { data["last_name"] = last_name }
+        if (username != "") { data["username"] = username }
+        if (password != "") { data["password"] = password }
 
         var ajax = $.ajax({
                 type: "PUT",
