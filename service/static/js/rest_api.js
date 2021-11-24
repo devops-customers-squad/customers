@@ -544,7 +544,7 @@ $(function () {
     // ****************************************
     // Retrieve an Address
     // ****************************************
-    $("#addr-search-btn").click(function () {
+    $("#addr-query-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
         var address_id = $("#addr_id").val();
