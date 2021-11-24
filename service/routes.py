@@ -61,7 +61,7 @@ def update_customers(customer_id):
         customer.update()
     except KeyError as error:
         raise DataValidationError(
-            "Invalid JSON request body: missing " + error.args[0]
+            "Invalid Customer update: missing " + error.args[0]
         )
     app.logger.info("customer with ID [%s] updated.", customer.id)
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)

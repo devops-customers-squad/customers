@@ -133,6 +133,30 @@ Scenario: List all customers
     And I should see "user3" in the customer results
     And I should see "user4" in the customer results
 
+Scenario: Update a customer
+    When I visit the "Home Page"
+    And I set the "First Name" to "Tim"
+    And I set the "Last Name" to "Giovani"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "Tim" in the "First Name" field
+    And I should see "Giovani" in the "Last Name" field
+
+    # Update this cusotmer
+    When I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
+    And I set the "First Name" to "Tina"
+    And I set the "Last Name" to "Li"
+    And I set the "Username" to "Tina_username"
+    And I set the "Password" to "Tina_password"
+    And I press the "Update Customer" button
+    Then I should see the message "Success"
+    And I should see "Tina" in the "First Name" field
+    And I should see "Li" in the "Last Name" field
+    And I should see "Tina_username" in the "Username" field
+    And I should see "Tina_password" in the "Password" field
+
 Scenario: Lock a customer
     When I visit the "Home Page"
     And I set the "First Name" to "John"
