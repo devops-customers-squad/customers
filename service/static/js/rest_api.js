@@ -597,7 +597,7 @@ $(function () {
     // ****************************************
     // //RETRIEVE A CUSTOMER'S ADDRESSES
     // ****************************************
-    $("#addr-query-btn").click(function () {
+    $("#addr-search-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
         var street_address = $("#addr_street_address").val();
@@ -654,10 +654,6 @@ $(function () {
             update_address_form(first_address)
             flash_message("Success")
         });
-
-
-
-
     });
 
     // ****************************************
