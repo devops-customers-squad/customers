@@ -45,7 +45,7 @@ def mapping_name(key):
               "Clear All", "Lock", "Unlock", "Delete"]:
     return "cust-" +key.split(" ")[0].lower() +"-btn"
   elif key in ["Search for Customer Addresses", "Update Customer Address", 
-              "Create Customer Address", "Clear Address"]:
+              "Create Customer Address", "Clear Address", "Retrieve", "Delete"]:
     return "addr-" +key.split(" ")[0].lower() +"-btn"
   else:
     raise "key not in above category"

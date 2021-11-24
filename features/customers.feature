@@ -209,7 +209,7 @@ Scenario: Query a customer by state
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    AND I press the "Clear Address" button
+    And I press the "Clear Address" button
     And I set the "State" to "NY"
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
@@ -223,7 +223,7 @@ Scenario: Query a customer by zipcode
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    AND I press the "Clear Address" button
+    And I press the "Clear Address" button
     And I set the "Zip" to "10000"
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
@@ -237,7 +237,7 @@ Scenario: Query a customer by country
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    AND I press the "Clear Address" button
+    And I press the "Clear Address" button
     And I set the "Country" to "USA"
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
@@ -251,7 +251,7 @@ Scenario: Query a customer by stree_address
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    AND I press the "Clear Address" button
+    And I press the "Clear Address" button
     And I set the "Street Address" to "123"
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
@@ -265,7 +265,7 @@ Scenario: Query a customer by city
     When I visit the "Home Page"
     And I set the "Username" to "user2"
     And I press the "Search for Customer" button
-    AND I press the "Clear Address" button
+    And I press the "Clear Address" button
     And I set the "City" to "Boston"
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"

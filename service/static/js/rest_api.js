@@ -544,7 +544,7 @@ $(function () {
     // ****************************************
     // Retrieve an Address
     // ****************************************
-    $("#addr-search-btn").click(function () {
+    $("#addr-retrieve-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
         var address_id = $("#addr_id").val();
@@ -643,6 +643,8 @@ $(function () {
             }
         }
 
+        console.log("/customers/" + customer_id+"/addresses?"  + queryString)
+
         var ajax = $.ajax({
             type: "GET",
             url: "/customers/" + customer_id+"/addresses?"  + queryString,
@@ -650,9 +652,15 @@ $(function () {
         })
 
         ajax.done(function(res){
+            console.log("HERE")
             var first_address = add_multiple_addresses(res)
+            console.log("FIRST ADDRESS" + first_address)
             update_address_form(first_address)
             flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
         });
     });
 
