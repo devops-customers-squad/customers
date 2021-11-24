@@ -205,13 +205,13 @@ def get_customer_addresses(customer_id):
           return make_response(
               jsonify(message), status.HTTP_400_BAD_REQUEST
           ) 
-     
+
       filter_addresses = []
       for address in addresses:
         found = 0
         for query_key in request.args.keys():
           value = request.args.get(query_key)
-          found = 1 if address[query_key] == value else 0
+          found = 1 if str(address[query_key]) == value else 0
           if not found: break
         if found:  
           filter_addresses.append(address)
