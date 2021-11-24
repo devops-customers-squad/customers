@@ -263,14 +263,14 @@ Scenario: Query a customer by stree_address
 
 Scenario: Query a customer by city
     When I visit the "Home Page"
-    And I set the "Username" to "user1"
+    And I set the "Username" to "user2"
     And I press the "Search for Customer" button
     AND I press the "Clear Address" button
     And I set the "City" to "Boston"
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see "123" in the "Street Address" field
-    And I should see "New York" in the "City" field
-    And I should see "NY" in the "State" field
+    And I should see "234" in the "Street Address" field
+    And I should see "Boston" in the "City" field
+    And I should see "Massachusetts" in the "State" field
     And I should see "USA" in the "Country" field
-    And I should see "10000" in the "Zip" field
+    And I should see "20000" in the "Zip" field
