@@ -39,7 +39,76 @@ api = Api(app,
           doc='/apidocs',
           prefix='/api'
          )
-    
+
+create_address_model = api.model('Address', {
+    'street_address': fields.String(required=True,
+                                description='The street address for the customer\'s address'),
+    'city': fields.String(required=True,
+                                description='The city for the customer\'s address'),
+    'state': fields.String(required=True,
+                                description='The state for the customer\'s address'),
+    'zipcode': fields.Integer(required=True,
+                                description='The zipcode for the customer\'s address'),                        
+    'country': fields.String(required=True,
+                                description='The country for the customer\'s address')   
+})
+
+address_model = api.inherit(
+    'AddressModel', 
+    create_address_model,
+    {
+        'customer_id': fields.Integer(readOnly=True,
+                                description='The unique id for the customer that the address belongs to'),
+        'address_id': fields.Integer(readOnly=True,
+                                description='The unique id for the customer\'s address')                            
+    }    
+)
+
+update_customer_model = api.model('Customer', {
+    'first_name': fields.String(required=True,
+                                description='The first name for the customer'),
+    'last_name': fields.String(required=True,
+                                description='The last name for the customer'),    
+    'username': fields.String(required=True,
+                                description='The username of the customer'),
+    'password': fields.String(required=True,
+                                description='The password for the customer')
+})
+
+create_customer_model = api.inherit(
+    'CustomerWithAddress', 
+    update_customer_model,
+    {
+        'addresses': fields.List(fields.Nested(address_model),
+                                required=True,
+                                description='The addresses belonging to the customer')                       
+    }    
+)
+
+customer_model = api.inherit(
+    "CustomerModel",
+    create_customer_model,
+    {
+        'id': fields.Integer(readOnly=True,
+                                    description='The unique id for the customer'),
+        'locked': fields.Boolean(readOnly=True,
+                                    description='Is the customer\'s account locked?')
+    }
+)
+
+customer_args = reqparse.RequestParser()
+customer_args.add_argument('username', type=str, required=False, help='List Customers by username')
+customer_args.add_argument('first_name', type=str, required=False, help='List Customers by first name')
+customer_args.add_argument('last_name', type=str, required=False, help='List Customers by last name')
+customer_args.add_argument('prefix_username', type=str, required=False, help='List Customers by username prefix')
+
+address_args = reqparse.RequestParser()
+address_args.add_argument('street_address', type=str, required=False, help='List Customer\'s Addresses by street address')
+address_args.add_argument('city', type=str, required=False, help='List Customer\'s Addresses by city')
+address_args.add_argument('state', type=str, required=False, help='List Customer\'s Addresses by state')
+address_args.add_argument('zipcode', type=int, required=False, help='List Customer\'s Addresses by zipcode')
+address_args.add_argument('country', type=str, required=False, help='List Customer\'s Addresses by country')
+   
 ######################################################################
 # UPDATE AN EXISTING CUSTOMER
 ######################################################################
