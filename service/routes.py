@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 from flask import Flask, jsonify, request, url_for, make_response, abort
+from flask_restx import Api, Resource, fields, reqparse, inputs
 from . import status  # HTTP Status Codes
 
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
@@ -19,12 +20,25 @@ from werkzeug.exceptions import NotFound
 from . import app
 
 ######################################################################
-# GET Information About the Service
+# Serve UI HTML 
 ######################################################################
 @app.route("/")
 def index():
     """ Root URL response """
     return app.send_static_file("index.html")
+
+######################################################################
+# Configure Swagger before initializing it
+######################################################################
+api = Api(app,
+          version='1.0.0',
+          title='Customer REST API Service',
+          description='This is the Fall 2021 NYU DevOps Customers service.',
+          default='customers',
+          default_label='Customers operations',
+          doc='/apidocs',
+          prefix='/api'
+         )
     
 ######################################################################
 # UPDATE AN EXISTING CUSTOMER
