@@ -21,6 +21,7 @@ from random import randrange
 # uncomment for debugging failing tests
 logging.disable(logging.CRITICAL)
 
+BASE_API = "/api/customers"
 BASE_URL = "/customers"
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
@@ -202,12 +203,13 @@ class TestYourResourceServer(TestCase):
         resp = self.app.get(
             "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
         )
+        print(resp.data)
         test_address = resp.get_json()["addresses"][0]
         resp = self.app.get(
-            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, test_address["address_id"]),
+            "{}/{}/addresses/{}".format(BASE_API, test_customer.id, test_address["address_id"]),
             content_type="application/json"
         )
-   
+        print(resp.data)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["street_address"], test_address["street_address"])
@@ -216,7 +218,7 @@ class TestYourResourceServer(TestCase):
 
     def test_get_address_customer_not_found(self):
         """ Get an address for a customer that's not found """
-        resp = self.app.get("{}/1/addresses/1".format(BASE_URL))
+        resp = self.app.get("{}/1/addresses/1".format(BASE_API))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_address_not_found(self):
@@ -230,7 +232,7 @@ class TestYourResourceServer(TestCase):
         for address in addresses:
             address_ids.append(address["address_id"])
         query_id = max(address_ids) + 1
-        resp = self.app.get("{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, query_id))
+        resp = self.app.get("{0}/{1}/addresses/{2}".format(BASE_API, test_customer.id, query_id))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_customer_addresses(self):
@@ -276,7 +278,7 @@ class TestYourResourceServer(TestCase):
         test_address = AddressFactory()
         test_customer.addresses = [test_address]
         resp = self.app.delete(
-            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, 1), content_type="application/json"
+            "{0}/{1}/addresses/{2}".format(BASE_API, test_customer.id, 1), content_type="application/json"
         )
 
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
@@ -284,14 +286,14 @@ class TestYourResourceServer(TestCase):
 
         # make sure it is deleted
         resp = self.app.get(
-            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, 1),
+            "{0}/{1}/addresses/{2}".format(BASE_API, test_customer.id, 1),
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
         # test delete a non-existing address
         resp = self.app.delete(
-            "{0}/{1}/addresses/{2}".format(BASE_URL, test_customer.id, 1), content_type="application/json"
+            "{0}/{1}/addresses/{2}".format(BASE_API, test_customer.id, 1), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
@@ -399,7 +401,7 @@ class TestYourResourceServer(TestCase):
         logging.debug(new_address)
         new_address["street_address"] = "^#!"
         resp = self.app.put(
-            "/customers/{}/addresses/{}".format(new_address["customer_id"], new_address["address_id"], ),
+            "{}/{}/addresses/{}".format(BASE_API, new_address["customer_id"], new_address["address_id"]),
             json = new_address,
             content_type = CONTENT_TYPE_JSON,
         )
@@ -424,16 +426,16 @@ class TestYourResourceServer(TestCase):
         logging.debug(new_address)
         del new_address["street_address"]
         resp = self.app.put(
-            "/customers/{}/addresses/{}".format(new_address["customer_id"], new_address["address_id"], ),
+            "{}/{}/addresses/{}".format(BASE_API, new_address["customer_id"], new_address["address_id"]),
             json = new_address,
             content_type = CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_addresses_not_found(self):
-        """ Update the addresses of a customer that is not found """
+        """ Update the address of a customer that is not found """
         resp = self.app.put(
-            "/customers/{}/addresses/{}".format(0, 0),
+            "{}/{}/addresses/{}".format(BASE_API, 0, 0),
             json={},
             content_type = CONTENT_TYPE_JSON
         )
@@ -631,7 +633,7 @@ class TestYourResourceServer(TestCase):
         pick_customers = pick_resp.get_json()
         address_id = pick_customers['addresses'][0]['address_id']
         self.app.put(
-            "/customers/2/addresses/{}".format(address_id),
+            "{}/2/addresses/{}".format(BASE_API, address_id),
             json = new_address,
             content_type = CONTENT_TYPE_JSON,
         )
@@ -650,7 +652,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.get_json()[0]['country'], test_country)
     
     def test_wrong_query_customer_addresses(self):
-        """ Query a single Customer's addresses """
+        """ Query a single Customer's addresses using an unsupported query parameter """
         self._create_customers(10)
         test_mailbox = "123"
         resp = self.app.get(

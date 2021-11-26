@@ -41,6 +41,79 @@ api = Api(app,
          )
     
 ######################################################################
+# PATH: /customers/{customer_id}/addresses/{address_id}
+######################################################################
+@api.route('/customers/<int:customer_id>/addresses/<int:address_id>')
+@api.param('customer_id', 'The Customer identifier')
+@api.param('address_id', 'The Address identifier')
+class AddressResource(Resource):
+    """
+    AddressResource class
+
+    Allows the manipulation of a single Customer's Address
+    
+    GET /customers/{customer_id}/addresses/{address_id} - Returns the address
+        with id address_id belonging to the customer with id customer_id
+    PUT /customers/{customer_id}/addresses/{address_id} - Updates the address
+        with id address_id belonging to the customer with id customer_id
+    DELETE /customers/{customer_id}/addresses/{address_id} -  Deletes the address
+        with id address_id belonging to the customer with id customer_id
+    """
+    #------------------------------------------------------------------
+    # RETRIEVE A CUSTOMER'S ADDRESS
+    #------------------------------------------------------------------
+    def get(self, customer_id, address_id):
+        """
+        Retrieve a single customer's address
+        This endpoint will return an address for a customer based on the 
+        address' and customer's ids
+        """
+        app.logger.info(f"Request address with address_id {address_id} for customer with customer_id {customer_id}")
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound(f"Customer with id '{customer_id}' was not found.")
+        address = Address.find(address_id)
+        if not address or address.customer_id != customer_id:
+            raise NotFound(f"Address with id '{address_id}' belonging to customer with"
+                + f" id '{customer_id}' not found")
+        return address.serialize(), status.HTTP_200_OK
+
+    #------------------------------------------------------------------
+    # UPDATE A CUSTOMER'S ADDRESS
+    #------------------------------------------------------------------
+    def put(self, customer_id, address_id):
+        """
+        Update a Customer's address
+        This endpoint will update a Customer's addresses based on the request body.
+        """
+        app.logger.info("Request to update addresses of Customer with id: %s", customer_id)
+        address = Address.find(address_id)
+        if not address or address.customer_id != customer_id:
+            raise NotFound("address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
+
+        address.deserialize(api.payload)
+        address.address_id = address_id
+        address.update()
+
+        app.logger.info("address with ID [%s] for customer with ID [%s] updated.", address.address_id, customer_id)
+        return address.serialize(), status.HTTP_200_OK
+
+    #------------------------------------------------------------------
+    # DELETE A CUSTOMER'S ADDRESS
+    #------------------------------------------------------------------
+    def delete(self, customer_id, address_id):
+        """
+        Delete an existing customer's address
+        This endpoint will delete a Customer's address based the customer_id and address_id specified in the path.
+        """
+        app.logger.info("Request to delete address with id: %s, customer with id: %s", address_id, customer_id)
+        customer = Customer.find(customer_id)
+        if customer:
+            address = Address.find(address_id)
+            if address: address.delete()
+        return "", status.HTTP_204_NO_CONTENT
+
+######################################################################
 # UPDATE AN EXISTING CUSTOMER
 ######################################################################
 @app.route("/customers/<int:customer_id>", methods=["PUT"])
@@ -79,28 +152,6 @@ def update_customers(customer_id):
         )
     app.logger.info("customer with ID [%s] updated.", customer.id)
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
-
-######################################################################
-# UPDATE AN EXISTING CUSTOMER'S ADDRESS
-######################################################################
-@app.route("/customers/<int:customer_id>/addresses/<int:address_id>", methods=["PUT"])
-def update_customer_addresses(customer_id, address_id):
-    """
-    Update a Customer's address
-    This endpoint will update a Customer's addresses based on the request body.
-    """
-    app.logger.info("Request to update addresses of Customer with id: %s", customer_id)
-    check_content_type("application/json")
-    address = Address.find(address_id)
-    if not address or address.customer_id != customer_id:
-        raise NotFound("address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
-
-    address.deserialize(request.get_json())
-    address.address_id = address_id
-    address.update()
-
-    app.logger.info("address with ID [%s] for customer with ID [%s] updated.", address.address_id, customer_id)
-    return make_response(jsonify(address.serialize()), status.HTTP_200_OK)
     
 ######################################################################
 # ADD A NEW CUSTOMER
@@ -172,25 +223,6 @@ def get_customers(customer_id):
     if not customer:
         raise NotFound(f"Customer with id '{customer_id}' was not found.")
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
-
-######################################################################
-# RETRIEVE A CUSTOMER ADDRESS
-######################################################################
-@app.route("/customers/<int:customer_id>/addresses/<int:address_id>", methods=["GET"])
-def get_customer_address(customer_id, address_id):
-    """
-    Retrieve a single customer
-    This endpoint will return a customer based on their id
-    """
-    app.logger.info(f"Request information for customer with customer_id: {customer_id}")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound(f"Customer with id '{customer_id}' was not found.")
-    address = Address.find(address_id)
-    if not address or address.customer_id != customer_id:
-        raise NotFound(f"Address with id '{address_id}' belonging to customer with"
-            + f" id '{customer_id}' not found")
-    return make_response(jsonify(address.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A CUSTOMER'S ADDRESSES
@@ -298,21 +330,7 @@ def delete_customers(customer_id):
         customer.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
 
-######################################################################
-# DELETE AN EXISTING CUSTOMER'S ADDRESS
-######################################################################
-@app.route("/customers/<int:customer_id>/addresses/<int:address_id>", methods=["DELETE"])
-def delete_customers_address(customer_id, address_id):
-    """
-    Delete an existing customer's address
-    This endpoint will delete a Customer's address based the customer_id and address_id specified in the path
-    """
-    app.logger.info("Request to delete address with id: %s, customer with id: %s", address_id, customer_id)
-    customer = Customer.find(customer_id)
-    if customer:
-        address = Address.find(address_id)
-        if address: address.delete()
-    return make_response("", status.HTTP_204_NO_CONTENT)
+
 
 ######################################################################
 # LOCK AN EXISTING CUSTOMER
