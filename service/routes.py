@@ -32,7 +32,7 @@ def index():
 ######################################################################
 api = Api(app,
           version='1.0.0',
-          title='Customer REST API Service',
+          title='Customers REST API Service',
           description='This is the Fall 2021 NYU DevOps Customers service.',
           default='customers',
           default_label='Customers operations',
