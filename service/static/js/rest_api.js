@@ -486,7 +486,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/customers/" + customer_id+"/addresses",
+            url: "/api/customers/" + customer_id+"/addresses",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -502,7 +502,7 @@ $(function () {
     });
 
     // ****************************************
-    // Update a Address
+    // Update an Address
     // ****************************************
     $("#addr-update-btn").click(function () {
         var customer_id = $("#cust_id").val();
@@ -524,7 +524,7 @@ $(function () {
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/customers/" + customer_id+"/addresses/" +address_id,
+                url: "/api/customers/" + customer_id+"/addresses/" +address_id,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -551,7 +551,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/customers/" + customer_id+"/addresses/" +address_id,
+            url: "/api/customers/" + customer_id+"/addresses/" +address_id,
             contentType: "application/json",
         })
 
@@ -579,7 +579,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/customers/" + customer_id+"/addresses/" +address_id,
+            url: "/api/customers/" + customer_id+"/addresses/" +address_id,
             contentType: "application/json"
         })
 
@@ -643,11 +643,9 @@ $(function () {
             }
         }
 
-        console.log("/customers/" + customer_id+"/addresses?"  + queryString)
-
         var ajax = $.ajax({
             type: "GET",
-            url: "/customers/" + customer_id+"/addresses?"  + queryString,
+            url: "/api/customers/" + customer_id+"/addresses?"  + queryString,
             contentType: "application/json",
         })
 

@@ -131,6 +131,7 @@ class TestYourResourceServer(TestCase):
          self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_create_customer_address(self):
+        """ Create a new address for a customer """
         test_customer = CustomerFactory()
         resp = self.app.post(
             BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
@@ -139,7 +140,7 @@ class TestYourResourceServer(TestCase):
         customer_id = resp.get_json()["id"]
         test_address = AddressFactory()
         resp = self.app.post(
-            "{0}/{1}/addresses".format(BASE_URL, customer_id), json=test_address.serialize(),
+            "{}/{}/addresses".format(BASE_API, customer_id), json=test_address.serialize(),
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -169,14 +170,16 @@ class TestYourResourceServer(TestCase):
         )          
 
     def test_create_address_customer_not_found(self):
+        """ Create a new address for a customer that is not found """
         test_address = AddressFactory()
         resp = self.app.post(
-            "{0}/{1}/addresses".format(BASE_URL, 1), json=test_address.serialize(),
+            "{0}/{1}/addresses".format(BASE_API, 1), json=test_address.serialize(),
             content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_method_not_allowed(self):
+        """ Make a call to /customers with an unsupported method, PUT """
         resp=self.app.put('/customers')
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -239,7 +242,7 @@ class TestYourResourceServer(TestCase):
         """ Get a single Customer's addresses """
         test_customer = self._create_customers(1)[0]
         resp = self.app.get(
-            "{}/{}/addresses".format(BASE_URL, test_customer.id), content_type="application/json"
+            "{}/{}/addresses".format(BASE_API, test_customer.id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
@@ -643,7 +646,7 @@ class TestYourResourceServer(TestCase):
 
         
         resp = self.app.get(
-            f"{BASE_URL}/2/addresses", 
+            f"{BASE_API}/2/addresses", 
             query_string= {'country': quote_plus(test_country),
                             'city': quote_plus(test_city)}
         )
@@ -656,7 +659,7 @@ class TestYourResourceServer(TestCase):
         self._create_customers(10)
         test_mailbox = "123"
         resp = self.app.get(
-            f"{BASE_URL}/1/addresses", 
+            f"{BASE_API}/1/addresses", 
             query_string= {'mailbox': quote_plus(test_mailbox)}
         )
       

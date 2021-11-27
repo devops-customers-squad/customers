@@ -119,7 +119,7 @@ class AddressResource(Resource):
     """
     AddressResource class
 
-    Allows the manipulation of a single Customer's Address
+    Allows the manipulation and accessing of a single Customer's Address
     
     GET /customers/{customer_id}/addresses/{address_id} - Returns the address
         with id address_id belonging to the customer with id customer_id
@@ -181,6 +181,83 @@ class AddressResource(Resource):
             address = Address.find(address_id)
             if address: address.delete()
         return "", status.HTTP_204_NO_CONTENT
+
+######################################################################
+# PATH: /customers/{customer_id}/addresses
+######################################################################
+@api.route('/customers/<int:customer_id>/addresses')
+@api.param('customer_id', 'The Customer identifier')
+class AddressCollection(Resource):
+    """
+    AddressCollections class
+
+    Allows the manipulation and accessing of a Customer's Addresses
+    
+    GET /customers/{customer_id}/addresses - Returns the addresses
+        belonging to the customer with id customer_id
+    POST /customers/{customer_id}/addresses - Creates a new address for
+        the customer with id customer_id
+    """
+    #------------------------------------------------------------------
+    # CREATE A NEW ADDRESS FOR THE CUSTOMER
+    #------------------------------------------------------------------
+    def post(self, customer_id):
+        """
+        Creates an Address for the Customer with an id equal to customer_id
+        This endpoint will create an Address for the Customer with an id equal
+        to the customer_id based on the data in the request body
+        """  
+        app.logger.info("Request to create address for customer with id {}".format(customer_id))
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound(f"Customer with id '{customer_id}' was not found.")
+        address = Address()
+        address.deserialize(api.payload)
+        address.customer_id = customer_id
+        address.create()
+        message = address.serialize()
+        location_url = api.url_for(AddressResource, customer_id = customer.id, 
+            address_id = address.address_id, _external = True)
+        return message, status.HTTP_201_CREATED, {"Location": location_url}
+
+    #------------------------------------------------------------------
+    # RETRIEVE A CUSTOMER'S ADDRESSES
+    #------------------------------------------------------------------
+    def get(self, customer_id):
+        """
+        Retrieve a single customer's addresses
+        This endpoint will return a customer's addresses based on the customer's id
+        """  
+        app.logger.info(f"Request addresses for customer with customer_id: {customer_id}")
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound(f"Customer with id '{customer_id}' was not found.")
+        customer_dict = customer.serialize()
+        addresses = customer_dict["addresses"]
+        if len(request.args) != 0:
+            all_query_key = ["city", "state", "country", "zipcode", "street_address"]
+            for key in request.args.keys():
+                if key not in all_query_key:
+                    message = {
+                        "error": "Unsupported key",
+                        "message": "The query key: '" + key + "' is not supported."
+                        }
+
+                    return message, status.HTTP_400_BAD_REQUEST
+
+            filter_addresses = []
+            for address in addresses:
+                found = 0
+                for query_key in request.args.keys():
+                    value = request.args.get(query_key)
+                    found = 1 if str(address[query_key]) == value else 0
+                    if not found: break
+                    if found:  
+                        filter_addresses.append(address)
+        
+            addresses = filter_addresses
+
+        return addresses, status.HTTP_200_OK
 
 ######################################################################
 # UPDATE AN EXISTING CUSTOMER
@@ -251,32 +328,6 @@ def create_customers():
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
-
-######################################################################
-# ADD A NEW CUSTOMER ADDRESS
-######################################################################
-@app.route("/customers/<int:customer_id>/addresses", methods=["POST"])
-def create_customer_address(customer_id):
-    """
-    Creates an Address for the Customer with an id equal to customer_id
-    This endpoint will create an Address for the Customer with an id equal
-    to the customer_id based the data in the body that is posted
-    """  
-    app.logger.info("Request to create address for customer with id {}".format(customer_id))
-    check_content_type("application/json")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound(f"Customer with id '{customer_id}' was not found.")
-    address = Address()
-    address.deserialize(request.get_json())
-    address.customer_id = customer_id
-    address.create()
-    message = address.serialize()
-    location_url = url_for("get_customer_addresses", customer_id = customer.id, 
-        address_id = address.address_id, _external = True)
-    return make_response(
-        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-    )
     
 ######################################################################
 # RETRIEVE A CUSTOMER
@@ -292,48 +343,6 @@ def get_customers(customer_id):
     if not customer:
         raise NotFound(f"Customer with id '{customer_id}' was not found.")
     return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
-
-######################################################################
-# RETRIEVE A CUSTOMER'S ADDRESSES
-######################################################################
-@app.route("/customers/<int:customer_id>/addresses", methods=["GET"])
-def get_customer_addresses(customer_id):
-    """
-    Retrieve a single customer's addresses
-    This endpoint will return a customer's addresses based on the customer's id
-    """
-    app.logger.info(f"Request addresses for customer with customer_id: {customer_id}")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound(f"Customer with id '{customer_id}' was not found.")
-    customer_dict = customer.serialize()
-    addresses = customer_dict["addresses"]
-    if len(request.args) != 0:
-      all_query_key = ["city", "state", "country", "zipcode", "street_address"]
-      for key in request.args.keys():
-        if key not in all_query_key:
-          message = {
-              "error": "Unsupported key",
-              "message": "The query key: '" + key + "' is not supported."
-              }
-
-          return make_response(
-              jsonify(message), status.HTTP_400_BAD_REQUEST
-          ) 
-
-      filter_addresses = []
-      for address in addresses:
-        found = 0
-        for query_key in request.args.keys():
-          value = request.args.get(query_key)
-          found = 1 if str(address[query_key]) == value else 0
-          if not found: break
-        if found:  
-          filter_addresses.append(address)
-     
-      addresses = filter_addresses
-
-    return make_response(jsonify(addresses), status.HTTP_200_OK)
 
 ######################################################################
 # LIST ALL CUSTOMER
