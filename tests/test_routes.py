@@ -254,9 +254,9 @@ class TestYourResourceServer(TestCase):
             self.assertTrue(address["street_address"] in address_ids)
 
     def test_get_customer_addresses_not_found(self):
-        """ Get the address of a Customer that is not found """
+        """ Get the addresses of a Customer that is not found """
         resp = self.app.get(
-            "/customers/{}/addresses".format(0),
+            "/api/customers/{}/addresses".format(0),
             content_type = CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
