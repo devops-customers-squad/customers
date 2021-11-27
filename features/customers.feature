@@ -157,6 +157,34 @@ Scenario: Update a customer
     And I should see "Tina_username" in the "Username" field
     And I should see "Tina_password" in the "Password" field
 
+Scenario: Update a customer with empty strings
+    When I visit the "Home Page"
+    And I set the "Username" to "user1"
+    And I press the "Search for Customer" button
+
+    # Update this cusotmer with empty first Name
+    And I set the "First Name" to ""
+    And I press the "Update Customer" button
+    Then I should see the message "Invalid Customer update: missing first_name"
+
+    # Update this cusotmer with empty last Name
+    When I press the "Retrieve" button
+    And I set the "Last Name" to ""
+    And I press the "Update Customer" button
+    Then I should see the message "Invalid Customer update: missing last_name"
+
+    # Update this cusotmer with empty username
+    When I press the "Retrieve" button
+    And I set the "Username" to ""
+    And I press the "Update Customer" button
+    Then I should see the message "Invalid Customer update: missing username"
+
+    # Update this cusotmer with empty password
+    When I press the "Retrieve" button
+    And I set the "Password" to ""
+    And I press the "Update Customer" button
+    Then I should see the message "Invalid Customer update: missing password"
+
 Scenario: Lock a customer
     When I visit the "Home Page"
     And I set the "First Name" to "John"
