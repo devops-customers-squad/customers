@@ -681,7 +681,7 @@ class TestYourResourceServer(TestCase):
         new_customer = resp.get_json()
         logging.debug(new_customer)
         resp = self.app.put(
-            "/customers/{}/lock".format(new_customer["id"]),
+            "{}/{}/lock".format(BASE_API, new_customer["id"]),
             json=new_customer,
             content_type=CONTENT_TYPE_JSON,
         )
@@ -692,7 +692,7 @@ class TestYourResourceServer(TestCase):
     def test_lock_customer_not_found(self):
         """ Lock a customer that is not found """
         resp = self.app.put(
-            "/customers/{}/lock".format(0),
+            "{}/{}/lock".format(BASE_API, 0),
             json={},
             content_type = CONTENT_TYPE_JSON,
         )
@@ -716,7 +716,7 @@ class TestYourResourceServer(TestCase):
         new_customer = resp.get_json()
         logging.debug(new_customer)
         resp = self.app.put(
-            "/customers/{}/unlock".format(new_customer["id"]),
+            "{}/{}/unlock".format(BASE_API, new_customer["id"]),
             json=new_customer,
             content_type=CONTENT_TYPE_JSON,
         )
@@ -727,7 +727,7 @@ class TestYourResourceServer(TestCase):
     def test_unlock_customer_not_found(self):
         """ Unlock a customer that is not found """
         resp = self.app.put(
-            "/customers/{}/unlock".format(0),
+            "{}/{}/unlock".format(BASE_API, 0),
             json={},
             content_type = CONTENT_TYPE_JSON,
         )

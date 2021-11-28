@@ -156,6 +156,7 @@ class AddressResource(Resource):
         This endpoint will update a Customer's addresses based on the request body.
         """
         app.logger.info("Request to update addresses of Customer with id: %s", customer_id)
+        check_content_type("application/json")
         address = Address.find(address_id)
         if not address or address.customer_id != customer_id:
             raise NotFound("address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
@@ -208,6 +209,7 @@ class AddressCollection(Resource):
         to the customer_id based on the data in the request body
         """  
         app.logger.info("Request to create address for customer with id {}".format(customer_id))
+        check_content_type("application/json")
         customer = Customer.find(customer_id)
         if not customer:
             raise NotFound(f"Customer with id '{customer_id}' was not found.")
@@ -258,6 +260,66 @@ class AddressCollection(Resource):
             addresses = filter_addresses
 
         return addresses, status.HTTP_200_OK
+
+######################################################################
+# PATH: /customers/{customer_id}/lock
+######################################################################
+@api.route('/customers/<int:customer_id>/lock')
+@api.param('customer_id', 'The Customer identifier')
+class LockResource(Resource):
+    """
+    LockResource class
+
+    Allows for the manipulation of Customers to mark their accounts as locked
+    
+    PUT /customers/{customer_id}/lock - Sets the locked attribute of the
+        customer with id customer_id to true
+    """
+    #------------------------------------------------------------------
+    # LOCK AN EXISTING CUSTOMER
+    #------------------------------------------------------------------
+    def put(self, customer_id):
+        """
+        Lock a Customer
+        """
+        app.logger.info("Request to lock Customer with id: %s", customer_id)
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound("customer with id '{}' was not found.".format(customer_id))
+        customer.locked = True
+        customer.update()
+        app.logger.info("customer with ID [%s] is locked.", customer.id)
+        return customer.serialize_for_lock(), status.HTTP_200_OK
+
+######################################################################
+# PATH: /customers/{customer_id}/unlock
+######################################################################
+@api.route('/customers/<int:customer_id>/unlock')
+@api.param('customer_id', 'The Customer identifier')
+class UnlockResource(Resource):
+    """
+    UnlockResource class
+
+    Allows for the manipulation of Customers to mark their accounts as not locked
+    
+    PUT /customers/{customer_id}/unlock - Sets the locked attribute of the
+        customer with id customer_id to false
+    """
+    #------------------------------------------------------------------
+    # UNLOCK AN EXISTING CUSTOMER
+    #------------------------------------------------------------------
+    def put(self, customer_id):
+        """
+        Unock a Customer
+        """
+        app.logger.info("Request to lock Customer with id: %s", customer_id)
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound("customer with id '{}' was not found.".format(customer_id))
+        customer.locked = False
+        customer.update()
+        app.logger.info("customer with ID [%s] is unlocked.", customer.id)
+        return customer.serialize_for_lock(), status.HTTP_200_OK
 
 ######################################################################
 # UPDATE AN EXISTING CUSTOMER
@@ -407,44 +469,6 @@ def delete_customers(customer_id):
     if customer:
         customer.delete()
     return make_response("", status.HTTP_204_NO_CONTENT)
-
-
-
-######################################################################
-# LOCK AN EXISTING CUSTOMER
-######################################################################
-@app.route("/customers/<int:customer_id>/lock", methods=["PUT"])
-def lock_customers(customer_id):
-    """
-    Lock a Customer
-    """
-    app.logger.info("Request to lock Customer with id: %s", customer_id)
-    check_content_type("application/json")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound("customer with id '{}' was not found.".format(customer_id))
-    customer.locked = True
-    customer.update()
-    app.logger.info("customer with ID [%s] is locked.", customer.id)
-    return make_response(jsonify(customer.serialize_for_lock()), status.HTTP_200_OK)
-
-######################################################################
-# UNLOCK AN EXISTING CUSTOMER
-######################################################################
-@app.route("/customers/<int:customer_id>/unlock", methods=["PUT"])
-def unlock_customers(customer_id):
-    """
-    Lock a Customer
-    """
-    app.logger.info("Request to lock Customer with id: %s", customer_id)
-    check_content_type("application/json")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound("customer with id '{}' was not found.".format(customer_id))
-    customer.locked = False
-    customer.update()
-    app.logger.info("customer with ID [%s] is unlocked.", customer.id)
-    return make_response(jsonify(customer.serialize_for_lock()), status.HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
