@@ -237,7 +237,7 @@ $(function () {
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/customers/" + customer_id + "/lock",
+                url: "/api/customers/" + customer_id + "/lock",
                 contentType: "application/json"
             })
 
@@ -262,7 +262,7 @@ $(function () {
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/customers/" + customer_id + "/unlock",
+                url: "/api/customers/" + customer_id + "/unlock",
                 contentType: "application/json"
             })
 
