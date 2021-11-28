@@ -120,13 +120,23 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
+    def test_create_customer_invalid_value(self):
+        """ Create a new customer with a request containing an incorrect value that should have type string """
+        test_customer = CustomerFactory()
+        test_customer.username = 40
+        logging.debug(test_customer)
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_customer_no_data(self):
-         """Create a Customer with missing data"""
+         """ Create a Customer with missing data """
          resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
          self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_customer_no_content_type(self):
-         """Create a Customer with no content type"""
+         """ Create a Customer with no content type """
          resp = self.app.post(BASE_URL)
          self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
@@ -168,6 +178,38 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(
             new_address["zipcode"], test_address.zipcode, "Zipcode does not match"
         )          
+
+    def test_create_customer_address_invalid_value(self):
+        """ Create a new address for a customer with a request containing an incorrect value that should have type string """
+        test_customer = CustomerFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        customer_id = resp.get_json()["id"]
+        test_address = AddressFactory()
+        test_address.street_address = 40
+        resp = self.app.post(
+            "{}/{}/addresses".format(BASE_API, customer_id), json=test_address.serialize(),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_customer_address_invalid_zip(self):
+        """ Create a new address for a customer with a request containing an incorrect value that should have type int """
+        test_customer = CustomerFactory()
+        resp = self.app.post(
+            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        customer_id = resp.get_json()["id"]
+        test_address = AddressFactory()
+        test_address.zipcode = "10032"
+        resp = self.app.post(
+            "{}/{}/addresses".format(BASE_API, customer_id), json=test_address.serialize(),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_address_customer_not_found(self):
         """ Create a new address for a customer that is not found """
