@@ -1,7 +1,7 @@
 """
 Customer Service
 
-Describe what your service does here
+A service for manipulating and accessing customer information for the eCommerce site
 """
 
 import os
@@ -12,7 +12,7 @@ from flask_restx import Api, Resource, fields, reqparse, inputs
 from . import status  # HTTP Status Codes
 
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Customer, Address, DataValidationError
+from service.models import Customer, Address, DataValidationError, ResourceConflictError, UnsupportedKeyError
 from werkzeug.exceptions import NotFound
 # Import Flask application
 from . import app
@@ -118,6 +118,28 @@ def request_validation_error(error):
     return {
         'status_code': status.HTTP_400_BAD_REQUEST,
         'error': 'Bad Request',
+        'message': message
+    }, status.HTTP_400_BAD_REQUEST
+
+@api.errorhandler(ResourceConflictError)
+def request_conflict_error(error):
+    """Handles errors from conflicts with existing resources"""
+    message = str(error)
+    app.logger.error(message)
+    return {
+        'status_code': status.HTTP_409_CONFLICT,
+        'error': 'Conflict',
+        'message': message
+    }, status.HTTP_409_CONFLICT
+
+@api.errorhandler(UnsupportedKeyError)
+def request_unsupported_key(error):
+    """Handles errors from invalid query parameters"""
+    message = str(error)
+    app.logger.error(message)
+    return {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'error': 'Unsupported Key',
         'message': message
     }, status.HTTP_400_BAD_REQUEST
 
@@ -254,11 +276,7 @@ class AddressCollection(Resource):
             all_query_key = ["city", "state", "country", "zipcode", "street_address"]
             for key in request.args.keys():
                 if key not in all_query_key:
-                    message = {
-                        "error": "Unsupported key",
-                        "message": "The query key: '" + key + "' is not supported."
-                        }
-                    return message, status.HTTP_400_BAD_REQUEST
+                    raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
 
             filter_addresses = []
             for address in addresses:
@@ -383,11 +401,7 @@ class CustomerResource(Resource):
             if "username" in request_data:
                 other_customer = Customer.find_by_name(request_data["username"]).first()
                 if other_customer is not None and other_customer.id != customer_id:
-                    message = {
-                        "error": "Conflict",
-                        "message": "Username '" + request_data["username"] + "' already exists."
-                    }
-                    return message, status.HTTP_409_CONFLICT
+                    raise ResourceConflictError("Username '" + request_data["username"] + "' already exists.")
             customer.username = request_data["username"]
             customer.id = customer_id
             customer.first_name = request_data["first_name"]
@@ -444,11 +458,7 @@ class CustomerCollection(Resource):
         customer.deserialize(api.payload)
         customer_found = Customer.find_by_name(customer.username).first()
         if customer_found:
-            message = {
-                "error": "Conflict",
-                "message": "Username '" + customer.username + "' already exists."
-                }
-            return message, status.HTTP_409_CONFLICT
+            raise ResourceConflictError( "Username '" + customer.username + "' already exists.")
         customer.locked=False
         customer.create()
         message = customer.serialize()
@@ -465,11 +475,7 @@ class CustomerCollection(Resource):
         all_query_key = ["username", "first_name", "last_name", "prefix_username"]
         for key in request.args.keys():
             if key not in all_query_key:
-                message = {
-                    "error": "Unsupported key",
-                    "message": "The query key: '" + key + "' is not supported."
-                    }
-                return message, status.HTTP_400_BAD_REQUEST
+                raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
         
         username = request.args.get("username")
         first_name = request.args.get("first_name")
