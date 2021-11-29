@@ -11,8 +11,6 @@ from flask import Flask, jsonify, request, url_for, make_response, abort
 from flask_restx import Api, Resource, fields, reqparse, inputs
 from . import status  # HTTP Status Codes
 
-# For this example we'll use SQLAlchemy, a popular ORM that supports a
-# variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
 from service.models import Customer, Address, DataValidationError
 from werkzeug.exceptions import NotFound
@@ -157,6 +155,7 @@ class AddressResource(Resource):
         """
         app.logger.info("Request to update addresses of Customer with id: %s", customer_id)
         check_content_type("application/json")
+        check_address_data(api.payload)
         address = Address.find(address_id)
         if not address or address.customer_id != customer_id:
             raise NotFound("address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
@@ -210,6 +209,7 @@ class AddressCollection(Resource):
         """  
         app.logger.info("Request to create address for customer with id {}".format(customer_id))
         check_content_type("application/json")
+        check_address_data(api.payload)
         customer = Customer.find(customer_id)
         if not customer:
             raise NotFound(f"Customer with id '{customer_id}' was not found.")
@@ -332,6 +332,7 @@ def update_customers(customer_id):
     """
     app.logger.info("Request to update Customer with id: %s", customer_id)
     check_content_type("application/json")
+    check_customer_data(api.payload)
     request_data = request.get_json()
     customer = Customer.find(customer_id)
     if not customer:
@@ -372,6 +373,8 @@ def create_customers():
     """
     app.logger.info("Request to create a customer")
     check_content_type("application/json")
+    check_customer_data(api.payload)
+    check_addresses_data(api.payload)
     customer = Customer()
     customer.deserialize(request.get_json())
     customerfound = Customer.find_by_name(customer.username).first()
@@ -474,7 +477,6 @@ def delete_customers(customer_id):
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
 
-
 def init_db():
     """ Initialies the SQLAlchemy app """
     global app
@@ -486,3 +488,28 @@ def check_content_type(content_type):
         return
     app.logger.error("Invalid Content-Type: [%s]", request.headers.get("Content-Type"))
     abort(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "Content-Type must be {}".format(content_type))
+
+def check_customer_data(request):
+    string_keys = ["first_name", "last_name", "username", "password"]
+    for key in string_keys:
+        if key in request and not isinstance(request[key], str):
+            app.logger.error("Invalid customer request value for key '%s'", key)
+            abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type string for the key '{}'".format(key))
+
+def check_address_data(request):
+    string_keys = ["street_address", "city", "state", "country"]
+    int_keys = ["zipcode"]
+    for key in string_keys:
+        if key in request and not isinstance(request[key], str):
+            app.logger.error("Invalid address request value for key '%s'", key)
+            abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type string for the key '{}'".format(key))
+    for key in int_keys:
+        if key in request and not isinstance(request[key], int):
+            app.logger.error("Invalid address request value for key '%s'", key)
+            abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type int for the key '{}'".format(key))        
+
+def check_addresses_data(request):
+    if "addresses" in request:
+        addresses = request["addresses"]
+        for address in addresses:
+            check_address_data(address)
