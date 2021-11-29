@@ -7,7 +7,7 @@ Describe what your service does here
 import os
 import sys
 import logging
-from flask import Flask, jsonify, request, url_for, make_response, abort
+from flask import Flask, jsonify, request, make_response, abort
 from flask_restx import Api, Resource, fields, reqparse, inputs
 from . import status  # HTTP Status Codes
 
@@ -106,7 +106,21 @@ address_args.add_argument('city', type=str, required=False, help='List Customer\
 address_args.add_argument('state', type=str, required=False, help='List Customer\'s Addresses by state')
 address_args.add_argument('zipcode', type=int, required=False, help='List Customer\'s Addresses by zipcode')
 address_args.add_argument('country', type=str, required=False, help='List Customer\'s Addresses by country')
-   
+
+######################################################################
+# Special Error Handlers
+###################################################################### 
+@api.errorhandler(DataValidationError)
+def request_validation_error(error):
+    """Handles Value Errors from bad data"""
+    message = str(error)
+    app.logger.error(message)
+    return {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'error': 'Bad Request',
+        'message': message
+    }, status.HTTP_400_BAD_REQUEST
+
 ######################################################################
 # PATH: /customers/{customer_id}/addresses/{address_id}
 ######################################################################
@@ -322,45 +336,87 @@ class UnlockResource(Resource):
         return customer.serialize_for_lock(), status.HTTP_200_OK
 
 ######################################################################
-# UPDATE AN EXISTING CUSTOMER
+# PATH: /customers/{customer_id}
 ######################################################################
-@app.route("/customers/<int:customer_id>", methods=["PUT"])
-def update_customers(customer_id):
+@api.route('/customers/<int:customer_id>')
+@api.param('customer_id', 'The Customer identifier')
+class CustomerResource(Resource):
     """
-    Update a Customer
-    This endpoint will update a Customer based the body that is posted
-    """
-    app.logger.info("Request to update Customer with id: %s", customer_id)
-    check_content_type("application/json")
-    check_customer_data(api.payload)
-    request_data = request.get_json()
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound("customer with id '{}' was not found.".format(customer_id))
+    CustomerResource class
+
+    Allows the manipulation and accessing of a single Customer
     
-    try:
-        if "username" in request_data:
-            other_customer = Customer.find_by_name(request_data["username"]).first()
-            if other_customer is not None and other_customer.id != customer_id:
-                message = {
-                    "error": "Conflict",
-                    "message": "Username '" + request_data["username"] + "' already exists."
-                }
-                return make_response(
-                    jsonify(message), status.HTTP_409_CONFLICT
-                ) 
-        customer.username = request_data["username"]
-        customer.id = customer_id
-        customer.first_name = request_data["first_name"]
-        customer.last_name = request_data["last_name"]
-        customer.password = request_data["password"]
-        customer.update()
-    except KeyError as error:
-        raise DataValidationError(
-            "Invalid Customer update: missing " + error.args[0]
-        )
-    app.logger.info("customer with ID [%s] updated.", customer.id)
-    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+    GET /customers/{customer_id} - Returns the customer with id customer_id
+    PUT /customers/{customer_id} - Updates the customer with id customer_id
+    DELETE /customers/{customer_id} -  Deletes the customer with id customer_id
+    """
+    #------------------------------------------------------------------
+    # RETRIEVE AN EXISTING CUSTOMER
+    #------------------------------------------------------------------
+    def get(self, customer_id):
+        """
+        Retrieve a single customer
+        This endpoint will return a customer based on their id
+        """
+        app.logger.info(f"Request information for customer with customer_id: {customer_id}")
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound(f"Customer with id '{customer_id}' was not found.")
+        return customer.serialize(), status.HTTP_200_OK
+
+    #------------------------------------------------------------------
+    # UPDATE AN EXISTING CUSTOMER
+    #------------------------------------------------------------------
+    def put(self, customer_id):
+        """
+        Update a Customer
+        This endpoint will update a Customer based the body that is posted
+        """
+        app.logger.info("Request to update Customer with id: %s", customer_id)
+        check_content_type("application/json")
+        check_customer_data(api.payload)
+        request_data = api.payload
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound("customer with id '{}' was not found.".format(customer_id))
+        
+        try:
+            if "username" in request_data:
+                other_customer = Customer.find_by_name(request_data["username"]).first()
+                if other_customer is not None and other_customer.id != customer_id:
+                    message = {
+                        "error": "Conflict",
+                        "message": "Username '" + request_data["username"] + "' already exists."
+                    }
+                    return make_response(
+                        message, status.HTTP_409_CONFLICT
+                    ) 
+            customer.username = request_data["username"]
+            customer.id = customer_id
+            customer.first_name = request_data["first_name"]
+            customer.last_name = request_data["last_name"]
+            customer.password = request_data["password"]
+            customer.update()
+        except KeyError as error:
+            raise DataValidationError(
+                "Invalid Customer update: missing " + error.args[0]
+            )
+        app.logger.info("customer with ID [%s] updated.", customer.id)
+        return customer.serialize(), status.HTTP_200_OK
+    
+    #------------------------------------------------------------------
+    # DELETE A CUSTOMER
+    #------------------------------------------------------------------
+    def delete(self, customer_id):
+        """
+        Delete a Customer
+        This endpoint will delete a Customer based the id specified in the path
+        """
+        app.logger.info("Request to delete customer with id: %s", customer_id)
+        customer = Customer.find(customer_id)
+        if customer:
+            customer.delete()
+        return "", status.HTTP_204_NO_CONTENT
     
 ######################################################################
 # ADD A NEW CUSTOMER
@@ -377,8 +433,8 @@ def create_customers():
     check_addresses_data(api.payload)
     customer = Customer()
     customer.deserialize(request.get_json())
-    customerfound = Customer.find_by_name(customer.username).first()
-    if customerfound:
+    customer_found = Customer.find_by_name(customer.username).first()
+    if customer_found:
         message = {
             "error": "Conflict",
             "message": "Username '" + customer.username + "' already exists."
@@ -389,25 +445,10 @@ def create_customers():
     customer.locked=False
     customer.create()
     message = customer.serialize()
-    location_url = url_for("get_customers", customer_id=customer.id, _external=True)
+    location_url = api.url_for(CustomerResource, customer_id=customer.id, _external=True)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
-    
-######################################################################
-# RETRIEVE A CUSTOMER
-######################################################################
-@app.route("/customers/<int:customer_id>", methods=["GET"])
-def get_customers(customer_id):
-    """
-    Retrieve a single customer
-    This endpoint will return a customer based on their id
-    """
-    app.logger.info(f"Request information for customer with customer_id: {customer_id}")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound(f"Customer with id '{customer_id}' was not found.")
-    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # LIST ALL CUSTOMER
@@ -457,21 +498,6 @@ def list_customers():
 
     app.logger.info("Returning %d customers", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
-
-######################################################################
-# DELETE A CUSTOMER
-######################################################################
-@app.route("/customers/<int:customer_id>", methods=["DELETE"])
-def delete_customers(customer_id):
-    """
-    Delete a Customer
-    This endpoint will delete a Customer based the id specified in the path
-    """
-    app.logger.info("Request to delete customer with id: %s", customer_id)
-    customer = Customer.find(customer_id)
-    if customer:
-        customer.delete()
-    return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
