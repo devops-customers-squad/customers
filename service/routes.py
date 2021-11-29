@@ -34,7 +34,7 @@ api = Api(app,
           description='This is the Fall 2021 NYU DevOps Customers service.',
           default='customers',
           default_label='Customers operations',
-          doc='/apidocs',
+          doc='/apidocs/',
           prefix='/api'
          )
 
