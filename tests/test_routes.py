@@ -230,7 +230,7 @@ class TestYourResourceServer(TestCase):
         # get the id of a customer
         test_customer = self._create_customers(1)[0]
         resp = self.app.get(
-            "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
+            "{0}/{1}".format(BASE_API, test_customer.id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
@@ -239,22 +239,20 @@ class TestYourResourceServer(TestCase):
         
     def test_get_customer_not_found(self):
         """ Get a customer thats not found """
-        resp = self.app.get("{}/0".format(BASE_URL))
+        resp = self.app.get("{}/0".format(BASE_API))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_customer_address(self):
         """ Get a single Address for a Customer """
         test_customer = self._create_customers(1, always_has_address = True)[0]
         resp = self.app.get(
-            "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
+            "{0}/{1}".format(BASE_API, test_customer.id), content_type="application/json"
         )
-        print(resp.data)
         test_address = resp.get_json()["addresses"][0]
         resp = self.app.get(
             "{}/{}/addresses/{}".format(BASE_API, test_customer.id, test_address["address_id"]),
             content_type="application/json"
         )
-        print(resp.data)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["street_address"], test_address["street_address"])
@@ -270,7 +268,7 @@ class TestYourResourceServer(TestCase):
         """ Get an address that's not found for an existing customer """
         test_customer = self._create_customers(1, always_has_address = True)[0]
         resp = self.app.get(
-            "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
+            "{0}/{1}".format(BASE_API, test_customer.id), content_type="application/json"
         )
         addresses = resp.get_json()["addresses"]
         address_ids = []
@@ -307,13 +305,13 @@ class TestYourResourceServer(TestCase):
         """ Test Delete a Customer"""
         test_customer = self._create_customers(1)[0]
         resp = self.app.delete(
-            "{0}/{1}".format(BASE_URL, test_customer.id), content_type="application/json"
+            "{0}/{1}".format(BASE_API, test_customer.id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
         # make sure they are deleted
         resp = self.app.get(
-            "{}/{}".format(BASE_URL, test_customer.id), content_type="application/json"
+            "{}/{}".format(BASE_API, test_customer.id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -343,7 +341,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(resp.data), 0)
 
-    def test_services_list(self):
+    def test_serve_ui(self):
         """ Test service serves html """
         resp = self.app.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -363,7 +361,7 @@ class TestYourResourceServer(TestCase):
         logging.debug(new_customer)
         new_customer["username"] = "new_username"
         resp = self.app.put(
-            "/customers/{}".format(new_customer["id"]),
+            "{}/{}".format(BASE_API, new_customer["id"]),
             json=new_customer,
             content_type=CONTENT_TYPE_JSON,
         )
@@ -386,16 +384,16 @@ class TestYourResourceServer(TestCase):
         logging.debug(new_customer)
 
         resp = self.app.put(
-            "/customers/{}".format(new_customer["id"]),
+            "{}/{}".format(BASE_API, new_customer["id"]),
             json=new_customer,
             content_type=CONTENT_TYPE_JSON,
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_update_customer_addresses_not_found(self):
-        """ Update the addresses of a customer that is not found """
+    def test_update_customer_not_found(self):
+        """ Update a customer that is not found """
         resp = self.app.put(
-            "/customers/{}".format(0),
+            "{}/{}".format(BASE_API, 0),
             json={},
             content_type = CONTENT_TYPE_JSON,
         )
@@ -423,7 +421,7 @@ class TestYourResourceServer(TestCase):
         new_customer["username"] = initial_customer.username
     
         resp = self.app.put(
-            "/customers/{}".format(new_customer["id"]),
+            "{}/{}".format(BASE_API, new_customer["id"]),
             json=new_customer,
             content_type=CONTENT_TYPE_JSON,
         )
@@ -499,7 +497,7 @@ class TestYourResourceServer(TestCase):
         customers = self._create_customers(10)
     
         resp = self.app.get(
-            "{0}/{1}".format(BASE_URL, customers[0].id), content_type="application/json"
+            "{0}/{1}".format(BASE_API, customers[0].id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_data = resp.get_json()
@@ -571,7 +569,7 @@ class TestYourResourceServer(TestCase):
         """ Query customers by last name """
         customers = self._create_customers(10)
         resp = self.app.get(
-            "{0}/{1}".format(BASE_URL, customers[0].id), content_type="application/json"
+            "{0}/{1}".format(BASE_API, customers[0].id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         new_data = resp.get_json()
@@ -605,7 +603,7 @@ class TestYourResourceServer(TestCase):
         """ Query customers by first name and last name """
         customers = self._create_customers(10)
         resp = self.app.get(
-            "{0}/{1}".format(BASE_URL, customers[0].id), content_type="application/json"
+            "{0}/{1}".format(BASE_API, customers[0].id), content_type="application/json"
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         test_first_name = resp.get_json()['first_name']
@@ -662,7 +660,7 @@ class TestYourResourceServer(TestCase):
         """ Query a single Customer's addresses """
         test_customers = self._create_customers(10, always_has_address = True)
         resp = self.app.get(
-            "{}/{}".format(BASE_URL, test_customers[0].id), content_type=CONTENT_TYPE_JSON
+            "{}/{}".format(BASE_API, test_customers[0].id), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         
@@ -673,7 +671,7 @@ class TestYourResourceServer(TestCase):
         new_address["country"] = "Dome_country"
         new_address["city"] = "Dome_city"
         pick_resp = self.app.get(
-            "{}/{}".format(BASE_URL, test_customers[1].id), content_type=CONTENT_TYPE_JSON
+            "{}/{}".format(BASE_API, test_customers[1].id), content_type=CONTENT_TYPE_JSON
         )
         pick_customers = pick_resp.get_json()
         address_id = pick_customers['addresses'][0]['address_id']

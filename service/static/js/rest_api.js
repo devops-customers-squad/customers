@@ -298,7 +298,7 @@ $(function () {
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/customers/" + customer_id,
+                url: "/api/customers/" + customer_id,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -325,7 +325,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/customers/" + customer_id,
+            url: "/api/customers/" + customer_id,
             contentType: "application/json",
         })
 
@@ -353,7 +353,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/customers/" + cust_id,
+            url: "/api/customers/" + cust_id,
             contentType: "application/json"
         })
 
