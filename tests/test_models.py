@@ -322,7 +322,7 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(len(Address.all()), 0)
         self.assertEqual(len(customer.addresses), 0)
 
-    def test_update_a_customer(self):
+    def test_update_a_customer_address(self):
         """Update an Address"""
         customer = CustomerFactory()
         customer.create()

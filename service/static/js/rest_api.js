@@ -211,7 +211,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/customers",
+            url: "/api/customers",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -404,7 +404,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/customers?" + queryString,
+            url: "/api/customers?" + queryString,
             contentType: "application/json"
         })
 
@@ -438,7 +438,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/customers?" + queryString,
+            url: "/api/customers?" + queryString,
             contentType: "application/json"
         })
 

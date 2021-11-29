@@ -258,7 +258,6 @@ class AddressCollection(Resource):
                         "error": "Unsupported key",
                         "message": "The query key: '" + key + "' is not supported."
                         }
-
                     return message, status.HTTP_400_BAD_REQUEST
 
             filter_addresses = []
@@ -388,9 +387,7 @@ class CustomerResource(Resource):
                         "error": "Conflict",
                         "message": "Username '" + request_data["username"] + "' already exists."
                     }
-                    return make_response(
-                        message, status.HTTP_409_CONFLICT
-                    ) 
+                    return message, status.HTTP_409_CONFLICT
             customer.username = request_data["username"]
             customer.id = customer_id
             customer.first_name = request_data["first_name"]
@@ -419,85 +416,89 @@ class CustomerResource(Resource):
         return "", status.HTTP_204_NO_CONTENT
     
 ######################################################################
-# ADD A NEW CUSTOMER
+# PATH: /customers
 ######################################################################
-@app.route("/customers", methods=["POST"])
-def create_customers():
+@api.route('/customers')
+class CustomerCollection(Resource):
     """
-    Creates a Customer
-    This endpoint will create a Customer based the data in the body that is posted
+    CustomerCollections class
+
+    Allows the manipulation and accessing of a Customer
+    
+    GET /customers - Returns the information for all stored Customers
+    POST /customers - Creates a new Customer
     """
-    app.logger.info("Request to create a customer")
-    check_content_type("application/json")
-    check_customer_data(api.payload)
-    check_addresses_data(api.payload)
-    customer = Customer()
-    customer.deserialize(request.get_json())
-    customer_found = Customer.find_by_name(customer.username).first()
-    if customer_found:
-        message = {
-            "error": "Conflict",
-            "message": "Username '" + customer.username + "' already exists."
-            }
-        return make_response(
-            jsonify(message), status.HTTP_409_CONFLICT
-        ) 
-    customer.locked=False
-    customer.create()
-    message = customer.serialize()
-    location_url = api.url_for(CustomerResource, customer_id=customer.id, _external=True)
-    return make_response(
-        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-    )
+    #------------------------------------------------------------------
+    # CREATE A NEW CUSTOMER
+    #------------------------------------------------------------------
+    def post(self):
+        """
+        Creates a Customer
+        This endpoint will create a Customer based the data in the body that is posted
+        """
+        app.logger.info("Request to create a customer")
+        check_content_type("application/json")
+        check_customer_data(api.payload)
+        check_addresses_data(api.payload)
+        customer = Customer()
+        customer.deserialize(api.payload)
+        customer_found = Customer.find_by_name(customer.username).first()
+        if customer_found:
+            message = {
+                "error": "Conflict",
+                "message": "Username '" + customer.username + "' already exists."
+                }
+            return message, status.HTTP_409_CONFLICT
+        customer.locked=False
+        customer.create()
+        message = customer.serialize()
+        location_url = api.url_for(CustomerResource, customer_id=customer.id, _external=True)
+        return message, status.HTTP_201_CREATED, {"Location": location_url}
 
-######################################################################
-# LIST ALL CUSTOMER
-######################################################################
-@app.route("/customers", methods=["GET"])
-def list_customers():
-    """Returns all of the customers"""
-    app.logger.info("Request for customer list")
-    
-    all_query_key = ["username", "first_name", "last_name", "prefix_username"]
-    for key in request.args.keys():
-      if key not in all_query_key:
-        message = {
-            "error": "Unsupported key",
-            "message": "The query key: '" + key + "' is not supported."
-            }
+    #------------------------------------------------------------------
+    # LIST ALL CUSTOMERS
+    #------------------------------------------------------------------
+    def get(self):
+        """Returns all of the customers"""
+        app.logger.info("Request for customer list")
+        
+        all_query_key = ["username", "first_name", "last_name", "prefix_username"]
+        for key in request.args.keys():
+            if key not in all_query_key:
+                message = {
+                    "error": "Unsupported key",
+                    "message": "The query key: '" + key + "' is not supported."
+                    }
+                return message, status.HTTP_400_BAD_REQUEST
+        
+        username = request.args.get("username")
+        first_name = request.args.get("first_name")
+        last_name = request.args.get("last_name")
+        prefix_username = request.args.get("prefix_username")
 
-        return make_response(
-            jsonify(message), status.HTTP_400_BAD_REQUEST
-        ) 
-    
-    username = request.args.get("username")
-    first_name = request.args.get("first_name")
-    last_name = request.args.get("last_name")
-    prefix_username = request.args.get("prefix_username")
+        def filter(customers1, customers2):
+            filter_customers = []
+            for cust1 in customers1:
+                for cust2 in customers2:
+                    cust2 = cust2.serialize()
+                    if cust1['id'] == cust2['id']:
+                        filter_customers.append(cust1)
+                        break
+            return filter_customers
 
-    def filter(customers1, customers2):
-      filter_customers = []
-      for cust1 in customers1:
-        for cust2 in customers2:
-          cust2 = cust2.serialize()
-          if cust1['id'] == cust2['id']:
-            filter_customers.append(cust1)
-            break
-      return filter_customers
+        customers = Customer.all()
+        results = [customer.serialize() for customer in customers]
+        if username:
+            results = filter(results, Customer.find_by_name(username))
+        if first_name:
+            results = filter(results, Customer.find_by_first_name(first_name))
+        if last_name:
+            results = filter(results, Customer.find_by_last_name(last_name))
+        if prefix_username:
+            results = filter(results, Customer.find_by_prefix_name(prefix_username))
 
-    customers = Customer.all()
-    results = [customer.serialize() for customer in customers]
-    if username:
-      results = filter(results, Customer.find_by_name(username))
-    if first_name:
-      results = filter(results, Customer.find_by_first_name(first_name))
-    if last_name:
-      results = filter(results, Customer.find_by_last_name(last_name))
-    if prefix_username:
-      results = filter(results, Customer.find_by_prefix_name(prefix_username))
-
-    app.logger.info("Returning %d customers", len(results))
-    return make_response(jsonify(results), status.HTTP_200_OK)
+        app.logger.info("Returning %d customers", len(results))
+        return results, status.HTTP_200_OK
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

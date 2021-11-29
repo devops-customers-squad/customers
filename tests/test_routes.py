@@ -22,7 +22,6 @@ from random import randrange
 logging.disable(logging.CRITICAL)
 
 BASE_API = "/api/customers"
-BASE_URL = "/customers"
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
 )
@@ -72,7 +71,7 @@ class TestYourResourceServer(TestCase):
                 test_address = AddressFactory()
                 test_customer.addresses.append(test_address)
             resp = self.app.post(
-                BASE_URL, 
+                BASE_API, 
                 json = test_customer.serialize(), 
                 content_type = CONTENT_TYPE_JSON
             )
@@ -91,7 +90,7 @@ class TestYourResourceServer(TestCase):
         test_customer = CustomerFactory()
         logging.debug(test_customer)
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         # Make sure location header is set
@@ -116,7 +115,7 @@ class TestYourResourceServer(TestCase):
         # it should not change the number of customers in the database
         # (beacause username should be unique)
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
 
@@ -126,25 +125,25 @@ class TestYourResourceServer(TestCase):
         test_customer.username = 40
         logging.debug(test_customer)
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_customer_no_data(self):
          """ Create a Customer with missing data """
-         resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
+         resp = self.app.post(BASE_API, json={}, content_type=CONTENT_TYPE_JSON)
          self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_customer_no_content_type(self):
          """ Create a Customer with no content type """
-         resp = self.app.post(BASE_URL)
+         resp = self.app.post(BASE_API)
          self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_create_customer_address(self):
         """ Create a new address for a customer """
         test_customer = CustomerFactory()
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         customer_id = resp.get_json()["id"]
@@ -183,7 +182,7 @@ class TestYourResourceServer(TestCase):
         """ Create a new address for a customer with a request containing an incorrect value that should have type string """
         test_customer = CustomerFactory()
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         customer_id = resp.get_json()["id"]
@@ -199,7 +198,7 @@ class TestYourResourceServer(TestCase):
         """ Create a new address for a customer with a request containing an incorrect value that should have type int """
         test_customer = CustomerFactory()
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         customer_id = resp.get_json()["id"]
@@ -221,8 +220,8 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_method_not_allowed(self):
-        """ Make a call to /customers with an unsupported method, PUT """
-        resp=self.app.put('/customers')
+        """ Make a call to /api/customers with an unsupported method, PUT """
+        resp=self.app.put(BASE_API)
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_get_customer(self):
@@ -296,7 +295,7 @@ class TestYourResourceServer(TestCase):
     def test_get_customer_addresses_not_found(self):
         """ Get the addresses of a Customer that is not found """
         resp = self.app.get(
-            "/api/customers/{}/addresses".format(0),
+            "{}/{}/addresses".format(BASE_API, 0),
             content_type = CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
@@ -352,7 +351,7 @@ class TestYourResourceServer(TestCase):
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -374,7 +373,7 @@ class TestYourResourceServer(TestCase):
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -404,14 +403,14 @@ class TestYourResourceServer(TestCase):
         # create an initial customer
         initial_customer = CustomerFactory()
         resp = self.app.post(
-            BASE_URL, json=initial_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=initial_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         # create a customer to update
         test_customer = CustomerFactory()
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -434,7 +433,7 @@ class TestYourResourceServer(TestCase):
         test_address = AddressFactory()
         test_customer.addresses = [test_address]
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -459,7 +458,7 @@ class TestYourResourceServer(TestCase):
         test_address = AddressFactory()
         test_customer.addresses = [test_address]
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -487,7 +486,7 @@ class TestYourResourceServer(TestCase):
     def test_get_customer_list(self):
         """Get a list of Customers"""
         self._create_customers(5)
-        resp = self.app.get(BASE_URL)
+        resp = self.app.get(BASE_API)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(len(data), 5)
@@ -505,20 +504,20 @@ class TestYourResourceServer(TestCase):
         new_data['last_name'] = 'Johnn'
         #update customer 2 
         self.app.put(
-            "/customers/2",
+            "{}/2".format(BASE_API),
             json = new_data,
             content_type = CONTENT_TYPE_JSON,
         )
        
         test_first_name = customers[0].first_name
         resp = self.app.get(
-            BASE_URL, query_string="first_name={}".format(quote_plus(test_first_name))
+            BASE_API, query_string="first_name={}".format(quote_plus(test_first_name))
         )
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
 
-        resp_all_customer = self.app.get(BASE_URL)
+        resp_all_customer = self.app.get(BASE_API)
         self.assertEqual(resp_all_customer.status_code, status.HTTP_200_OK)
         num_test_customers = [cust for cust in resp_all_customer.get_json() if cust['first_name'] == test_first_name]
      
@@ -535,7 +534,7 @@ class TestYourResourceServer(TestCase):
         username_customer = [customer for customer in customers if customer.username == test_username]
 
         resp = self.app.get(
-            BASE_URL, query_string="username={}".format(quote_plus(test_username))
+            BASE_API, query_string="username={}".format(quote_plus(test_username))
         )
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -554,7 +553,7 @@ class TestYourResourceServer(TestCase):
         username_customer = [customer for customer in customers if customer.username.startswith(test_prefix_username)]
 
         resp = self.app.get(
-            BASE_URL, query_string="prefix_username={}".format(quote_plus(test_prefix_username))
+            BASE_API, query_string="prefix_username={}".format(quote_plus(test_prefix_username))
         )
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -577,20 +576,20 @@ class TestYourResourceServer(TestCase):
         new_data['first_name'] = 'Johnn'
         #update customer 1 name
         self.app.put(
-            "/customers/2",
+            "{}/2".format(BASE_API),
             json = new_data,
             content_type = CONTENT_TYPE_JSON,
         )
         test_last_name = customers[0].last_name
        
         resp = self.app.get(
-            BASE_URL, query_string="last_name={}".format(quote_plus(test_last_name))
+            BASE_API, query_string="last_name={}".format(quote_plus(test_last_name))
         )
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
 
-        resp_all_customer = self.app.get(BASE_URL)
+        resp_all_customer = self.app.get(BASE_API)
         self.assertEqual(resp_all_customer.status_code, status.HTTP_200_OK)
         num_test_customers = [cust for cust in resp_all_customer.get_json() if cust['last_name'] == test_last_name]
 
@@ -613,7 +612,7 @@ class TestYourResourceServer(TestCase):
         new_data['last_name'] = "ddome"
         #update customer 2 last name
         self.app.put(
-            "/customers/2",
+            "{}/2".format(BASE_API),
             json = new_data,
             content_type = CONTENT_TYPE_JSON,
         )
@@ -625,14 +624,14 @@ class TestYourResourceServer(TestCase):
         dic = {'first_name': quote_plus(test_first_name),
                'last_name': quote_plus(test_last_name)}
         resp = self.app.get(
-            BASE_URL, 
+            BASE_API, 
             query_string= dic
         )
         
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
 
-        resp_all_customer = self.app.get(BASE_URL)
+        resp_all_customer = self.app.get(BASE_API)
         self.assertEqual(resp_all_customer.status_code, status.HTTP_200_OK)
         num_test_customers = []
         for cust in resp_all_customer.get_json():
@@ -651,7 +650,7 @@ class TestYourResourceServer(TestCase):
         self._create_customers(10)
         test_age = str(100)
         resp = self.app.get(
-            BASE_URL, query_string="age={}".format(quote_plus(test_age))
+            BASE_API, query_string="age={}".format(quote_plus(test_age))
         )
         
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
@@ -713,7 +712,7 @@ class TestYourResourceServer(TestCase):
             test_address = AddressFactory()
             test_customer.addresses.append(test_address)
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
@@ -747,7 +746,7 @@ class TestYourResourceServer(TestCase):
             test_address = AddressFactory()
             test_customer.addresses.append(test_address)
         resp = self.app.post(
-            BASE_URL, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
+            BASE_API, json=test_customer.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertEqual(test_customer.locked, True)
