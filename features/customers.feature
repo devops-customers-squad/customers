@@ -32,7 +32,7 @@ Scenario: Create a customer with Invalid address
     And I set the "Last Name" to "yenphraphai"
     And I set the "Street Address" to "1234"
     And I press the "Create Customer" button
-    Then I should see the message "Invalid Address: missing city"
+    Then I should see the message "Invalid Customer Address: missing city"
     
 Scenario: Create a customer with valid information
     When I visit the "Home Page"

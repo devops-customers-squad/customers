@@ -16,6 +16,14 @@ class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
 
+class ResourceConflictError(Exception):
+    """ Used for an data validation errors when deserializing """
+    pass
+
+class UnsupportedKeyError(Exception):
+    """ Used for an data validation errors when deserializing """
+    pass
+
 class Customer(db.Model):
     """
     Class that represents a Customer
@@ -132,6 +140,11 @@ class Customer(db.Model):
             raise DataValidationError(
                 "Invalid Customer: body of request contained bad or no data"
             ) 
+        except DataValidationError as error:
+            error = str(error).split(": ")
+            raise DataValidationError(
+                "Invalid Customer Address: " + error[1]
+            )
         return self
 
     @classmethod

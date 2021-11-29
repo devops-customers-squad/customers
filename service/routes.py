@@ -1,18 +1,18 @@
 """
 Customer Service
 
-Describe what your service does here
+A service for manipulating and accessing customer information for the eCommerce site
 """
 
 import os
 import sys
 import logging
-from flask import Flask, jsonify, request, url_for, make_response, abort
+from flask import Flask, jsonify, request, make_response, abort
 from flask_restx import Api, Resource, fields, reqparse, inputs
 from . import status  # HTTP Status Codes
 
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Customer, Address, DataValidationError
+from service.models import Customer, Address, DataValidationError, ResourceConflictError, UnsupportedKeyError
 from werkzeug.exceptions import NotFound
 # Import Flask application
 from . import app
@@ -34,7 +34,7 @@ api = Api(app,
           description='This is the Fall 2021 NYU DevOps Customers service.',
           default='customers',
           default_label='Customers operations',
-          doc='/apidocs',
+          doc='/apidocs/',
           prefix='/api'
          )
 
@@ -106,7 +106,43 @@ address_args.add_argument('city', type=str, required=False, help='List Customer\
 address_args.add_argument('state', type=str, required=False, help='List Customer\'s Addresses by state')
 address_args.add_argument('zipcode', type=int, required=False, help='List Customer\'s Addresses by zipcode')
 address_args.add_argument('country', type=str, required=False, help='List Customer\'s Addresses by country')
-   
+
+######################################################################
+# Special Error Handlers
+###################################################################### 
+@api.errorhandler(DataValidationError)
+def request_validation_error(error):
+    """Handles Value Errors from bad data"""
+    message = str(error)
+    app.logger.error(message)
+    return {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'error': 'Bad Request',
+        'message': message
+    }, status.HTTP_400_BAD_REQUEST
+
+@api.errorhandler(ResourceConflictError)
+def request_conflict_error(error):
+    """Handles errors from conflicts with existing resources"""
+    message = str(error)
+    app.logger.error(message)
+    return {
+        'status_code': status.HTTP_409_CONFLICT,
+        'error': 'Conflict',
+        'message': message
+    }, status.HTTP_409_CONFLICT
+
+@api.errorhandler(UnsupportedKeyError)
+def request_unsupported_key(error):
+    """Handles errors from invalid query parameters"""
+    message = str(error)
+    app.logger.error(message)
+    return {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'error': 'Unsupported Key',
+        'message': message
+    }, status.HTTP_400_BAD_REQUEST
+
 ######################################################################
 # PATH: /customers/{customer_id}/addresses/{address_id}
 ######################################################################
@@ -240,12 +276,7 @@ class AddressCollection(Resource):
             all_query_key = ["city", "state", "country", "zipcode", "street_address"]
             for key in request.args.keys():
                 if key not in all_query_key:
-                    message = {
-                        "error": "Unsupported key",
-                        "message": "The query key: '" + key + "' is not supported."
-                        }
-
-                    return message, status.HTTP_400_BAD_REQUEST
+                    raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
 
             filter_addresses = []
             for address in addresses:
@@ -266,9 +297,9 @@ class AddressCollection(Resource):
 ######################################################################
 @api.route('/customers/<int:customer_id>/lock')
 @api.param('customer_id', 'The Customer identifier')
-class LockResource(Resource):
+class LockAction(Resource):
     """
-    LockResource class
+    LockAction class
 
     Allows for the manipulation of Customers to mark their accounts as locked
     
@@ -296,9 +327,9 @@ class LockResource(Resource):
 ######################################################################
 @api.route('/customers/<int:customer_id>/unlock')
 @api.param('customer_id', 'The Customer identifier')
-class UnlockResource(Resource):
+class UnlockAction(Resource):
     """
-    UnlockResource class
+    UnlockAction class
 
     Allows for the manipulation of Customers to mark their accounts as not locked
     
@@ -322,156 +353,158 @@ class UnlockResource(Resource):
         return customer.serialize_for_lock(), status.HTTP_200_OK
 
 ######################################################################
-# UPDATE AN EXISTING CUSTOMER
+# PATH: /customers/{customer_id}
 ######################################################################
-@app.route("/customers/<int:customer_id>", methods=["PUT"])
-def update_customers(customer_id):
+@api.route('/customers/<int:customer_id>')
+@api.param('customer_id', 'The Customer identifier')
+class CustomerResource(Resource):
     """
-    Update a Customer
-    This endpoint will update a Customer based the body that is posted
-    """
-    app.logger.info("Request to update Customer with id: %s", customer_id)
-    check_content_type("application/json")
-    check_customer_data(api.payload)
-    request_data = request.get_json()
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound("customer with id '{}' was not found.".format(customer_id))
+    CustomerResource class
+
+    Allows the manipulation and accessing of a single Customer
     
-    try:
-        if "username" in request_data:
-            other_customer = Customer.find_by_name(request_data["username"]).first()
-            if other_customer is not None and other_customer.id != customer_id:
-                message = {
-                    "error": "Conflict",
-                    "message": "Username '" + request_data["username"] + "' already exists."
-                }
-                return make_response(
-                    jsonify(message), status.HTTP_409_CONFLICT
-                ) 
-        customer.username = request_data["username"]
-        customer.id = customer_id
-        customer.first_name = request_data["first_name"]
-        customer.last_name = request_data["last_name"]
-        customer.password = request_data["password"]
-        customer.update()
-    except KeyError as error:
-        raise DataValidationError(
-            "Invalid Customer update: missing " + error.args[0]
-        )
-    app.logger.info("customer with ID [%s] updated.", customer.id)
-    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+    GET /customers/{customer_id} - Returns the customer with id customer_id
+    PUT /customers/{customer_id} - Updates the customer with id customer_id
+    DELETE /customers/{customer_id} -  Deletes the customer with id customer_id
+    """
+    #------------------------------------------------------------------
+    # RETRIEVE AN EXISTING CUSTOMER
+    #------------------------------------------------------------------
+    def get(self, customer_id):
+        """
+        Retrieve a single customer
+        This endpoint will return a customer based on their id
+        """
+        app.logger.info(f"Request information for customer with customer_id: {customer_id}")
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound(f"Customer with id '{customer_id}' was not found.")
+        return customer.serialize(), status.HTTP_200_OK
+
+    #------------------------------------------------------------------
+    # UPDATE AN EXISTING CUSTOMER
+    #------------------------------------------------------------------
+    def put(self, customer_id):
+        """
+        Update a Customer
+        This endpoint will update a Customer based the body that is posted
+        """
+        app.logger.info("Request to update Customer with id: %s", customer_id)
+        check_content_type("application/json")
+        check_customer_data(api.payload)
+        request_data = api.payload
+        customer = Customer.find(customer_id)
+        if not customer:
+            raise NotFound("customer with id '{}' was not found.".format(customer_id))
+        
+        try:
+            if "username" in request_data:
+                other_customer = Customer.find_by_name(request_data["username"]).first()
+                if other_customer is not None and other_customer.id != customer_id:
+                    raise ResourceConflictError("Username '" + request_data["username"] + "' already exists.")
+            customer.username = request_data["username"]
+            customer.id = customer_id
+            customer.first_name = request_data["first_name"]
+            customer.last_name = request_data["last_name"]
+            customer.password = request_data["password"]
+            customer.update()
+        except KeyError as error:
+            raise DataValidationError(
+                "Invalid Customer update: missing " + error.args[0]
+            )
+        app.logger.info("customer with ID [%s] updated.", customer.id)
+        return customer.serialize(), status.HTTP_200_OK
+    
+    #------------------------------------------------------------------
+    # DELETE A CUSTOMER
+    #------------------------------------------------------------------
+    def delete(self, customer_id):
+        """
+        Delete a Customer
+        This endpoint will delete a Customer based the id specified in the path
+        """
+        app.logger.info("Request to delete customer with id: %s", customer_id)
+        customer = Customer.find(customer_id)
+        if customer:
+            customer.delete()
+        return "", status.HTTP_204_NO_CONTENT
     
 ######################################################################
-# ADD A NEW CUSTOMER
+# PATH: /customers
 ######################################################################
-@app.route("/customers", methods=["POST"])
-def create_customers():
+@api.route('/customers')
+class CustomerCollection(Resource):
     """
-    Creates a Customer
-    This endpoint will create a Customer based the data in the body that is posted
-    """
-    app.logger.info("Request to create a customer")
-    check_content_type("application/json")
-    check_customer_data(api.payload)
-    check_addresses_data(api.payload)
-    customer = Customer()
-    customer.deserialize(request.get_json())
-    customerfound = Customer.find_by_name(customer.username).first()
-    if customerfound:
-        message = {
-            "error": "Conflict",
-            "message": "Username '" + customer.username + "' already exists."
-            }
-        return make_response(
-            jsonify(message), status.HTTP_409_CONFLICT
-        ) 
-    customer.locked=False
-    customer.create()
-    message = customer.serialize()
-    location_url = url_for("get_customers", customer_id=customer.id, _external=True)
-    return make_response(
-        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-    )
+    CustomerCollections class
+
+    Allows the manipulation and accessing of a Customer
     
-######################################################################
-# RETRIEVE A CUSTOMER
-######################################################################
-@app.route("/customers/<int:customer_id>", methods=["GET"])
-def get_customers(customer_id):
+    GET /customers - Returns the information for all stored Customers
+    POST /customers - Creates a new Customer
     """
-    Retrieve a single customer
-    This endpoint will return a customer based on their id
-    """
-    app.logger.info(f"Request information for customer with customer_id: {customer_id}")
-    customer = Customer.find(customer_id)
-    if not customer:
-        raise NotFound(f"Customer with id '{customer_id}' was not found.")
-    return make_response(jsonify(customer.serialize()), status.HTTP_200_OK)
+    #------------------------------------------------------------------
+    # CREATE A NEW CUSTOMER
+    #------------------------------------------------------------------
+    def post(self):
+        """
+        Creates a Customer
+        This endpoint will create a Customer based the data in the body that is posted
+        """
+        app.logger.info("Request to create a customer")
+        check_content_type("application/json")
+        check_customer_data(api.payload)
+        check_addresses_data(api.payload)
+        customer = Customer()
+        customer.deserialize(api.payload)
+        customer_found = Customer.find_by_name(customer.username).first()
+        if customer_found:
+            raise ResourceConflictError( "Username '" + customer.username + "' already exists.")
+        customer.locked=False
+        customer.create()
+        message = customer.serialize()
+        location_url = api.url_for(CustomerResource, customer_id=customer.id, _external=True)
+        return message, status.HTTP_201_CREATED, {"Location": location_url}
 
-######################################################################
-# LIST ALL CUSTOMER
-######################################################################
-@app.route("/customers", methods=["GET"])
-def list_customers():
-    """Returns all of the customers"""
-    app.logger.info("Request for customer list")
-    
-    all_query_key = ["username", "first_name", "last_name", "prefix_username"]
-    for key in request.args.keys():
-      if key not in all_query_key:
-        message = {
-            "error": "Unsupported key",
-            "message": "The query key: '" + key + "' is not supported."
-            }
+    #------------------------------------------------------------------
+    # LIST ALL CUSTOMERS
+    #------------------------------------------------------------------
+    def get(self):
+        """Returns all of the customers"""
+        app.logger.info("Request for customer list")
+        
+        all_query_key = ["username", "first_name", "last_name", "prefix_username"]
+        for key in request.args.keys():
+            if key not in all_query_key:
+                raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
+        
+        username = request.args.get("username")
+        first_name = request.args.get("first_name")
+        last_name = request.args.get("last_name")
+        prefix_username = request.args.get("prefix_username")
 
-        return make_response(
-            jsonify(message), status.HTTP_400_BAD_REQUEST
-        ) 
-    
-    username = request.args.get("username")
-    first_name = request.args.get("first_name")
-    last_name = request.args.get("last_name")
-    prefix_username = request.args.get("prefix_username")
+        def filter(customers1, customers2):
+            filter_customers = []
+            for cust1 in customers1:
+                for cust2 in customers2:
+                    cust2 = cust2.serialize()
+                    if cust1['id'] == cust2['id']:
+                        filter_customers.append(cust1)
+                        break
+            return filter_customers
 
-    def filter(customers1, customers2):
-      filter_customers = []
-      for cust1 in customers1:
-        for cust2 in customers2:
-          cust2 = cust2.serialize()
-          if cust1['id'] == cust2['id']:
-            filter_customers.append(cust1)
-            break
-      return filter_customers
+        customers = Customer.all()
+        results = [customer.serialize() for customer in customers]
+        if username:
+            results = filter(results, Customer.find_by_name(username))
+        if first_name:
+            results = filter(results, Customer.find_by_first_name(first_name))
+        if last_name:
+            results = filter(results, Customer.find_by_last_name(last_name))
+        if prefix_username:
+            results = filter(results, Customer.find_by_prefix_name(prefix_username))
 
-    customers = Customer.all()
-    results = [customer.serialize() for customer in customers]
-    if username:
-      results = filter(results, Customer.find_by_name(username))
-    if first_name:
-      results = filter(results, Customer.find_by_first_name(first_name))
-    if last_name:
-      results = filter(results, Customer.find_by_last_name(last_name))
-    if prefix_username:
-      results = filter(results, Customer.find_by_prefix_name(prefix_username))
-
-    app.logger.info("Returning %d customers", len(results))
-    return make_response(jsonify(results), status.HTTP_200_OK)
-
-######################################################################
-# DELETE A CUSTOMER
-######################################################################
-@app.route("/customers/<int:customer_id>", methods=["DELETE"])
-def delete_customers(customer_id):
-    """
-    Delete a Customer
-    This endpoint will delete a Customer based the id specified in the path
-    """
-    app.logger.info("Request to delete customer with id: %s", customer_id)
-    customer = Customer.find(customer_id)
-    if customer:
-        customer.delete()
-    return make_response("", status.HTTP_204_NO_CONTENT)
+        app.logger.info("Returning %d customers", len(results))
+        return results, status.HTTP_200_OK
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S

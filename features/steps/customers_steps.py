@@ -32,28 +32,27 @@ def step_impl(context):
     """ Delete all Customers and load new ones """
     headers = {'Content-Type': 'application/json'}
     # list all of the customers and delete them one by one
-    context.resp = requests.get(context.base_url + '/customers', headers=headers)
+    context.resp = requests.get(context.base_url + '/api/customers', headers=headers)
     expect(context.resp.status_code).to_equal(200)
     for customer in context.resp.json():
-        context.resp = requests.delete(context.base_url + '/customers/' + str(customer["id"]), headers=headers)
+        context.resp = requests.delete(context.base_url + '/api/customers/' + str(customer["id"]), headers=headers)
         expect(context.resp.status_code).to_equal(204)
     
     # load the database with new customers
-    create_url = context.base_url + '/customers'
+    create_url = context.base_url + '/api/customers'
     for row in context.table:
         data = {
             "username": row['username'],
             "password": row['password'],
             "first_name": row['first_name'],
             "last_name": row['last_name'],
-            #"addresses": row['addresses'],
             }
         if row["street_address"] != "None":
             address = [
                         {"street_address": row['street_address'],
                         "city": row['city'],
                         "state": row['state'],
-                        "zipcode": row['zipcode'],
+                        "zipcode": int(row['zipcode']),
                         "country": row['country']}
                 ]
             data["addresses"] = address
