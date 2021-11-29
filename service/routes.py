@@ -297,9 +297,9 @@ class AddressCollection(Resource):
 ######################################################################
 @api.route('/customers/<int:customer_id>/lock')
 @api.param('customer_id', 'The Customer identifier')
-class LockResource(Resource):
+class LockAction(Resource):
     """
-    LockResource class
+    LockAction class
 
     Allows for the manipulation of Customers to mark their accounts as locked
     
@@ -327,9 +327,9 @@ class LockResource(Resource):
 ######################################################################
 @api.route('/customers/<int:customer_id>/unlock')
 @api.param('customer_id', 'The Customer identifier')
-class UnlockResource(Resource):
+class UnlockAction(Resource):
     """
-    UnlockResource class
+    UnlockAction class
 
     Allows for the manipulation of Customers to mark their accounts as not locked
     
