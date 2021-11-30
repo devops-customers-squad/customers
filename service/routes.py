@@ -316,6 +316,9 @@ class LockAction(Resource):
     #------------------------------------------------------------------
     # LOCK AN EXISTING CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('lock_customer')
+    @api.response(404, 'The specified customer was not found')
+    @api.marshal_with(customer_model)
     def put(self, customer_id):
         """
         Lock a Customer
@@ -346,6 +349,9 @@ class UnlockAction(Resource):
     #------------------------------------------------------------------
     # UNLOCK AN EXISTING CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('unlock_customer')
+    @api.response(404, 'The specified customer was not found')
+    @api.marshal_with(customer_model)
     def put(self, customer_id):
         """
         Unock a Customer
