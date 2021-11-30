@@ -2,10 +2,10 @@ name: Run Python Tests
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -18,13 +18,13 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: postgres_pwd
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres_db
         ports:
           - 5432:5432
         # Set health checks to wait until redis has started
         options: >-
-          --health-cmd "redis-cli ping"
+          --health-cmd "pg_isready"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
