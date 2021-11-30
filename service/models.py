@@ -96,7 +96,7 @@ class Customer(db.Model):
     def serialize_for_lock(self):
         """ Serializes a Customer into a dictionary without id"""
 
-        customer_dict = {
+        customer_dict = {"id": self.id,
             "username": self.username,
             "password": self.password,
             "first_name": self.first_name,
