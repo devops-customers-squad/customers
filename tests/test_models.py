@@ -5,6 +5,7 @@ Test cases for Customer Model
 import logging
 import unittest
 import os
+import json
 from service import app
 from service.models import Customer, Address, DataValidationError, db
 from werkzeug.exceptions import NotFound
@@ -14,6 +15,10 @@ BASE_URL = "/customers"
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
 )
+# override if we are running in Cloud Foundry
+if 'VCAP_SERVICES' in os.environ:
+    vcap = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
 CONTENT_TYPE_JSON="application/json"
 
 ######################################################################
