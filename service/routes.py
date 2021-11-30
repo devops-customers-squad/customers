@@ -401,7 +401,13 @@ class CustomerResource(Resource):
             if "username" in request_data:
                 other_customer = Customer.find_by_name(request_data["username"]).first()
                 if other_customer is not None and other_customer.id != customer_id:
-                    raise ResourceConflictError("Username '" + request_data["username"] + "' already exists.")
+                    message = {
+                        "error": "Conflict",
+                        "message": "Username '" + request_data["username"] + "' already exists."
+                    }
+                    return make_response(
+                        message, status.HTTP_409_CONFLICT
+                    ) 
             customer.username = request_data["username"]
             customer.id = customer_id
             customer.first_name = request_data["first_name"]
