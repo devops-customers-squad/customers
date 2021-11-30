@@ -165,25 +165,30 @@ class AddressResource(Resource):
     #------------------------------------------------------------------
     # RETRIEVE A CUSTOMER'S ADDRESS
     #------------------------------------------------------------------
+    @api.doc('get_addresses')
+    @api.response(404, 'The specified address belonging to the specified customer was not found')
+    @api.marshal_with(address_model)
     def get(self, customer_id, address_id):
         """
         Retrieve a single customer's address
         This endpoint will return an address for a customer based on the 
-        address' and customer's ids
+        customer's and address' ids
         """
         app.logger.info(f"Request address with address_id {address_id} for customer with customer_id {customer_id}")
-        customer = Customer.find(customer_id)
-        if not customer:
-            raise NotFound(f"Customer with id '{customer_id}' was not found.")
+    
         address = Address.find(address_id)
         if not address or address.customer_id != customer_id:
-            raise NotFound(f"Address with id '{address_id}' belonging to customer with"
-                + f" id '{customer_id}' not found")
+            raise NotFound("Address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
         return address.serialize(), status.HTTP_200_OK
 
     #------------------------------------------------------------------
     # UPDATE A CUSTOMER'S ADDRESS
     #------------------------------------------------------------------
+    @api.doc('update_addresses')
+    @api.response(404, 'The specified address belonging to the specified customer was not found')
+    @api.response(400, 'The supplied Address data was not valid')
+    @api.expect(create_address_model)
+    @api.marshal_with(address_model)   
     def put(self, customer_id, address_id):
         """
         Update a Customer's address
@@ -194,7 +199,7 @@ class AddressResource(Resource):
         check_address_data(api.payload)
         address = Address.find(address_id)
         if not address or address.customer_id != customer_id:
-            raise NotFound("address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
+            raise NotFound("Address with id '{}' for customer with id '{}' was not found.".format(address_id, customer_id))
 
         address.deserialize(api.payload)
         address.address_id = address_id
@@ -206,6 +211,8 @@ class AddressResource(Resource):
     #------------------------------------------------------------------
     # DELETE A CUSTOMER'S ADDRESS
     #------------------------------------------------------------------
+    @api.doc('delete_addresses')
+    @api.response(204, 'Address deleted')
     def delete(self, customer_id, address_id):
         """
         Delete an existing customer's address
