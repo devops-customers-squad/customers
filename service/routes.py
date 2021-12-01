@@ -377,26 +377,34 @@ class CustomerResource(Resource):
     #------------------------------------------------------------------
     # RETRIEVE AN EXISTING CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('get_customers')
+    @api.response(404, "Customer not found")
+    @api.marshal_with(customer_model)
     def get(self, customer_id):
         """
         Retrieve a single customer
         This endpoint will return a customer based on their id
         """
-        app.logger.info(f"Request information for customer with customer_id: {customer_id}")
+        app.logger.info("Request information for customer with id [%s]", customer_id)
         customer = Customer.find(customer_id)
         if not customer:
-            raise NotFound(f"Customer with id '{customer_id}' was not found.")
+            raise NotFound("Customer with id '{}' was not found.".format(customer_id))
         return customer.serialize(), status.HTTP_200_OK
 
     #------------------------------------------------------------------
     # UPDATE AN EXISTING CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('update_customers')
+    @api.response(404, 'Customer not found')
+    @api.response(400, 'The posted Customer data was not valid')
+    @api.expect(customer_model)
+    @api.marshal_with(customer_model)
     def put(self, customer_id):
         """
         Update a Customer
         This endpoint will update a Customer based the body that is posted
         """
-        app.logger.info("Request to update Customer with id: %s", customer_id)
+        app.logger.info("Request to update Customer with id: [%s]", customer_id)
         check_content_type("application/json")
         check_customer_data(api.payload)
         request_data = api.payload
@@ -425,6 +433,8 @@ class CustomerResource(Resource):
     #------------------------------------------------------------------
     # DELETE A CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('delete_customers')
+    @api.response(204, 'Customer deleted')
     def delete(self, customer_id):
         """
         Delete a Customer
