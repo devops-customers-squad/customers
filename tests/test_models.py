@@ -12,14 +12,6 @@ from werkzeug.exceptions import NotFound
 from tests.factories import CustomerFactory, AddressFactory
 
 BASE_URL = "/customers"
-DATABASE_URI = os.getenv(
-    "DATABASE_URI", "postgres://postgres:postgres@localhost:5432/postgres"
-)
-# override if we are running in Cloud Foundry
-if 'VCAP_SERVICES' in os.environ:
-    vcap = json.loads(os.environ['VCAP_SERVICES'])
-    DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
-CONTENT_TYPE_JSON="application/json"
 
 ######################################################################
 #  CUSTOMER   M O D E L   T E S T   C A S E S
@@ -32,7 +24,6 @@ class TestYourResourceModel(unittest.TestCase):
         """ This runs once before the entire test suite """
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
-        app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         Customer.init_db(app)
 
