@@ -275,6 +275,7 @@ class AddressCollection(Resource):
     #------------------------------------------------------------------
     @api.doc('list_addresses')
     @api.response(404, 'Customer not found')
+    @api.expect(address_args, validate=True)
     @api.marshal_list_with(address_model) 
     def get(self, customer_id):
         """
