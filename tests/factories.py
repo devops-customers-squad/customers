@@ -32,7 +32,7 @@ class AddressFactory(factory.Factory):
     street_address = factory.Faker("street_address")
     city = factory.Faker("city")
     state = factory.Faker("state")
-    zipcode = FuzzyInteger(10000, 99999)
+    zipcode = factory.Faker("postcode")
     country = factory.Faker("country")
 
 class CustomerFactory(factory.Factory):

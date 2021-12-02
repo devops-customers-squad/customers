@@ -52,7 +52,7 @@ def step_impl(context):
                         {"street_address": row['street_address'],
                         "city": row['city'],
                         "state": row['state'],
-                        "zipcode": int(row['zipcode']),
+                        "zipcode": row['zipcode'],
                         "country": row['country']}
                 ]
             data["addresses"] = address

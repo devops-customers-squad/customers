@@ -60,7 +60,7 @@ $(function () {
     }
 
     function create_address_string(address) {
-        return "address_id=" + address.address_id + ": " + address.street_address + ", " + address.city + ", " + address.state + " " + address.zipcode + ", " + address.country
+        return "address_id=" + address.address_id + ": " + address.street_address + ", " + address.city + ", " + address.state + ", " + address.zipcode + ", " + address.country
     }
 
     function create_customer_results_header() {
@@ -202,7 +202,7 @@ $(function () {
             if (city != "") { address["city"] = city }
             if (state != "") { address["state"] = state }
             if (country != "") { address["country"] = country }
-            if (zipcode != "") { address["zipcode"] = parseInt(zipcode) }
+            if (zipcode != "") { address["zipcode"] = zipcode }
 
             if (Object.keys(address).length !== 0) {
                 data["addresses"].push(address);
@@ -474,6 +474,7 @@ $(function () {
         var state = $("#addr_state").val();
         var country = $("#addr_country").val();
         var zipcode = $("#addr_zip").val();
+        
 
         var data = {
             "customer_id": customer_id,
@@ -627,7 +628,6 @@ $(function () {
         }
         
         if (zipcode) {
-            zipcode=parseInt(zipcode);
             if (queryString.length > 0) {
                 queryString += '&zipcode=' + zipcode
             } else {

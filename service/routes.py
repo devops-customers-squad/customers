@@ -45,7 +45,7 @@ create_address_model = api.model('Address', {
                                 description='The city for the customer\'s address'),
     'state': fields.String(required=True,
                                 description='The state for the customer\'s address'),
-    'zipcode': fields.Integer(required=True,
+    'zipcode': fields.String(required=True,
                                 description='The zipcode for the customer\'s address'),                        
     'country': fields.String(required=True,
                                 description='The country for the customer\'s address')   
@@ -104,7 +104,7 @@ address_args = reqparse.RequestParser()
 address_args.add_argument('street_address', type=str, required=False, help='List Customer\'s Addresses by street address')
 address_args.add_argument('city', type=str, required=False, help='List Customer\'s Addresses by city')
 address_args.add_argument('state', type=str, required=False, help='List Customer\'s Addresses by state')
-address_args.add_argument('zipcode', type=int, required=False, help='List Customer\'s Addresses by zipcode')
+address_args.add_argument('zipcode', type=str, required=False, help='List Customer\'s Addresses by zipcode')
 address_args.add_argument('country', type=str, required=False, help='List Customer\'s Addresses by country')
 
 ######################################################################
@@ -196,6 +196,7 @@ class AddressResource(Resource):
         """
         app.logger.info("Request to update addresses of Customer with id: %s", customer_id)
         check_content_type("application/json")
+        print(api.payload)
         check_address_data(api.payload)
         address = Address.find(address_id)
         if not address or address.customer_id != customer_id:
@@ -482,9 +483,11 @@ class CustomerCollection(Resource):
         This endpoint will create a Customer based the data in the body that is posted
         """
         app.logger.info("Request to create a customer")
+        print(api.payload)
         check_content_type("application/json")
         check_customer_data(api.payload)
         check_addresses_data(api.payload)
+        
         customer = Customer()
         customer.deserialize(api.payload)
         customer_found = Customer.find_by_name(customer.username).first()
@@ -561,16 +564,11 @@ def check_customer_data(request):
             abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type string for the key '{}'".format(key))
 
 def check_address_data(request):
-    string_keys = ["street_address", "city", "state", "country"]
-    int_keys = ["zipcode"]
+    string_keys = ["street_address", "city", "state", "country", "zipcode"]
     for key in string_keys:
         if key in request and not isinstance(request[key], str):
             app.logger.error("Invalid address request value for key '%s'", key)
             abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type string for the key '{}'".format(key))
-    for key in int_keys:
-        if key in request and not isinstance(request[key], int):
-            app.logger.error("Invalid address request value for key '%s'", key)
-            abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type int for the key '{}'".format(key))        
 
 def check_addresses_data(request):
     if "addresses" in request:
