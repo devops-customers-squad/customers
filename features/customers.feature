@@ -9,6 +9,7 @@ Background:
         | user2   | 1235     | John       | Georgie   | 234           | Boston       | Massachusetts | 20000   | USA     |
         | user3   | 1236     | Tom        | Giovani   | 345           | White Plains | NY            | 10567   | USA     |
         | user4   | 1236     | Tim        | Giovani   | None          | None         | None          | None    | None    |
+        | 5user   | 1236     | Henry       | George   | None          | None         | None          | None    | None    |
 
 Scenario: The server is running
     When I visit the "Home Page"
@@ -69,6 +70,7 @@ Scenario: Clear customer information
     And I should not see "user1" in the customer results
     And I should not see "user2" in the customer results
     And I should not see "user3" in the customer results
+    And I should not see "5user" in the customer results
 
 Scenario: Read a customer without an address
     When I visit the "Home Page"
@@ -93,6 +95,7 @@ Scenario: Read a customer without an address
     And I should not see "user1" in the customer results
     And I should not see "user2" in the customer results
     And I should not see "user3" in the customer results
+    And I should not see "5user" in the customer results
 
 Scenario: Read a customer with an address
     When I visit the "Home Page"
@@ -117,6 +120,7 @@ Scenario: Read a customer with an address
     And I should not see "user1" in the customer results
     And I should not see "user3" in the customer results
     And I should not see "user4" in the customer results
+    And I should not see "5user" in the customer results
 
 Scenario: Read a customer with an invalid ID
     When I visit the "Home Page"
@@ -132,6 +136,7 @@ Scenario: List all customers
     And I should see "user2" in the customer results
     And I should see "user3" in the customer results
     And I should see "user4" in the customer results
+    And I should see "5user" in the customer results
 
 Scenario: Update a customer
     When I visit the "Home Page"
@@ -204,6 +209,7 @@ Scenario: Lock a customer
     And I should not see "user2" in the customer results
     And I should not see "user3" in the customer results
     And I should not see "user4" in the customer results
+    And I should not see "5user" in the customer results
     # Check that the Locked field is now set to true when the customer is retrieved
     When I visit the "Home Page"
     And I set the "First Name" to "John"
@@ -230,6 +236,7 @@ Scenario: Delete a customer with id provided
     And I should not see "user2" in the customer results
     And I should see "user3" in the customer results
     And I should see "user4" in the customer results
+    And I should see "5user" in the customer results
 
 Scenario: Unlock a customer after locking
     When I visit the "Home Page"
@@ -256,8 +263,151 @@ Scenario: Unlock a customer after locking
     And I should not see "user2" in the customer results
     And I should not see "user3" in the customer results
     And I should not see "user4" in the customer results
+    And I should not see "5user" in the customer results
 
-Scenario: Query a customer by state
+Scenario: Search for customers by last name
+    When I visit the "Home Page"
+    And I set the "Last Name" to "Giovani"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "Tom" in the "First Name" field
+    And I should see "Giovani" in the "Last Name" field
+    And I should see "user3" in the "Username" field
+    And I should see "1236" in the "Password" field
+    And I should see "user3" in the customer results
+    And I should see "user4" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "5user" in the customer results
+
+Scenario: Search for customers by first name
+    When I visit the "Home Page"
+    And I set the "First Name" to "John"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "John" in the "First Name" field
+    And I should see "Georgie" in the "Last Name" field
+    And I should see "user2" in the "Username" field
+    And I should see "1235" in the "Password" field
+    And I should see "user2" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results    
+    And I should not see "5user" in the customer results
+
+Scenario: Search for customers by username
+    When I visit the "Home Page"
+    And I set the "Username" to "user2"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "John" in the "First Name" field
+    And I should see "Georgie" in the "Last Name" field
+    And I should see "user2" in the "Username" field
+    And I should see "1235" in the "Password" field
+    And I should see "user2" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results   
+    And I should not see "5user" in the customer results
+
+Scenario: Search for customers by both first name and last name
+    When I visit the "Home Page"
+    And I set the "First Name" to "Henry"
+    And I set the "Last Name" to "George"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "Henry" in the "First Name" field
+    And I should see "George" in the "Last Name" field
+    And I should see "user1" in the "Username" field
+    And I should see "1234" in the "Password" field
+    And I should see "user1" in the customer results
+    And I should see "5user" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results   
+
+Scenario: Search for customers by first name, last name, and username
+    When I visit the "Home Page"
+    And I set the "First Name" to "Henry"
+    And I set the "Last Name" to "George"
+    And I set the "Username" to "5user"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And I should see "Henry" in the "First Name" field
+    And I should see "George" in the "Last Name" field
+    And I should see "5user" in the "Username" field
+    And I should see "1236" in the "Password" field
+    And I should see "5user" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results   
+
+Scenario: Search for customers by a first name that has no matches
+    When I visit the "Home Page"
+    And I set the "First Name" to "Abcdefghijklmnop"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    And the "Customer ID" field should be empty
+    And the "First Name" field should be empty
+    And the "Last Name" field should be empty
+    And the "Username" field should be empty
+    And the "Password" field should be empty
+    And the "Locked" field should be empty
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results  
+    And I should not see "5user" in the customer results 
+
+Scenario: Query customers by username prefix matching one customer
+    When I visit the "Home Page"
+    And I set the "Username" to "user2"
+    And I press the "Query by Username Prefix" button
+    Then I should see the message "Success"
+    And I should see "John" in the "First Name" field
+    And I should see "Georgie" in the "Last Name" field
+    And I should see "user2" in the "Username" field
+    And I should see "1235" in the "Password" field
+    And I should see "user2" in the customer results
+    And I should not see "user1" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results  
+    And I should not see "5user" in the customer results 
+
+Scenario: Query customers by username prefix matching multiple customers
+    When I visit the "Home Page"
+    And I set the "Username" to "use"
+    And I press the "Query by Username Prefix" button
+    Then I should see the message "Success"
+    And I should see "Henry" in the "First Name" field
+    And I should see "George" in the "Last Name" field
+    And I should see "user1" in the "Username" field
+    And I should see "1234" in the "Password" field
+    And I should see "user1" in the customer results
+    And I should see "user2" in the customer results
+    And I should see "user3" in the customer results
+    And I should see "user4" in the customer results 
+    And I should not see "5user" in the customer results
+
+Scenario: Query customers by a username prefix that has no matches
+    When I visit the "Home Page"
+    And I set the "Username" to "Abcdefghijklmnop"
+    And I press the "Query by Username Prefix" button
+    Then I should see the message "Success"
+    And the "Customer ID" field should be empty
+    And the "First Name" field should be empty
+    And the "Last Name" field should be empty
+    And the "Username" field should be empty
+    And the "Password" field should be empty
+    And the "Locked" field should be empty
+    And I should not see "user1" in the customer results
+    And I should not see "user2" in the customer results
+    And I should not see "user3" in the customer results
+    And I should not see "user4" in the customer results  
+    And I should not see "5user" in the customer results 
+
+Scenario: Query a customer's addresses by state
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
@@ -271,7 +421,7 @@ Scenario: Query a customer by state
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
 
-Scenario: Query a customer by zipcode
+Scenario: Query a customer's addresses by zipcode
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
@@ -285,7 +435,7 @@ Scenario: Query a customer by zipcode
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
 
-Scenario: Query a customer by country
+Scenario: Query a customer's addresses by country
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
@@ -299,7 +449,7 @@ Scenario: Query a customer by country
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
 
-Scenario: Query a customer by stree_address
+Scenario: Query a customer's addresses by street_address
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
@@ -313,7 +463,7 @@ Scenario: Query a customer by stree_address
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
 
-Scenario: Query a customer by city
+Scenario: Query a customer's addresses by city
     When I visit the "Home Page"
     And I set the "Username" to "user2"
     And I press the "Search for Customer" button
