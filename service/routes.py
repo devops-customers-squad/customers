@@ -250,6 +250,11 @@ class AddressCollection(Resource):
     #------------------------------------------------------------------
     # CREATE A NEW ADDRESS FOR THE CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('create_addresses')
+    @api.response(404, 'Customer not found')
+    @api.response(400, 'The posted Address data was not valid')
+    @api.expect(create_address_model)
+    @api.marshal_with(address_model)  
     def post(self, customer_id):
         """
         Creates an Address for the Customer with an id equal to customer_id
@@ -274,6 +279,10 @@ class AddressCollection(Resource):
     #------------------------------------------------------------------
     # RETRIEVE A CUSTOMER'S ADDRESSES
     #------------------------------------------------------------------
+    @api.doc('list_addresses')
+    @api.response(404, 'Customer not found')
+    @api.expect(address_args, validate=True)
+    @api.marshal_list_with(address_model) 
     def get(self, customer_id):
         """
         Retrieve a single customer's addresses
@@ -285,22 +294,29 @@ class AddressCollection(Resource):
             raise NotFound(f"Customer with id '{customer_id}' was not found.")
         customer_dict = customer.serialize()
         addresses = customer_dict["addresses"]
+
         if len(request.args) != 0:
             all_query_key = ["city", "state", "country", "zipcode", "street_address"]
             for key in request.args.keys():
                 if key not in all_query_key:
                     raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
-
+        
+        args = address_args.parse_args()
+        non_empty_args = dict()
+        for key in args.keys():
+            if args[key] != None:
+                non_empty_args[key] = args[key]
+        args = non_empty_args
+        if len(args) != 0:
             filter_addresses = []
             for address in addresses:
                 found = 0
-                for query_key in request.args.keys():
-                    value = request.args.get(query_key)
+                for query_key in args.keys():
+                    value = args[query_key]
                     found = 1 if str(address[query_key]) == value else 0
                     if not found: break
                     if found:  
                         filter_addresses.append(address)
-        
             addresses = filter_addresses
 
         return addresses, status.HTTP_200_OK
