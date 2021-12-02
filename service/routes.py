@@ -77,7 +77,10 @@ create_customer_model = api.inherit(
     'CustomerWithAddress', 
     update_customer_model,
     {
-        'addresses': fields.List(fields.Nested(address_model),
+        # Change address_model to create_address_model
+        # because we cannot provide a customer id or address id
+        # when we are creating an new customer
+        'addresses': fields.List(fields.Nested(create_address_model),
                                 required=True,
                                 description='The addresses belonging to the customer')                       
     }    
@@ -85,12 +88,15 @@ create_customer_model = api.inherit(
 
 customer_model = api.inherit(
     "CustomerModel",
-    create_customer_model,
+    update_customer_model,
     {
         'id': fields.Integer(readOnly=True,
                                     description='The unique id for the customer'),
         'locked': fields.Boolean(readOnly=True,
-                                    description='Is the customer\'s account locked?')
+                                    description='Is the customer\'s account locked?'),
+        'addresses': fields.List(fields.Nested(address_model),
+                                required=True,
+                                description='The addresses belonging to the customer') 
     }
 )
 
@@ -276,6 +282,7 @@ class AddressCollection(Resource):
     #------------------------------------------------------------------
     @api.doc('list_addresses')
     @api.response(404, 'Customer not found')
+    @api.expect(address_args, validate=True)
     @api.marshal_list_with(address_model) 
     def get(self, customer_id):
         """
@@ -288,22 +295,29 @@ class AddressCollection(Resource):
             raise NotFound(f"Customer with id '{customer_id}' was not found.")
         customer_dict = customer.serialize()
         addresses = customer_dict["addresses"]
+
         if len(request.args) != 0:
             all_query_key = ["city", "state", "country", "zipcode", "street_address"]
             for key in request.args.keys():
                 if key not in all_query_key:
                     raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
-
+        
+        args = address_args.parse_args()
+        non_empty_args = dict()
+        for key in args.keys():
+            if args[key] != None:
+                non_empty_args[key] = args[key]
+        args = non_empty_args
+        if len(args) != 0:
             filter_addresses = []
             for address in addresses:
                 found = 0
-                for query_key in request.args.keys():
-                    value = request.args.get(query_key)
+                for query_key in args.keys():
+                    value = args[query_key]
                     found = 1 if str(address[query_key]) == value else 0
                     if not found: break
                     if found:  
                         filter_addresses.append(address)
-        
             addresses = filter_addresses
 
         return addresses, status.HTTP_200_OK
@@ -477,6 +491,11 @@ class CustomerCollection(Resource):
     #------------------------------------------------------------------
     # CREATE A NEW CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('create_customers')
+    @api.response(400, 'The posted data was not valid')
+    @api.response(409, 'Duplicated usernames')
+    @api.expect(create_customer_model)
+    @api.marshal_with(customer_model, code=201)
     def post(self):
         """
         Creates a Customer
@@ -502,6 +521,9 @@ class CustomerCollection(Resource):
     #------------------------------------------------------------------
     # LIST ALL CUSTOMERS
     #------------------------------------------------------------------
+    @api.doc('list_customers')
+    @api.expect(customer_args, validate=True)
+    @api.marshal_list_with(customer_model)
     def get(self):
         """Returns all of the customers"""
         app.logger.info("Request for customer list")
@@ -511,10 +533,11 @@ class CustomerCollection(Resource):
             if key not in all_query_key:
                 raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
         
-        username = request.args.get("username")
-        first_name = request.args.get("first_name")
-        last_name = request.args.get("last_name")
-        prefix_username = request.args.get("prefix_username")
+        args = customer_args.parse_args()
+        username = args["username"]
+        first_name = args["first_name"]
+        last_name = args["last_name"]
+        prefix_username = args["prefix_username"]
 
         def filter(customers1, customers2):
             filter_customers = []
