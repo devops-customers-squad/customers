@@ -244,6 +244,11 @@ class AddressCollection(Resource):
     #------------------------------------------------------------------
     # CREATE A NEW ADDRESS FOR THE CUSTOMER
     #------------------------------------------------------------------
+    @api.doc('create_addresses')
+    @api.response(404, 'Customer not found')
+    @api.response(400, 'The posted Address data was not valid')
+    @api.expect(create_address_model)
+    @api.marshal_with(address_model)  
     def post(self, customer_id):
         """
         Creates an Address for the Customer with an id equal to customer_id
@@ -268,6 +273,9 @@ class AddressCollection(Resource):
     #------------------------------------------------------------------
     # RETRIEVE A CUSTOMER'S ADDRESSES
     #------------------------------------------------------------------
+    @api.doc('list_addresses')
+    @api.response(404, 'Customer not found')
+    @api.marshal_list_with(address_model) 
     def get(self, customer_id):
         """
         Retrieve a single customer's addresses
