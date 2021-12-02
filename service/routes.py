@@ -101,17 +101,17 @@ customer_model = api.inherit(
 )
 
 customer_args = reqparse.RequestParser()
-customer_args.add_argument('username', type=str, required=False, help='List Customers by username')
-customer_args.add_argument('first_name', type=str, required=False, help='List Customers by first name')
-customer_args.add_argument('last_name', type=str, required=False, help='List Customers by last name')
-customer_args.add_argument('prefix_username', type=str, required=False, help='List Customers by username prefix')
+customer_args.add_argument('username', type=str, location='args', required=False, help='List Customers by username')
+customer_args.add_argument('first_name', type=str, location='args', required=False, help='List Customers by first name')
+customer_args.add_argument('last_name', type=str, location='args', required=False, help='List Customers by last name')
+customer_args.add_argument('prefix_username', type=str, location='args', required=False, help='List Customers by username prefix')
 
 address_args = reqparse.RequestParser()
-address_args.add_argument('street_address', type=str, required=False, help='List Customer\'s Addresses by street address')
-address_args.add_argument('city', type=str, required=False, help='List Customer\'s Addresses by city')
-address_args.add_argument('state', type=str, required=False, help='List Customer\'s Addresses by state')
-address_args.add_argument('zipcode', type=str, required=False, help='List Customer\'s Addresses by zipcode')
-address_args.add_argument('country', type=str, required=False, help='List Customer\'s Addresses by country')
+address_args.add_argument('street_address', type=str, location='args', required=False, help='List Customer\'s Addresses by street address')
+address_args.add_argument('city', type=str, location='args', required=False, help='List Customer\'s Addresses by city')
+address_args.add_argument('state', type=str, location='args', required=False, help='List Customer\'s Addresses by state')
+address_args.add_argument('zipcode', type=str, location='args', required=False, help='List Customer\'s Addresses by zipcode')
+address_args.add_argument('country', type=str, location='args', required=False, help='List Customer\'s Addresses by country')
 
 ######################################################################
 # Special Error Handlers
@@ -202,7 +202,6 @@ class AddressResource(Resource):
         """
         app.logger.info("Request to update addresses of Customer with id: %s", customer_id)
         check_content_type("application/json")
-        print(api.payload)
         check_address_data(api.payload)
         address = Address.find(address_id)
         if not address or address.customer_id != customer_id:
@@ -502,7 +501,6 @@ class CustomerCollection(Resource):
         This endpoint will create a Customer based the data in the body that is posted
         """
         app.logger.info("Request to create a customer")
-        print(api.payload)
         check_content_type("application/json")
         check_customer_data(api.payload)
         check_addresses_data(api.payload)
