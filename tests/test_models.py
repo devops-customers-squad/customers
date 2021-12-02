@@ -263,6 +263,15 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(customers[0].id, 1)
         self.assertEqual(customers[0].username, "nyu_student")
 
+    def test_update_customer_without_id(self):
+        """Update a customer missing an id"""
+        customer = CustomerFactory()
+        logging.debug(customer)
+        customer.create()
+        logging.debug(customer)
+        customer.id = None
+        self.assertRaises(DataValidationError, customer.update)
+
     def test_update_an_address_without_id(self):
         """Update an address with missing address id"""
         customer = CustomerFactory()
