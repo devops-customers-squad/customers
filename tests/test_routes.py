@@ -207,7 +207,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         customer_id = resp.get_json()["id"]
         test_address = AddressFactory()
-        test_address.zipcode = "10032"
+        test_address.zipcode = 11111
         resp = self.app.post(
             "{}/{}/addresses".format(BASE_API, customer_id), json=test_address.serialize(),
             content_type="application/json"

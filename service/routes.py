@@ -45,7 +45,7 @@ create_address_model = api.model('Address', {
                                 description='The city for the customer\'s address'),
     'state': fields.String(required=True,
                                 description='The state for the customer\'s address'),
-    'zipcode': fields.Integer(required=True,
+    'zipcode': fields.String(required=True,
                                 description='The zipcode for the customer\'s address'),                        
     'country': fields.String(required=True,
                                 description='The country for the customer\'s address')   
@@ -101,17 +101,17 @@ customer_model = api.inherit(
 )
 
 customer_args = reqparse.RequestParser()
-customer_args.add_argument('username', type=str, required=False, help='List Customers by username')
-customer_args.add_argument('first_name', type=str, required=False, help='List Customers by first name')
-customer_args.add_argument('last_name', type=str, required=False, help='List Customers by last name')
-customer_args.add_argument('prefix_username', type=str, required=False, help='List Customers by username prefix')
+customer_args.add_argument('username', type=str, location='args', required=False, help='List Customers by username')
+customer_args.add_argument('first_name', type=str, location='args', required=False, help='List Customers by first name')
+customer_args.add_argument('last_name', type=str, location='args', required=False, help='List Customers by last name')
+customer_args.add_argument('prefix_username', type=str, location='args', required=False, help='List Customers by username prefix')
 
 address_args = reqparse.RequestParser()
-address_args.add_argument('street_address', type=str, required=False, help='List Customer\'s Addresses by street address')
-address_args.add_argument('city', type=str, required=False, help='List Customer\'s Addresses by city')
-address_args.add_argument('state', type=str, required=False, help='List Customer\'s Addresses by state')
-address_args.add_argument('zipcode', type=int, required=False, help='List Customer\'s Addresses by zipcode')
-address_args.add_argument('country', type=str, required=False, help='List Customer\'s Addresses by country')
+address_args.add_argument('street_address', type=str, location='args', required=False, help='List Customer\'s Addresses by street address')
+address_args.add_argument('city', type=str, location='args', required=False, help='List Customer\'s Addresses by city')
+address_args.add_argument('state', type=str, location='args', required=False, help='List Customer\'s Addresses by state')
+address_args.add_argument('zipcode', type=str, location='args', required=False, help='List Customer\'s Addresses by zipcode')
+address_args.add_argument('country', type=str, location='args', required=False, help='List Customer\'s Addresses by country')
 
 ######################################################################
 # Special Error Handlers
@@ -504,6 +504,7 @@ class CustomerCollection(Resource):
         check_content_type("application/json")
         check_customer_data(api.payload)
         check_addresses_data(api.payload)
+        
         customer = Customer()
         customer.deserialize(api.payload)
         customer_found = Customer.find_by_name(customer.username).first()
@@ -584,16 +585,11 @@ def check_customer_data(request):
             abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type string for the key '{}'".format(key))
 
 def check_address_data(request):
-    string_keys = ["street_address", "city", "state", "country"]
-    int_keys = ["zipcode"]
+    string_keys = ["street_address", "city", "state", "country", "zipcode"]
     for key in string_keys:
         if key in request and not isinstance(request[key], str):
             app.logger.error("Invalid address request value for key '%s'", key)
             abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type string for the key '{}'".format(key))
-    for key in int_keys:
-        if key in request and not isinstance(request[key], int):
-            app.logger.error("Invalid address request value for key '%s'", key)
-            abort(status.HTTP_400_BAD_REQUEST, "Request body must have a value of type int for the key '{}'".format(key))        
 
 def check_addresses_data(request):
     if "addresses" in request:

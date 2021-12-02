@@ -228,7 +228,7 @@ class Address(db.Model):
     street_address = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(100), nullable=False)
     state = db.Column(db.String(100), nullable=False)
-    zipcode = db.Column(db.Integer, nullable=False)
+    zipcode = db.Column(db.String(100), nullable=False)
     country = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):

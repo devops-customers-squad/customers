@@ -69,7 +69,7 @@ class TestYourResourceModel(unittest.TestCase):
                                     street_address="123 Test Road",
                                     city="New York",
                                     state="NY",
-                                    zipcode=10053,
+                                    zipcode="10053",
                                     country="United States"
                                 )
                             ]))
@@ -131,7 +131,7 @@ class TestYourResourceModel(unittest.TestCase):
                 "street_address": "123 Test Road",
                 "city": "New York",
                 "state": "NY",
-                "zipcode": 10053,
+                "zipcode": "10053",
                 "country": "United States"
             }]
         }
@@ -148,7 +148,7 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(address.street_address, "123 Test Road")
         self.assertEqual(address.city, "New York")
         self.assertEqual(address.state, "NY")
-        self.assertEqual(address.zipcode, 10053)
+        self.assertEqual(address.zipcode, "10053")
         self.assertEqual(address.country, "United States")
 
     def test_deserialize_a_customer_without_locked(self):
@@ -163,7 +163,7 @@ class TestYourResourceModel(unittest.TestCase):
                 "street_address": "123 Test Road",
                 "city": "New York",
                 "state": "NY",
-                "zipcode": 10053,
+                "zipcode": "10053",
                 "country": "United States"
             }]
         }
@@ -180,7 +180,7 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(address.street_address, "123 Test Road")
         self.assertEqual(address.city, "New York")
         self.assertEqual(address.state, "NY")
-        self.assertEqual(address.zipcode, 10053)
+        self.assertEqual(address.zipcode, "10053")
         self.assertEqual(address.country, "United States")
 
     def test_deserialize_missing_data(self):
@@ -295,7 +295,7 @@ class TestYourResourceModel(unittest.TestCase):
         address = Address(street_address="123 Test Road",
                             city="New York",
                             state="NY",
-                            zipcode=10053,
+                            zipcode="10053",
                             country="United States"
                         )
         address.customer_id = customer.id
