@@ -20,10 +20,6 @@ class ResourceConflictError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
 
-class UnsupportedKeyError(Exception):
-    """ Used for an data validation errors when deserializing """
-    pass
-
 class Customer(db.Model):
     """
     Class that represents a Customer

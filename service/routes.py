@@ -12,7 +12,7 @@ from flask_restx import Api, Resource, fields, reqparse, inputs
 from . import status  # HTTP Status Codes
 
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Customer, Address, DataValidationError, ResourceConflictError, UnsupportedKeyError
+from service.models import Customer, Address, DataValidationError, ResourceConflictError
 from werkzeug.exceptions import NotFound
 # Import Flask application
 from . import app
@@ -131,17 +131,6 @@ def request_conflict_error(error):
         'error': 'Conflict',
         'message': message
     }, status.HTTP_409_CONFLICT
-
-@api.errorhandler(UnsupportedKeyError)
-def request_unsupported_key(error):
-    """Handles errors from invalid query parameters"""
-    message = str(error)
-    app.logger.error(message)
-    return {
-        'status_code': status.HTTP_400_BAD_REQUEST,
-        'error': 'Unsupported Key',
-        'message': message
-    }, status.HTTP_400_BAD_REQUEST
 
 ######################################################################
 # PATH: /customers/{customer_id}/addresses/{address_id}
@@ -279,22 +268,23 @@ class AddressCollection(Resource):
             raise NotFound(f"Customer with id '{customer_id}' was not found.")
         customer_dict = customer.serialize()
         addresses = customer_dict["addresses"]
-        if len(request.args) != 0:
-            all_query_key = ["city", "state", "country", "zipcode", "street_address"]
-            for key in request.args.keys():
-                if key not in all_query_key:
-                    raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
 
+        args = address_args.parse_args()
+        non_empty_args = dict()
+        for key in args.keys():
+            if args[key] != None:
+                non_empty_args[key] = args[key]
+        args = non_empty_args
+        if len(args) != 0:
             filter_addresses = []
             for address in addresses:
                 found = 0
-                for query_key in request.args.keys():
-                    value = request.args.get(query_key)
+                for query_key in args.keys():
+                    value = args[query_key]
                     found = 1 if str(address[query_key]) == value else 0
                     if not found: break
                     if found:  
                         filter_addresses.append(address)
-        
             addresses = filter_addresses
 
         return addresses, status.HTTP_200_OK
@@ -495,15 +485,12 @@ class CustomerCollection(Resource):
         """Returns all of the customers"""
         app.logger.info("Request for customer list")
         
-        all_query_key = ["username", "first_name", "last_name", "prefix_username"]
-        for key in request.args.keys():
-            if key not in all_query_key:
-                raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
+        args = customer_args.parse_args()
         
-        username = request.args.get("username")
-        first_name = request.args.get("first_name")
-        last_name = request.args.get("last_name")
-        prefix_username = request.args.get("prefix_username")
+        username = args["username"]
+        first_name = args["first_name"]
+        last_name = args["last_name"]
+        prefix_username = args["prefix_username"]
 
         def filter(customers1, customers2):
             filter_customers = []
