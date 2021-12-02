@@ -649,6 +649,16 @@ class TestYourResourceServer(TestCase):
             self.assertEqual(cust["first_name"], test_first_name)
             self.assertEqual(cust["last_name"], test_last_name)
     
+    def test_query_customer_list_by_wrong_query(self):
+        """ Query customers by wrong query """
+        self._create_customers(10)
+        test_age = str(100)
+        resp = self.app.get(
+            BASE_API, query_string="age={}".format(quote_plus(test_age))
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_query_customer_addresses(self):
         """ Query a single Customer's addresses """
         test_customers = self._create_customers(10, always_has_address = True)
@@ -686,6 +696,17 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.get_json()[0]['city'], test_city)
         self.assertEqual(resp.get_json()[0]['country'], test_country)
+
+    def test_wrong_query_customer_addresses(self):
+        """ Query a single Customer's addresses using an unsupported query parameter """
+        self._create_customers(10)
+        test_mailbox = "123"
+        resp = self.app.get(
+            f"{BASE_API}/1/addresses", 
+            query_string= {'mailbox': quote_plus(test_mailbox)}
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         
     def test_lock_customer(self):
         """ Lock an existing customer """

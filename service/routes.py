@@ -12,7 +12,7 @@ from flask_restx import Api, Resource, fields, reqparse, inputs
 from . import status  # HTTP Status Codes
 
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Customer, Address, DataValidationError, ResourceConflictError
+from service.models import Customer, Address, DataValidationError, ResourceConflictError, UnsupportedKeyError
 from werkzeug.exceptions import NotFound
 # Import Flask application
 from . import app
@@ -131,6 +131,17 @@ def request_conflict_error(error):
         'error': 'Conflict',
         'message': message
     }, status.HTTP_409_CONFLICT
+
+@api.errorhandler(UnsupportedKeyError)
+def request_unsupported_key(error):
+    """Handles errors from invalid query parameters"""
+    message = str(error)
+    app.logger.error(message)
+    return {
+        'status_code': status.HTTP_400_BAD_REQUEST,
+        'error': 'Unsupported Key',
+        'message': message
+    }, status.HTTP_400_BAD_REQUEST
 
 ######################################################################
 # PATH: /customers/{customer_id}/addresses/{address_id}
@@ -269,6 +280,12 @@ class AddressCollection(Resource):
         customer_dict = customer.serialize()
         addresses = customer_dict["addresses"]
 
+        if len(request.args) != 0:
+            all_query_key = ["city", "state", "country", "zipcode", "street_address"]
+            for key in request.args.keys():
+                if key not in all_query_key:
+                    raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
+        
         args = address_args.parse_args()
         non_empty_args = dict()
         for key in args.keys():
@@ -484,6 +501,11 @@ class CustomerCollection(Resource):
     def get(self):
         """Returns all of the customers"""
         app.logger.info("Request for customer list")
+        
+        all_query_key = ["username", "first_name", "last_name", "prefix_username"]
+        for key in request.args.keys():
+            if key not in all_query_key:
+                raise UnsupportedKeyError("The query key: '" + key + "' is not supported.")
         
         args = customer_args.parse_args()
         
