@@ -3,6 +3,7 @@ Environment for Behave Testing
 """
 from os import getenv
 import json
+import os
 from selenium import webdriver
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
