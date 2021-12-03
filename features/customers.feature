@@ -340,8 +340,14 @@ Scenario: Update customer address
     And I set the "Zip" to "11111"
     And I press the "Update Customer Address" button
     Then I should see the message "Success"
-    When I press the "Retrieve Address" button
-    Then I should see "That Street" in the "Street Address" field
+
+    # check if the address has been updated
+    When I copy the "Address ID" field
+    And I press the "Clear Address" button
+    And I paste the "Address ID" field
+    And I press the "Retrieve Address" button
+    Then I should see the message "Success"
+    And I should see "That Street" in the "Street Address" field
     And I should see "New Jersey" in the "City" field
     And I should see "NJ" in the "State" field
     And I should see "America" in the "Country" field

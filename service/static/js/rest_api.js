@@ -531,6 +531,7 @@ $(function () {
             })
 
         ajax.done(function(res){
+            clear_address_data()
             res.id = customer_id
             update_address_form(res)
             flash_message("Success")
@@ -556,6 +557,7 @@ $(function () {
             contentType: "application/json",
         })
 
+        clear_address_data()
         ajax.done(function(res){
             add_single_address(res)
             update_address_form(res)
@@ -649,6 +651,7 @@ $(function () {
             contentType: "application/json",
         })
 
+        clear_address_data()
         ajax.done(function(res){
             console.log("HERE")
             var first_address = add_multiple_addresses(res)
