@@ -475,15 +475,18 @@ $(function () {
         var country = $("#addr_country").val();
         var zipcode = $("#addr_zip").val();
         
+        if (customer_id == "") {
+            flash_message("Invalid request: missing Customer ID")
+            return
+        }
 
-        var data = {
-            "customer_id": customer_id,
-            "street_address": street_address,
-            "city": city,
-            "state": state,
-            "country": country,
-            "zipcode": zipcode
-        };
+        var data = {};
+
+        if (street_address != "") { data["street_address"] = street_address }
+        if (city != "") { data["city"] = city }
+        if (state != "") { data["state"] = state }
+        if (country != "") { data["country"] = country }
+        if (zipcode != "") { data["zipcode"] = zipcode }
 
         var ajax = $.ajax({
             type: "POST",
@@ -507,6 +510,12 @@ $(function () {
     // ****************************************
     $("#addr-update-btn").click(function () {
         var customer_id = $("#cust_id").val();
+
+        if (customer_id == "") {
+            flash_message("Invalid request: missing Customer ID")
+            return
+        }
+
         var address_id = $("#addr_id").val();
         
         var street_address = $("#addr_street_address").val();
@@ -515,13 +524,13 @@ $(function () {
         var country = $("#addr_country").val();
         var zipcode = $("#addr_zip").val();
 
-        var data = {
-            "street_address": street_address,
-            "city":city,
-            "state": state,
-            "zipcode": zipcode,
-            "country": country
-        };
+        var data = {};
+
+        if (street_address != "") { data["street_address"] = street_address }
+        if (city != "") { data["city"] = city }
+        if (state != "") { data["state"] = state }
+        if (country != "") { data["country"] = country }
+        if (zipcode != "") { data["zipcode"] = zipcode }
 
         var ajax = $.ajax({
                 type: "PUT",
@@ -549,6 +558,12 @@ $(function () {
     $("#addr-retrieve-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
+
+        if (customer_id == "") {
+            flash_message("Invalid request: missing Customer ID")
+            return
+        }
+
         var address_id = $("#addr_id").val();
 
         var ajax = $.ajax({
@@ -578,6 +593,12 @@ $(function () {
     $("#addr-delete-btn").click(function () {
         
         var customer_id = $("#cust_id").val();
+
+        if (customer_id == "") {
+            flash_message("Invalid request: missing Customer ID")
+            return
+        }
+
         var address_id = $("#addr_id").val();
 
         var ajax = $.ajax({
@@ -603,6 +624,12 @@ $(function () {
     $("#addr-search-btn").click(function () {
 
         var customer_id = $("#cust_id").val();
+
+        if (customer_id == "") {
+            flash_message("Invalid request: missing Customer ID")
+            return
+        }
+        
         var street_address = $("#addr_street_address").val();
         var city = $("#addr_city").val();
         var state = $("#addr_state").val();

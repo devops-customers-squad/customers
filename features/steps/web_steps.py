@@ -95,6 +95,13 @@ def step_impl(context, element_name):
     element = context.driver.find_element_by_id(element_id)
     expect(element.get_attribute('value')).to_be(u'')
 
+@then('the "{element_name}" field should not be empty')
+def step_impl(context, element_name):
+    element_id = mapping_name(element_name)
+    element = context.driver.find_element_by_id(element_id)
+    error_msg = "the %s field should not be empty", element_name
+    ensure(element.text != u'', False, error_msg)
+
 ##################################################################
 # These two function simulate copy and paste
 ##################################################################
@@ -160,6 +167,20 @@ def step_impl(context, name):
     element = context.driver.find_element_by_id('address_search_results')
     error_msg = "I should not see '%s' in '%s'" % (name, element.text)
     ensure(name in element.text, False, error_msg)
+
+@then('I should see 1 row in the address results')
+def step_impl(context):
+    element = context.driver.find_element_by_id('address_search_results')
+    element = element.find_elements_by_tag_name('table')
+    error_msg = "I should see '%s' rows in the address results" % (1)
+    ensure(len(element) == 2, False, error_msg)
+
+@then('I should see {number} rows in the address results')
+def step_impl(context, number):
+    element = context.driver.find_element_by_id('address_search_results')
+    element = element.find_elements_by_tag_name('table')
+    error_msg = "I should see %s rows in the address results but there are %s" % (number, len(element))
+    ensure(len(element) == int(number) + 1, False, error_msg)
 
 @then('I should see the message "{message}"')
 def step_impl(context, message):
