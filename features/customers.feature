@@ -34,7 +34,7 @@ Scenario: Create a customer with Invalid address
     And I set the "Street Address" to "1234"
     And I press the "Create Customer" button
     Then I should see the message "Invalid Customer Address: missing city"
-    
+
 Scenario: Create a customer with valid information
     When I visit the "Home Page"
     And I set the "Username" to "dome"
@@ -472,6 +472,34 @@ Scenario: Query a customer's addresses by city
     And I should see "Massachusetts" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "20000" in the "Zip" field
+
+Scenario: Retrieve a customer's address
+    When I visit the "Home Page"
+    And I set the "Username" to "user1"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    When I copy the "Address ID" field
+    And I press the "Clear Address" button
+    And I paste the "Address ID" field
+    And I press the "Retrieve Address" button
+    Then I should see the message "Success"
+    And I should see "123" in the "Street Address" field
+    And I should see "New York" in the "City" field
+    And I should see "NY" in the "State" field
+    And I should see "USA" in the "Country" field
+    And I should see "10000" in the "Zip" field
+
+Scenario: Retrieve a customer's address with non-existing address_id
+    When I visit the "Home Page"
+    And I set the "Username" to "user1"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+    When I press the "Clear Address" button
+    And I set the "Address ID" to "12345678987654321"
+    And I press the "Retrieve Address" button
+
+    #  Cannot check customer_id because id is changing
+    Then I should see the message "Address with id '12345678987654321' for customer with id"
 
 Scenario: Update customer address
     When I visit the "Home Page"
