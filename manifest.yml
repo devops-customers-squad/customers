@@ -6,6 +6,9 @@ applications:
   instances: 2
   memory: 128M
   routes:
+  # for Deploy Stage
+  - route: nyu-customer-service-fall2101-dev.us-south.cf.appdomain.cloud
+  # for Production Stage
   - route: nyu-customer-service-fall2101.us-south.cf.appdomain.cloud
   disk_quota: 1024M
   buildpacks: 
