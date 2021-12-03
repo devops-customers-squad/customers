@@ -2,11 +2,17 @@
 Environment for Behave Testing
 """
 from os import getenv
+import json
 from selenium import webdriver
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
 BASE_URL = getenv('BASE_URL', 'http://localhost:5000')
 
+# override if we are running in Cloud Foundry
+if 'VCAP_SERVICES' in os.environ:
+    vcap = json.loads(os.environ['VCAP_SERVICES'])
+    DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
+    
 def before_all(context):
     """ Executed once before all tests """
     options = webdriver.ChromeOptions()
