@@ -50,6 +50,7 @@ class TestYourResourceModel(unittest.TestCase):
         """ This runs after each test """
         db.session.remove()
         db.drop_all()
+        db.get_engine().dispose()
 
     ######################################################################
     #  T E S T   C A S E S
