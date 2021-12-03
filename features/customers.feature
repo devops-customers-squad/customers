@@ -4,12 +4,17 @@ Feature: The customer store service back-end
     So that I can keep track of all my customers
 Background:
     Given the following customers 
-        | username | password | first_name | last_name | street_address| city        | state         | zipcode | country |
-        | user1   | 1234     | Henry      | George    | 123           | New York     | NY            | 10000   | USA     |
-        | user2   | 1235     | John       | Georgie   | 234           | Boston       | Massachusetts | 20000   | USA     |
-        | user3   | 1236     | Tom        | Giovani   | 345           | White Plains | NY            | 10567   | USA     |
-        | user4   | 1236     | Tim        | Giovani   | None          | None         | None          | None    | None    |
-        | 5user   | 1236     | Henry       | George   | None          | None         | None          | None    | None    |
+        | username | password | first_name | last_name | several_addresses |street_address1| city1        | state1      | zipcode1 | country1 |street_address2  | city2         | state2         | zipcode2 | country2 |
+        | user1   | 1234     | Henry      | George    | True               |123            | New York     | NY          | 10000    | USA      | 12342           | New York2     | NY2            | 10002   | USA     |
+        | user2   | 1235     | John       | Georgie   | False              | 234           | Boston       |Massachusetts| 20000    | USA      |  None            | None          | None           | None    | None    |
+        | user3   | 1236     | Tom        | Giovani   | False              | 456           |White Plains  | NY          | 10567    | USA      | None            | None          | None           | None    | None    |
+        | user4   | 1236     | Tim        | Giovani   | False               | None          | None         | None        | None     | None     | None            | None          | None           | None    | None    |
+        | 5user   | 1236     | Henry       | George   | False               | None          | None         | None        | None     | None     |  None            | None          | None           | None    | None    |
+
+Scenario: The server is running
+    When I visit the "Home Page"
+    Then I should see "Customers RESTful Service" in the title
+    And I should not see "404 Not Found"
 
 Scenario: The server is running
     When I visit the "Home Page"
