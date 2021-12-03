@@ -645,3 +645,27 @@ Scenario: Create an address for a customer without an existing address
     And I should see "USA" in the "Country" field
     And I should see "Test Zip" in the "Zip" field
     And I should see "456" in the address results
+
+Scenario: Create an address for a customer with missing information
+    When I visit the "Home Page"
+    And I set the "Username" to "user4"
+    And I press the "Search for Customer" button
+    And I copy the "Customer ID" field
+    And I press the "Clear All" button
+    And I paste the "Customer ID" field
+    And I set the "Street Address" to "456 Testing"
+    And I set the "City" to "Test City"
+    And I set the "Country" to "USA"
+    And I set the "Zip" to "Test Zip"
+    And I press the "Create Customer Address" button
+    Then I should see the message "Invalid Address: missing state"
+
+Scenario: Create an address for a customer with missing customer id
+    When I visit the "Home Page"
+    And I set the "Street Address" to "456 Testing"
+    And I set the "City" to "Test City"
+    And I set the "State" to "Test State"
+    And I set the "Country" to "USA"
+    And I set the "Zip" to "Test Zip"
+    And I press the "Create Customer Address" button
+    Then I should see the message "Invalid request: missing Customer ID"
