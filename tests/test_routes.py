@@ -63,6 +63,7 @@ class TestYourResourceServer(TestCase):
         """ This runs after each test """
         db.session.remove()
         db.drop_all()
+        db.get_engine().dispose()
 
     def _create_customers(self, count, always_has_address = False):
         """Factory method to create customers in bulk"""
