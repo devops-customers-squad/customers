@@ -476,3 +476,29 @@ Scenario: Query a customer's addresses by city
     And I should see "Massachusetts" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "20000" in the "Zip" field
+
+Scenario: Update customer address
+    When I visit the "Home Page"
+    And I set the "Username" to "user2"
+    And I press the "Search for Customer" button
+
+    # Update the address
+    And I set the "Street Address" to "That Street"
+    And I set the "City" to "New Jersey"
+    And I set the "State" to "NJ"
+    And I set the "Country" to "America"
+    And I set the "Zip" to "11111"
+    And I press the "Update Customer Address" button
+    Then I should see the message "Success"
+
+    # check if the address has been updated
+    When I copy the "Address ID" field
+    And I press the "Clear Address" button
+    And I paste the "Address ID" field
+    And I press the "Retrieve Address" button
+    Then I should see the message "Success"
+    And I should see "That Street" in the "Street Address" field
+    And I should see "New Jersey" in the "City" field
+    And I should see "NJ" in the "State" field
+    And I should see "America" in the "Country" field
+    And I should see "11111" in the "Zip" field
