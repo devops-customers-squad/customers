@@ -40,25 +40,50 @@ def step_impl(context):
     
     # load the database with new customers
     create_url = context.base_url + '/api/customers'
-    for row in context.table:
+    
+    for num_customer, row in enumerate(context.table):
         data = {
             "username": row['username'],
             "password": row['password'],
             "first_name": row['first_name'],
             "last_name": row['last_name'],
             }
-        if row["street_address"] != "None":
+        if row["street_address1"] != "None":
             address = [
-                        {"street_address": row['street_address'],
-                        "city": row['city'],
-                        "state": row['state'],
-                        "zipcode": row['zipcode'],
-                        "country": row['country']}
+                        {"street_address": row['street_address1'],
+                        "city": row['city1'],
+                        "state": row['state1'],
+                        "zipcode": row['zipcode1'],
+                        "country": row['country1']}
                 ]
             data["addresses"] = address
+            payload = json.dumps(data)
+            context.resp = requests.post(create_url, data=payload, headers=headers)
+            if bool(row['several_addresses']) == True and row["street_address2"] != "None":
+              context.resp = requests.get(context.base_url + '/api/customers', headers=headers)
+              i = 0
+              for customer in context.resp.json():
+                if num_customer == i:
+                  current_customer = customer
+                  break
+                i += 1
+            
+              new_address = {"street_address": row['street_address2'],
+                        "city": row['city2'],
+                        "state": row['state2'],
+                        "zipcode": row['zipcode2'],
+                        "country": row['country2'],
+                        "customer_id": current_customer["id"],
+                        "address_id": current_customer["addresses"][0]["address_id"] + 1}
+
+              BASE_API = "{}/{}/addresses".format(create_url, 
+                                    str(new_address["customer_id"]))
+             
+              context.resp = requests.post(BASE_API, data=json.dumps(new_address), headers=headers)
+              expect(context.resp.status_code).to_equal(201)
         else:
             data["addresses"] = []
-        payload = json.dumps(data)
-        context.resp = requests.post(create_url, data=payload, headers=headers)
+            payload = json.dumps(data)
+            context.resp = requests.post(create_url, data=payload, headers=headers)
         expect(context.resp.status_code).to_equal(201)
        
