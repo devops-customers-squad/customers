@@ -566,6 +566,11 @@ $(function () {
 
         var address_id = $("#addr_id").val();
 
+        if (address_id == "") {
+            flash_message("Invalid request: missing Address ID")
+            return
+        }
+
         var ajax = $.ajax({
             type: "GET",
             url: "/api/customers/" + customer_id+"/addresses/" +address_id,
@@ -582,11 +587,8 @@ $(function () {
         ajax.fail(function(res){
             flash_message(res.responseJSON.message)
         });
-
     });
 
-    /*
-    //Haven't implemented yet
     // ****************************************
     // Delete an Address
     // ****************************************
@@ -601,6 +603,11 @@ $(function () {
 
         var address_id = $("#addr_id").val();
 
+        if (address_id == "") {
+            flash_message("Invalid request: missing Address ID")
+            return
+        }
+
         var ajax = $.ajax({
             type: "DELETE",
             url: "/api/customers/" + customer_id+"/addresses/" +address_id,
@@ -608,16 +615,15 @@ $(function () {
         })
 
         ajax.done(function(res){
-            clear_form_data()
+            clear_address_data()
             flash_message("Address has been Deleted!")
         });
 
         ajax.fail(function(res){
-            flash_message("Server error!")
+            flash_message(res.responseJSON.message)
         });
     });
 
-*/
     // ****************************************
     // //RETRIEVE A CUSTOMER'S ADDRESSES
     // ****************************************
