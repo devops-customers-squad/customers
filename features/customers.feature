@@ -674,3 +674,22 @@ Scenario: Create an address for a customer with missing customer id
     And I set the "Zip" to "Test Zip"
     And I press the "Create Customer Address" button
     Then I should see the message "Invalid request: missing Customer ID"
+
+Scenario: Delete a customer's address
+    When I visit the "Home Page"
+    And I set the "Username" to "user1"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+
+    # Delete the address
+    When I copy the "Address ID" field
+    And I press the "Delete Address" button
+    Then I should see the message "Address has been Deleted!"
+    When I paste the "Address ID" field
+    And I press the "Retrieve Address" button
+    Then the "Address ID" field should be empty
+    And the "Street Address" field should be empty
+    And the "City" field should be empty
+    And the "State" field should be empty
+    And the "Country" field should be empty
+    And the "Zip" field should be empty
