@@ -16,11 +16,6 @@ Scenario: The server is running
     Then I should see "Customers RESTful Service" in the title
     And I should not see "404 Not Found"
 
-Scenario: The server is running
-    When I visit the "Home Page"
-    Then I should see "Customers RESTful Service" in the title
-    And I should not see "404 Not Found"
-
 Scenario: Create a customer with same username
     When I visit the "Home Page"
     And I set the "Username" to "user1"
