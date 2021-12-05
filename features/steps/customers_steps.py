@@ -40,7 +40,7 @@ def step_impl(context):
     
     # load the database with new customers
     create_url = context.base_url + '/api/customers'
-    for row in context.table:
+    for row in context.table: 
         data = {
             "username": row['username'],
             "password": row['password'],

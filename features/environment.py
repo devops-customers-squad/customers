@@ -6,7 +6,7 @@ import json
 from selenium import webdriver
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
-BASE_URL = getenv('BASE_URL', 'https://nyu-customer-service-fall2101-dev.us-south.cf.appdomain.cloud/')
+BASE_URL = getenv('BASE_URL', 'https://nyu-customer-service-fall2101-dev.us-south.cf.appdomain.cloud')
 
     
 def before_all(context):
