@@ -552,26 +552,6 @@ Scenario: Clear Address works
     And the "Country" field should be empty
     And the "Zip" field should be empty
     And the "Customer ID" field should not be empty
-    # Create new address for customer
-    When I set the "Street Address" to "456 Testing"
-    And I set the "City" to "Test City"
-    And I set the "State" to "Test State"
-    And I set the "Country" to "USA"
-    And I set the "Zip" to "Test Zip"
-    And I press the "Create Customer Address" button
-    Then I should see the message "Success"
-    # Search for customer's addresses
-    When I press the "Clear Address" button
-    And I press the "Search for Customer Addresses" button
-    Then I should see the message "Success"
-    And I should see 2 rows in the address results
-    And I should see "123" in the "Street Address" field
-    And I should see "New York" in the "City" field
-    And I should see "NY" in the "State" field
-    And I should see "USA" in the "Country" field
-    And I should see "10000" in the "Zip" field
-    And I should see "123" in the address results
-    And I should see "456" in the address results
 
 Scenario: Create an address for a customer with an existing address
     When I visit the "Home Page"

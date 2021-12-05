@@ -36,16 +36,16 @@ def mapping_name(key):
     return "cust_id"
   elif key == "Address ID":
     return "addr_id"
-  elif key in ["Username", "First Name", "Last Name", "Password", "Locked"]:
+  elif key in set(["Username", "First Name", "Last Name", "Password", "Locked"]):
     return "cust_" + key.lower().replace(" ", "_")
-  elif key in ["Street Address", "Zip", "City", "State", "Country"]:
+  elif key in set(["Street Address", "Zip", "City", "State", "Country"]):
     return "addr_" + key.lower().replace(" ", "_")
-  elif key in ["Retrieve", "Create Customer", "Update Customer", 
+  elif key in set(["Retrieve", "Create Customer", "Update Customer", 
               "Search for Customer", "Query by Username Prefix",
-              "Clear All", "Lock", "Unlock", "Delete"]:
+              "Clear All", "Lock", "Unlock", "Delete"]):
     return "cust-" +key.split(" ")[0].lower() +"-btn"
-  elif key in ["Search for Customer Addresses", "Update Customer Address", 
-              "Create Customer Address", "Clear Address", "Retrieve Address", "Delete Address"]:
+  elif key in set(["Search for Customer Addresses", "Update Customer Address", 
+              "Create Customer Address", "Clear Address", "Retrieve Address", "Delete Address"]):
     return "addr-" +key.split(" ")[0].lower() +"-btn"
   else:
     raise "key not in above category"
