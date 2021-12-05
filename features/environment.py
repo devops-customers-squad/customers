@@ -1,13 +1,15 @@
 """
 Environment for Behave Testing
 """
-from os import getenv
+import os
 import json
 from selenium import webdriver
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
 BASE_URL = getenv('BASE_URL', 'https://nyu-customer-service-fall2101-dev.us-south.cf.appdomain.cloud')
 
+if 'BASE_URL' in os.environ:
+    BASE_URL = os.environ['BASE_URL']
     
 def before_all(context):
     """ Executed once before all tests """
