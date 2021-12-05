@@ -688,3 +688,26 @@ Scenario: Delete a customer's address
     And the "State" field should be empty
     And the "Country" field should be empty
     And the "Zip" field should be empty
+
+Scenario: List customer addresses
+    When I visit the "Home Page"
+    And I set the "Username" to "user1"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+
+    # Create a new address for the customer
+    When I press the "Clear Address" button
+    And I set the "Street Address" to "test street"
+    And I set the "City" to "test city"
+    And I set the "State" to "test state"
+    And I set the "Zip" to "test zip"
+    And I set the "Country" to "test country"
+    And I press the "Create Customer Address" button
+    Then I should see the message "Success"
+
+    # Check if the new address is in the address result
+    When I press the "Clear Address" button
+    And I press the "Search for Customer Addresses" button
+    Then I should see the message "Success"
+    And I should see "123" in the address results
+    And I should see "test street" in the address results
