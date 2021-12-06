@@ -135,7 +135,7 @@ $(function () {
     function add_single_address(res) {
         $("#address_search_results").empty();
         $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
-        var header = create_address_results_header
+        var header = create_address_results_header()
         $("#address_table").append(header);
         add_address_result(res);
     }
@@ -149,7 +149,7 @@ $(function () {
     function add_multiple_addresses(res) {
         $("#address_search_results").empty();
         $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
-        var header = create_address_results_header
+        var header = create_address_results_header()
         $("#address_table").append(header);
 
         var first_address = null;
