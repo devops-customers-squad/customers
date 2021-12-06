@@ -616,6 +616,7 @@ Scenario: Create an address for a customer without an existing address
     And the "State" field should be empty
     And the "Country" field should be empty
     And the "Zip" field should be empty
+    And I should see 0 rows in the address results
     # Create new address for customer
     When I press the "Clear Address" button
     And I set the "Street Address" to "456 Testing"
