@@ -402,12 +402,21 @@ $(function () {
             }
         }
 
-        var ajax = $.ajax({
-            type: "GET",
-            url: "/api/customers?" + queryString,
-            contentType: "application/json"
-        })
-
+        if (queryString) {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers?" + queryString,
+                contentType: "application/json"
+            })
+        }
+        else {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers",
+                contentType: "application/json"
+            })
+        }
+        
         ajax.done(function(res){
             clear_form_data()
             var first_customer = add_multiple_customers(res)
