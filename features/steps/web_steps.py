@@ -172,7 +172,7 @@ def step_impl(context, name):
 def step_impl(context):
     element = context.driver.find_element_by_id('address_search_results')
     element = element.find_elements_by_tag_name('tr')
-    error_msg = "I should see '%s' rows in the address results, but there are %s" % (1, len(element))
+    error_msg = "I should see '%s' row in the address results, but there are %s" % (1, len(element))
     ensure(len(element) == 2, True, error_msg)
 
 @then('I should see {number} rows in the address results')
