@@ -564,18 +564,20 @@ Scenario: Create an address for a customer with an existing address
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    Then I should see "user1" in the "Username" field
+    Then I should see the message "Success"
+    And I should see "user1" in the "Username" field
     When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
+    And I should see "123" in the address results
     And I should see "123" in the "Street Address" field
     And I should see "New York" in the "City" field
     And I should see "NY" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
-    And I should see "123" in the address results
+    
     # Create new address for customer
     When I press the "Clear Address" button
     And I set the "Street Address" to "456 Testing"
@@ -585,23 +587,20 @@ Scenario: Create an address for a customer with an existing address
     And I set the "Zip" to "Test Zip"
     And I press the "Create Customer Address" button
     Then I should see the message "Success"
+
     # Search for customer's addresses
     When I press the "Clear Address" button
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see "123" in the "Street Address" field
-    And I should see "New York" in the "City" field
-    And I should see "NY" in the "State" field
-    And I should see "USA" in the "Country" field
-    And I should see "10000" in the "Zip" field
     And I should see "123" in the address results
-    And I should see "456" in the address results
+    And I should see "456 Testing" in the address results
 
 Scenario: Create an address for a customer without an existing address
     When I visit the "Home Page"
     And I set the "Username" to "user4"
     And I press the "Search for Customer" button
-    Then I should see "user4" in the "Username" field
+    Then I should see the message "Success"
+    And I should see "user4" in the "Username" field
     When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
@@ -613,6 +612,7 @@ Scenario: Create an address for a customer without an existing address
     And the "Country" field should be empty
     And the "Zip" field should be empty
     And I should see 0 rows in the address results
+
     # Create new address for customer
     When I press the "Clear Address" button
     And I set the "Street Address" to "456 Testing"
@@ -622,6 +622,7 @@ Scenario: Create an address for a customer without an existing address
     And I set the "Zip" to "Test Zip"
     And I press the "Create Customer Address" button
     Then I should see the message "Success"
+
     # Search for customer's addresses
     When I press the "Clear Address" button
     And I press the "Search for Customer Addresses" button
