@@ -76,11 +76,7 @@ Scenario: Read a customer without an address
     When I visit the "Home Page"
     And I set the "First Name" to "Tim"
     And I press the "Search for Customer" button
-<<<<<<< HEAD
     Then I should see "user4" in the "Username" field
-=======
-    Then I should see the message "Success"
->>>>>>> 73c0069 (Fixing feature scneairo issues causing occasional failure)
     When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
