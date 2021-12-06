@@ -536,7 +536,6 @@ Scenario: Clear Address works
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see 1 row in the address results
     And I should see "123" in the "Street Address" field
     And I should see "New York" in the "City" field
     And I should see "NY" in the "State" field
@@ -564,7 +563,6 @@ Scenario: Clear Address works
     When I press the "Clear Address" button
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see 2 rows in the address results
     And I should see "123" in the "Street Address" field
     And I should see "New York" in the "City" field
     And I should see "NY" in the "State" field
@@ -582,7 +580,6 @@ Scenario: Create an address for a customer with an existing address
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see 1 row in the address results
     And I should see "123" in the "Street Address" field
     And I should see "New York" in the "City" field
     And I should see "NY" in the "State" field
@@ -602,7 +599,6 @@ Scenario: Create an address for a customer with an existing address
     When I press the "Clear Address" button
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see 2 rows in the address results
     And I should see "123" in the "Street Address" field
     And I should see "New York" in the "City" field
     And I should see "NY" in the "State" field
