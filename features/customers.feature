@@ -550,7 +550,6 @@ Scenario: Clear Address works
     And I should see "NY" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
-    And I should see 1 row in the address results
     # Clear address information
     When I press the "Clear Address" button
     Then the "Address ID" field should be empty
@@ -559,7 +558,6 @@ Scenario: Clear Address works
     And the "State" field should be empty
     And the "Country" field should be empty
     And the "Zip" field should be empty
-    And I should see 0 rows in the address results
     And the "Customer ID" field should not be empty
 
 Scenario: Create an address for a customer with an existing address
@@ -577,7 +575,6 @@ Scenario: Create an address for a customer with an existing address
     And I should see "NY" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
-    And I should see 1 row in the address results
     And I should see "123" in the address results
     # Create new address for customer
     When I press the "Clear Address" button
@@ -597,7 +594,6 @@ Scenario: Create an address for a customer with an existing address
     And I should see "NY" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
-    And I should see 2 rows in the address results
     And I should see "123" in the address results
     And I should see "456" in the address results
 
