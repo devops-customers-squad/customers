@@ -168,9 +168,10 @@ Scenario: Update a customer with empty strings
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
+    Then I should see the message "Success"
 
     # Update this cusotmer with empty first Name
-    And I set the "First Name" to ""
+    When I set the "First Name" to ""
     And I press the "Update Customer" button
     Then I should see the message "Invalid Customer update: missing first_name"
 
@@ -508,9 +509,10 @@ Scenario: Update customer address
     When I visit the "Home Page"
     And I set the "Username" to "user2"
     And I press the "Search for Customer" button
+    Then I should see the message "Success"
 
     # Update the address
-    And I set the "Street Address" to "That Street"
+    When I set the "Street Address" to "That Street"
     And I set the "City" to "New Jersey"
     And I set the "State" to "NJ"
     And I set the "Country" to "America"
@@ -546,7 +548,6 @@ Scenario: Clear Address works
     And I should see "NY" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
-    And I should see "123" in the address results
     # Clear address information
     When I press the "Clear Address" button
     Then the "Address ID" field should be empty
@@ -555,6 +556,7 @@ Scenario: Clear Address works
     And the "State" field should be empty
     And the "Country" field should be empty
     And the "Zip" field should be empty
+    And I should see 0 rows in the address results
     And the "Customer ID" field should not be empty
 
 Scenario: Create an address for a customer with an existing address
@@ -636,7 +638,8 @@ Scenario: Create an address for a customer with missing information
     When I visit the "Home Page"
     And I set the "Username" to "user4"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see the message "Success"
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I set the "Street Address" to "456 Testing"

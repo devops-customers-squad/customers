@@ -171,16 +171,16 @@ def step_impl(context, name):
 @then('I should see 1 row in the address results')
 def step_impl(context):
     element = context.driver.find_element_by_id('address_search_results')
-    element = element.find_elements_by_tag_name('table')
-    error_msg = "I should see '%s' rows in the address results" % (1)
-    ensure(len(element) == 2, False, error_msg)
+    element = element.find_elements_by_tag_name('tr')
+    error_msg = "I should see '%s' rows in the address results, but there are %s" % (1, len(element))
+    ensure(len(element) == 2, True, error_msg)
 
 @then('I should see {number} rows in the address results')
 def step_impl(context, number):
     element = context.driver.find_element_by_id('address_search_results')
-    element = element.find_elements_by_tag_name('table')
-    error_msg = "I should see %s rows in the address results but there are %s" % (number, len(element))
-    ensure(len(element) == int(number) + 1, False, error_msg)
+    element = element.find_elements_by_tag_name('tr')
+    error_msg = "I should see %s rows in the address results, but there are %s" % (number, len(element))
+    ensure(len(element) == int(number) + 1, True, error_msg)
 
 @then('I should see the message "{message}"')
 def step_impl(context, message):
