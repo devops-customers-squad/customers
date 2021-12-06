@@ -48,9 +48,13 @@ $(function () {
         $("#cust_username").val("");
         $("#cust_password").val("");
         $("#cust_locked").val("");
-        $("#customer_table tr").remove(); 
-        $("#customer_table").append(create_customer_results_header());
+        clear_customer_data();
         clear_address_data();
+    }
+
+    function clear_customer_data() {
+        $("#customer_table tr").remove(); 
+        $("#customer_table").append(create_customer_results_header()); 
     }
 
     // Updates the flash message area
@@ -371,6 +375,7 @@ $(function () {
     // Clear the form
     // ****************************************
     $("#cust-clear-btn").click(function () {
+        $("#flash_message").empty();
         clear_form_data()
     });
 
@@ -504,6 +509,8 @@ $(function () {
             data: JSON.stringify(data),
         });
 
+        clear_customer_data()
+        clear_address_data()
         ajax.done(function(res){
             update_address_form(res)
             flash_message("Success")
@@ -549,6 +556,7 @@ $(function () {
             })
 
         ajax.done(function(res){
+            clear_customer_data()
             clear_address_data()
             res.id = customer_id
             update_address_form(res)
@@ -586,6 +594,7 @@ $(function () {
             contentType: "application/json",
         })
 
+        clear_customer_data()
         clear_address_data()
         ajax.done(function(res){
             add_single_address(res)
@@ -624,6 +633,7 @@ $(function () {
         })
 
         ajax.done(function(res){
+            clear_customer_data()
             clear_address_data()
             flash_message("Address has been Deleted!")
         });
@@ -702,11 +712,10 @@ $(function () {
             })
         }
 
+        clear_customer_data()
         clear_address_data()
         ajax.done(function(res){
-            console.log("HERE")
             var first_address = add_multiple_addresses(res)
-            console.log("FIRST ADDRESS" + first_address)
             update_address_form(first_address)
             flash_message("Success")
         });
@@ -720,6 +729,7 @@ $(function () {
     // Clear the Address form
     // ****************************************
     $("#addr-clear-btn").click(function () {
+        $("#flash_message").empty();
         clear_address_data()
     });
 
