@@ -76,7 +76,8 @@ Scenario: Read a customer without an address
     When I visit the "Home Page"
     And I set the "First Name" to "Tim"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user4" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Retrieve" button
@@ -101,7 +102,8 @@ Scenario: Read a customer with an address
     When I visit the "Home Page"
     And I set the "First Name" to "John"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user2" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Retrieve" button
@@ -225,7 +227,8 @@ Scenario: Delete a customer with id provided
     When I visit the "Home Page"    
     And I set the "First Name" to "John"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user2" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Delete" button
@@ -531,7 +534,8 @@ Scenario: Clear Address works
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user1" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
@@ -557,7 +561,8 @@ Scenario: Create an address for a customer with an existing address
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user1" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
@@ -595,7 +600,8 @@ Scenario: Create an address for a customer without an existing address
     When I visit the "Home Page"
     And I set the "Username" to "user4"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user4" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button

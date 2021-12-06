@@ -678,11 +678,20 @@ $(function () {
             }
         }
 
-        var ajax = $.ajax({
-            type: "GET",
-            url: "/api/customers/" + customer_id+"/addresses?"  + queryString,
-            contentType: "application/json",
-        })
+        if (queryString) {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers/" + customer_id+"/addresses?"  + queryString,
+                contentType: "application/json",
+            })
+        }
+        else {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers/" + customer_id+"/addresses",
+                contentType: "application/json",
+            })
+        }
 
         clear_address_data()
         ajax.done(function(res){
