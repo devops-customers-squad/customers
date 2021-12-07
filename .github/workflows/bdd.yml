@@ -1,4 +1,4 @@
-name: TDD Tests
+name: BDD Tests
 on:
   push:
     branches:
@@ -14,7 +14,6 @@ jobs:
 
     # Required services    
     services:
-      # Label used to access the service container
       postgres:
         image: postgres
         env:
@@ -22,7 +21,6 @@ jobs:
           POSTGRES_DB: postgres_db
         ports:
           - 5432:5432
-        # Set health checks to wait until redis has started
         options: >-
           --health-cmd "pg_isready"
           --health-interval 10s
@@ -33,11 +31,24 @@ jobs:
         uses: actions/checkout@v2
       - name: Install dependencies
         run: |
+          apt-get update
+          apt-get install -y curl wget python3-selenium
+      - name: Install packages
+        run: |
           python -m pip install --upgrade pip wheel
           pip install -r requirements.txt
-      - name: Run unit tests with nose
-        run: nosetests
+      - name: Run the server locally
+        run: |
+          echo "\n*** CREATING DB ***\n"
+          curl -X PUT postgres://postgres:postgres@postgres:5432/postgres_db
+          echo "\n*** STARTING APPLICATION ***\n"
+          gunicorn --log-level=critical --bind=0.0.0.0:5000 service:app &
+          sleep 5
+          curl -I http://localhost:5000/
+          echo "\n*** SERVER IS RUNNING ***"
         env:
           DATABASE_URI: postgres://postgres:postgres@postgres:5432/postgres_db
       - name: Upload coverage report to codecov.io
         uses: codecov/codecov-action@v2 
+      - name: Run BDD tests with behave
+        run: behave
