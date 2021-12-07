@@ -1,6 +1,7 @@
 # customers
-[![build](https://github.com/devops-customers-squad/customers/actions/workflows/ci.yml/badge.svg)](https://github.com/devops-customers-squad/customers/actions/workflows/ci.yml)
+[![build](https://github.com/devops-customers-squad/customers/actions/workflows/tdd.yml/badge.svg)](https://github.com/devops-customers-squad/customers/actions/workflows/tdd.yml)
 [![codecov](https://codecov.io/gh/devops-customers-squad/customers/branch/main/graph/badge.svg?token=4E1ONO9584)](https://codecov.io/gh/devops-customers-squad/customers)
+[![build](https://github.com/devops-customers-squad/customers/actions/workflows/bdd.yml/badge.svg)](https://github.com/devops-customers-squad/customers/actions/workflows/bdd.yml)
 
 This repository contains the implementation of the customers RESTful Flask service to be used by the eCommerce site.
 
