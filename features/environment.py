@@ -6,7 +6,7 @@ import json
 from selenium import webdriver
 
 WAIT_SECONDS = int(os.getenv('WAIT_SECONDS', '60'))
-BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
+BASE_URL = os.getenv('BASE_URL', 'nyu-customer-service-fall2101-dev.us-south.cf.appdomain.cloud')
 
 if 'BASE_URL' in os.environ:
     BASE_URL = os.environ['BASE_URL']
