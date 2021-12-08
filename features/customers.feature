@@ -76,7 +76,8 @@ Scenario: Read a customer without an address
     When I visit the "Home Page"
     And I set the "First Name" to "Tim"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user4" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Retrieve" button
@@ -101,7 +102,8 @@ Scenario: Read a customer with an address
     When I visit the "Home Page"
     And I set the "First Name" to "John"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user2" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Retrieve" button
@@ -166,27 +168,31 @@ Scenario: Update a customer with empty strings
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
+    Then I should see the message "Success"
 
     # Update this cusotmer with empty first Name
-    And I set the "First Name" to ""
+    When I set the "First Name" to ""
     And I press the "Update Customer" button
     Then I should see the message "Invalid Customer update: missing first_name"
 
     # Update this cusotmer with empty last Name
     When I press the "Retrieve" button
-    And I set the "Last Name" to ""
+    Then I should see the message "Success"
+    When I set the "Last Name" to ""
     And I press the "Update Customer" button
     Then I should see the message "Invalid Customer update: missing last_name"
 
     # Update this cusotmer with empty username
     When I press the "Retrieve" button
-    And I set the "Username" to ""
+    Then I should see the message "Success"
+    When I set the "Username" to ""
     And I press the "Update Customer" button
     Then I should see the message "Invalid Customer update: missing username"
 
     # Update this cusotmer with empty password
     When I press the "Retrieve" button
-    And I set the "Password" to ""
+    Then I should see the message "Success"
+    When I set the "Password" to ""
     And I press the "Update Customer" button
     Then I should see the message "Invalid Customer update: missing password"
 
@@ -225,7 +231,8 @@ Scenario: Delete a customer with id provided
     When I visit the "Home Page"    
     And I set the "First Name" to "John"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user2" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Delete" button
@@ -505,9 +512,10 @@ Scenario: Update customer address
     When I visit the "Home Page"
     And I set the "Username" to "user2"
     And I press the "Search for Customer" button
+    Then I should see the message "Success"
 
     # Update the address
-    And I set the "Street Address" to "That Street"
+    When I set the "Street Address" to "That Street"
     And I set the "City" to "New Jersey"
     And I set the "State" to "NJ"
     And I set the "Country" to "America"
@@ -531,7 +539,8 @@ Scenario: Clear Address works
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see "user1" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
@@ -541,7 +550,6 @@ Scenario: Clear Address works
     And I should see "NY" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
-    And I should see "123" in the address results
     # Clear address information
     When I press the "Clear Address" button
     Then the "Address ID" field should be empty
@@ -551,41 +559,25 @@ Scenario: Clear Address works
     And the "Country" field should be empty
     And the "Zip" field should be empty
     And the "Customer ID" field should not be empty
-    # Create new address for customer
-    When I set the "Street Address" to "456 Testing"
-    And I set the "City" to "Test City"
-    And I set the "State" to "Test State"
-    And I set the "Country" to "USA"
-    And I set the "Zip" to "Test Zip"
-    And I press the "Create Customer Address" button
-    Then I should see the message "Success"
-    # Search for customer's addresses
-    When I press the "Clear Address" button
-    And I press the "Search for Customer Addresses" button
-    Then I should see the message "Success"
-    And I should see "123" in the "Street Address" field
-    And I should see "New York" in the "City" field
-    And I should see "NY" in the "State" field
-    And I should see "USA" in the "Country" field
-    And I should see "10000" in the "Zip" field
-    And I should see "123" in the address results
-    And I should see "456" in the address results
 
 Scenario: Create an address for a customer with an existing address
     When I visit the "Home Page"
     And I set the "Username" to "user1"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see the message "Success"
+    And I should see "user1" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
+    And I should see "123" in the address results
     And I should see "123" in the "Street Address" field
     And I should see "New York" in the "City" field
     And I should see "NY" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "10000" in the "Zip" field
-    And I should see "123" in the address results
+    
     # Create new address for customer
     When I press the "Clear Address" button
     And I set the "Street Address" to "456 Testing"
@@ -595,23 +587,21 @@ Scenario: Create an address for a customer with an existing address
     And I set the "Zip" to "Test Zip"
     And I press the "Create Customer Address" button
     Then I should see the message "Success"
+
     # Search for customer's addresses
     When I press the "Clear Address" button
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see "123" in the "Street Address" field
-    And I should see "New York" in the "City" field
-    And I should see "NY" in the "State" field
-    And I should see "USA" in the "Country" field
-    And I should see "10000" in the "Zip" field
     And I should see "123" in the address results
-    And I should see "456" in the address results
+    And I should see "456 Testing" in the address results
 
 Scenario: Create an address for a customer without an existing address
     When I visit the "Home Page"
     And I set the "Username" to "user4"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see the message "Success"
+    And I should see "user4" in the "Username" field
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I press the "Search for Customer Addresses" button
@@ -621,6 +611,8 @@ Scenario: Create an address for a customer without an existing address
     And the "State" field should be empty
     And the "Country" field should be empty
     And the "Zip" field should be empty
+    And I should see 0 rows in the address results
+
     # Create new address for customer
     When I press the "Clear Address" button
     And I set the "Street Address" to "456 Testing"
@@ -630,23 +622,25 @@ Scenario: Create an address for a customer without an existing address
     And I set the "Zip" to "Test Zip"
     And I press the "Create Customer Address" button
     Then I should see the message "Success"
+
     # Search for customer's addresses
     When I press the "Clear Address" button
     And I press the "Search for Customer Addresses" button
     Then I should see the message "Success"
-    And I should see 1 row in the address results
     And I should see "456 Testing" in the "Street Address" field
     And I should see "Test City" in the "City" field
     And I should see "Test State" in the "State" field
     And I should see "USA" in the "Country" field
     And I should see "Test Zip" in the "Zip" field
+    And I should see 1 row in the address results
     And I should see "456" in the address results
 
 Scenario: Create an address for a customer with missing information
     When I visit the "Home Page"
     And I set the "Username" to "user4"
     And I press the "Search for Customer" button
-    And I copy the "Customer ID" field
+    Then I should see the message "Success"
+    When I copy the "Customer ID" field
     And I press the "Clear All" button
     And I paste the "Customer ID" field
     And I set the "Street Address" to "456 Testing"
@@ -684,3 +678,26 @@ Scenario: Delete a customer's address
     And the "State" field should be empty
     And the "Country" field should be empty
     And the "Zip" field should be empty
+
+Scenario: List customer addresses
+    When I visit the "Home Page"
+    And I set the "Username" to "user1"
+    And I press the "Search for Customer" button
+    Then I should see the message "Success"
+
+    # Create a new address for the customer
+    When I press the "Clear Address" button
+    And I set the "Street Address" to "test street"
+    And I set the "City" to "test city"
+    And I set the "State" to "test state"
+    And I set the "Zip" to "test zip"
+    And I set the "Country" to "test country"
+    And I press the "Create Customer Address" button
+    Then I should see the message "Success"
+
+    # Check if the new address is in the address result
+    When I press the "Clear Address" button
+    And I press the "Search for Customer Addresses" button
+    Then I should see the message "Success"
+    And I should see "123" in the address results
+    And I should see "test street" in the address results

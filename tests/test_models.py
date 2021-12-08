@@ -39,7 +39,7 @@ class TestYourResourceModel(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """ This runs once after the entire test suite """
-        pass
+        db.session.close()
 
     def setUp(self):
         """ This runs before each test """
@@ -50,7 +50,6 @@ class TestYourResourceModel(unittest.TestCase):
         """ This runs after each test """
         db.session.remove()
         db.drop_all()
-        db.get_engine().dispose()
 
     ######################################################################
     #  T E S T   C A S E S

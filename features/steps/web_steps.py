@@ -36,16 +36,16 @@ def mapping_name(key):
     return "cust_id"
   elif key == "Address ID":
     return "addr_id"
-  elif key in ["Username", "First Name", "Last Name", "Password", "Locked"]:
+  elif key in set(["Username", "First Name", "Last Name", "Password", "Locked"]):
     return "cust_" + key.lower().replace(" ", "_")
-  elif key in ["Street Address", "Zip", "City", "State", "Country"]:
+  elif key in set(["Street Address", "Zip", "City", "State", "Country"]):
     return "addr_" + key.lower().replace(" ", "_")
-  elif key in ["Retrieve", "Create Customer", "Update Customer", 
+  elif key in set(["Retrieve", "Create Customer", "Update Customer", 
               "Search for Customer", "Query by Username Prefix",
-              "Clear All", "Lock", "Unlock", "Delete"]:
+              "Clear All", "Lock", "Unlock", "Delete"]):
     return "cust-" +key.split(" ")[0].lower() +"-btn"
-  elif key in ["Search for Customer Addresses", "Update Customer Address", 
-              "Create Customer Address", "Clear Address", "Retrieve Address", "Delete Address"]:
+  elif key in set(["Search for Customer Addresses", "Update Customer Address", 
+              "Create Customer Address", "Clear Address", "Retrieve Address", "Delete Address"]):
     return "addr-" +key.split(" ")[0].lower() +"-btn"
   else:
     raise "key not in above category"
@@ -171,16 +171,16 @@ def step_impl(context, name):
 @then('I should see 1 row in the address results')
 def step_impl(context):
     element = context.driver.find_element_by_id('address_search_results')
-    element = element.find_elements_by_tag_name('table')
-    error_msg = "I should see '%s' rows in the address results" % (1)
-    ensure(len(element) == 2, False, error_msg)
+    element = element.find_elements_by_tag_name('tr')
+    error_msg = "I should see %s row in the address results, but there are %s" % (1, len(element))
+    ensure(len(element) -1 == 1, True, error_msg)
 
 @then('I should see {number} rows in the address results')
 def step_impl(context, number):
     element = context.driver.find_element_by_id('address_search_results')
-    element = element.find_elements_by_tag_name('table')
-    error_msg = "I should see %s rows in the address results but there are %s" % (number, len(element))
-    ensure(len(element) == int(number) + 1, False, error_msg)
+    element = element.find_elements_by_tag_name('tr')
+    error_msg = "I should see %s rows in the address results, but there are %s" % (number, len(element))
+    ensure(len(element) -1 == int(number), True, error_msg)
 
 @then('I should see the message "{message}"')
 def step_impl(context, message):

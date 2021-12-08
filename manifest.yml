@@ -3,7 +3,7 @@
 applications:
 - name: nyu-customer-service-fall2101
   path: .
-  instances: 2
+  instances: 1
   memory: 256M
   routes:
   # for Deploy Stage

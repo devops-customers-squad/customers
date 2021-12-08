@@ -48,9 +48,13 @@ $(function () {
         $("#cust_username").val("");
         $("#cust_password").val("");
         $("#cust_locked").val("");
-        $("#customer_table tr").remove(); 
-        $("#customer_table").append(create_customer_results_header());
+        clear_customer_data();
         clear_address_data();
+    }
+
+    function clear_customer_data() {
+        $("#customer_table tr").remove(); 
+        $("#customer_table").append(create_customer_results_header()); 
     }
 
     // Updates the flash message area
@@ -131,7 +135,7 @@ $(function () {
     function add_single_address(res) {
         $("#address_search_results").empty();
         $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
-        var header = create_address_results_header
+        var header = create_address_results_header()
         $("#address_table").append(header);
         add_address_result(res);
     }
@@ -145,7 +149,7 @@ $(function () {
     function add_multiple_addresses(res) {
         $("#address_search_results").empty();
         $("#address_search_results").append('<table style="width:100%" class="table-striped" id="address_table" cellpadding="10"></table>');
-        var header = create_address_results_header
+        var header = create_address_results_header()
         $("#address_table").append(header);
 
         var first_address = null;
@@ -371,6 +375,7 @@ $(function () {
     // Clear the form
     // ****************************************
     $("#cust-clear-btn").click(function () {
+        $("#flash_message").empty();
         clear_form_data()
     });
 
@@ -402,12 +407,21 @@ $(function () {
             }
         }
 
-        var ajax = $.ajax({
-            type: "GET",
-            url: "/api/customers?" + queryString,
-            contentType: "application/json"
-        })
-
+        if (queryString) {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers?" + queryString,
+                contentType: "application/json"
+            })
+        }
+        else {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers",
+                contentType: "application/json"
+            })
+        }
+        
         ajax.done(function(res){
             clear_form_data()
             var first_customer = add_multiple_customers(res)
@@ -495,6 +509,8 @@ $(function () {
             data: JSON.stringify(data),
         });
 
+        clear_customer_data()
+        clear_address_data()
         ajax.done(function(res){
             update_address_form(res)
             flash_message("Success")
@@ -540,6 +556,7 @@ $(function () {
             })
 
         ajax.done(function(res){
+            clear_customer_data()
             clear_address_data()
             res.id = customer_id
             update_address_form(res)
@@ -577,6 +594,7 @@ $(function () {
             contentType: "application/json",
         })
 
+        clear_customer_data()
         clear_address_data()
         ajax.done(function(res){
             add_single_address(res)
@@ -615,6 +633,7 @@ $(function () {
         })
 
         ajax.done(function(res){
+            clear_customer_data()
             clear_address_data()
             flash_message("Address has been Deleted!")
         });
@@ -678,17 +697,25 @@ $(function () {
             }
         }
 
-        var ajax = $.ajax({
-            type: "GET",
-            url: "/api/customers/" + customer_id+"/addresses?"  + queryString,
-            contentType: "application/json",
-        })
+        if (queryString) {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers/" + customer_id+"/addresses?"  + queryString,
+                contentType: "application/json",
+            })
+        }
+        else {
+            var ajax = $.ajax({
+                type: "GET",
+                url: "/api/customers/" + customer_id+"/addresses",
+                contentType: "application/json",
+            })
+        }
 
+        clear_customer_data()
         clear_address_data()
         ajax.done(function(res){
-            console.log("HERE")
             var first_address = add_multiple_addresses(res)
-            console.log("FIRST ADDRESS" + first_address)
             update_address_form(first_address)
             flash_message("Success")
         });
@@ -702,6 +729,7 @@ $(function () {
     // Clear the Address form
     // ****************************************
     $("#addr-clear-btn").click(function () {
+        $("#flash_message").empty();
         clear_address_data()
     });
 
